@@ -13,7 +13,8 @@ This is a data set where I really should remap for biological interpretation, bu
 ```mv AP.bfthresh1.1.MNaseHS.Ranges.dat AP.bfthresh1.1.MNaseHS.Ranges.dat.bed``` 
 ```mv RP.bfthresh1.1.MNaseHS.Ranges.dat RP.bfthresh1.1.MNaseHS.Ranges.dat.bed```
 
-## the output in v4 coordinates are ```AP.bfthresh1.1.MNaseHS.Ranges.AGPv4.bed``` and ```RP.bfthresh1.1.MNaseHS.Ranges.AGPv4.bed```
+ - the output in v4 coordinates are ```AP.bfthresh1.1.MNaseHS.Ranges.AGPv4.bed``` and ```RP.bfthresh1.1.MNaseHS.Ranges.AGPv4.bed```
+ 
 I included these files in this repo because I am not sure of the reproducibility of the ensembl conversion
 
 ### Then, the order of operations is
