@@ -11,6 +11,8 @@
     - B73 earshoot, [SRR2079442](https://www.ncbi.nlm.nih.gov/sra/SRX1073668[accn])
   - [Eichten et al., 2013](http://www.plantcell.org/content/25/8/2783.long)
      - B73 seedling leaf (all3), [SRR850328](https://www.ncbi.nlm.nih.gov/sra/SRX277460[accn])
+  - [West et al., 2014](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0105267)
+      - B73 H3K9me2 ChIP [SRR1482372](https://www.ncbi.nlm.nih.gov/sra/?term=SRR1482372)
      
 I also have flagleaf, but can't figure out where that comes from - I'll drop it?
 
