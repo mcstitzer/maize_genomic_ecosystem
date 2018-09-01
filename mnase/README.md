@@ -1,4 +1,4 @@
-## Mnase data from Rogers-Melnick et al 2016
+## MNase sensitivity data for chromatin accessibility
 
 This is a data set where I really should remap for biological interpretation, but I'm not finding the code to do so in a quick search. For now, I'll convert coordinates, but consider switching in the future.
 
@@ -16,3 +16,6 @@ This is a data set where I really should remap for biological interpretation, bu
 ## the output in v4 coordinates are ```AP.bfthresh1.1.MNaseHS.Ranges.AGPv4.bed``` and ```RP.bfthresh1.1.MNaseHS.Ranges.AGPv4.bed```
 I included these files in this repo because I am not sure of the reproducibility of the ensembl conversion
 
+### Then, the order of operations is
+1. `mnase_te_flanking.sh` to find overlaps between the the TE, flanking sequence, and MNase hypersensitive regions
+2. `subset_mnase_by_TEID.R` to count overlaps for each TE copy
