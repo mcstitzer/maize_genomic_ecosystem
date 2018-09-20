@@ -2,6 +2,8 @@ library(RColorBrewer)
 library(treemapify)
 library(cowplot)
 library(data.table)
+library(plyr)
+library(dplyr)
 
 source('../GenomeInfo.R')
 source('color_palette.R')
@@ -11,6 +13,7 @@ source('color_palette.R')
 ## could make these use GENOME to get the file name
 techar=fread('../te_characteristics/B73_TE_individual_copies.2018-09-19.txt')
 gene=fread('../genes/B73_closest_gene.2018-09-20.txt')
+colnames(gene)[3]='TEID'
 
 ind=merge(techar, gene, all=T)
 ind$ingene=ind$closest==0
@@ -231,7 +234,7 @@ dev.off()
 ############################################                               
 ### supp figure 2                  
 ############################################
-pdf('supp_TE_descriptors.pdf', 16,8)
+pdf(paste0('supp_TE_descriptors.', Sys.Date(), '.pdf'), 16,8)
 #tel=plotlargest('seqlen', 'TE Length (bp)')
 #age=plotlargest('mya', 'Age \n(million years)') + coord_cartesian(ylim=c(0,3))
 piece=plot_percentages('pieces', 'Proportion intact')
