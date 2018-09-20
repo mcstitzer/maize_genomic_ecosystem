@@ -24,4 +24,4 @@ te$disruptor=countOverlaps(te, type='within', ignore.strand=T)
 
 
 tt=data.frame(TEID=te$ID, chr=seqnames(te), start=start(te), end=end(te), strand=strand(te), source=te$source, type=te$type, sup=te$sup, fam=te$fam, tebp=te$bp, tespan=width(te), pieces=te$pieces, disruptor=te$disruptor)
-write.table(tt, paste0(GENOME, '_TE_individual_copies', System.Date(), '.txt'), quote=F, sep='\t', col.names=T, row.names=F)
+write.table(tt, paste0(GENOME, '_TE_individual_copies.', Sys.Date(), '.txt'), quote=F, sep='\t', col.names=T, row.names=F)
