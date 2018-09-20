@@ -6,7 +6,7 @@ source('../GenomeInfo.R')
 ## download subgenomes
 subgenomegff='B73v4.subgenome_reconstruction.gff3'
 if (!file.exists(subgenomegff)) {
-    setInternet2(TRUE)
+#    setInternet2(TRUE)
     download.file('ftp://ftp.gramene.org/pub/gramene/CURRENT_RELEASE/gff3/zea_mays/subGenome_A.gff3' ,'subGenome_A.gff3',method="auto")
     download.file('ftp://ftp.gramene.org/pub/gramene/CURRENT_RELEASE/gff3/zea_mays/subGenome_B.gff3' ,'subGenome_B.gff3',method="auto")
     system('cat subGenome_A.gff3 subGenome_B.gff3 > B73v4.subgenome_reconstruction.gff3')
