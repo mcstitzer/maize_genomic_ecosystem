@@ -8,7 +8,7 @@ library(reshape2)
 
 source('../GenomeInfo.R')
 te=TEDISJOINED
-me=fread('B73v4.filtered_disjoined_TEs.ecology.cytpatterns.out')
+me=fread(paste0(GENOME, '.filtered_disjoined_TEs.ecology.cytpatterns.out'))
 me$TEID=substr(me$"9_usercol", 4,24)
 
 colnames(me)[1:18]=c('chr', 'a', 'b', 'start', 'end', 'c', 'd', 'e', 'id', 'p_at', 'p_gc', 'A', 'C', 'G', 'T', 'N', 'other', 'seqlen')
@@ -49,7 +49,7 @@ write.table(mm_fam, 'B73v4_TE_methylatable.fam.txt', quote=F, sep='\t', row.name
 ## FLANKING ##########
 ######################
 
-me=fread('B73v4.filtered_disjoined_TEs.flank.cytpatterns.out')
+me=fread(paste0(GENOME, '.filtered_disjoined_TEs.flank.cytpatterns.out'))
 me$TEID=substr(me$"9_usercol", 4,24)
 
 colnames(me)[1:18]=c('chr', 'a', 'b', 'start', 'end', 'c', 'd', 'e', 'id', 'p_at', 'p_gc', 'A', 'C', 'G', 'T', 'N', 'other', 'seqlen')
@@ -81,7 +81,7 @@ mm_sup$nCG=mm_sup$CG/(mm_sup$seqlen-mm_sup$N)
 mm_sup$nCHG=(mm_sup$CAG + mm_sup$CTG + mm_sup$CCG)/(mm_sup$seqlen-mm_sup$N)  ## these are normalized, because, for example, a CHG could be double counted in CHG and CG if it were CCG
 mm_sup$nCHH=(mm_sup$CAA + mm_sup$CAT + mm_sup$CAC + mm_sup$CTA + mm_sup$CTT + mm_sup$CTC + mm_sup$CCC + mm_sup$CCA + mm_sup$CCT + mm_sup$TTG + mm_sup$ATG + mm_sup$GTG + mm_sup$TAG + mm_sup$AAG + mm_sup$GAG + mm_sup$GGG + mm_sup$TGG + mm_sup$AGG)/(mm_sup$seqlen-mm_sup$N)/2
 
-write.table(mm, 'B73v4_TE_methylatable.flank.txt', quote=F, sep='\t', row.names=F, col.names=T)
-write.table(mm_sup, 'B73v4_TE_methylatable.flank.superfam.txt', quote=F, sep='\t', row.names=F, col.names=T)
-write.table(mm_fam, 'B73v4_TE_methylatable.flank.fam.txt', quote=F, sep='\t', row.names=F, col.names=T)
+write.table(mm, paste0(GENOME, '_TE_methylatable.flank.txt'), quote=F, sep='\t', row.names=F, col.names=T)
+write.table(mm_sup, paste0(GENOME, '_TE_methylatable.flank.superfam.txt)', quote=F, sep='\t', row.names=F, col.names=T)
+write.table(mm_fam, paste0(GENOME, '_TE_methylatable.flank.fam.txt)', quote=F, sep='\t', row.names=F, col.names=T)
 
