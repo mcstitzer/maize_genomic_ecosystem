@@ -9,7 +9,6 @@ source('../GenomeInfo.R')
 ## download gene annotation if needed
 subgenomegff='Zea_mays.AGPv4.40.gff3.gz'
 if (!file.exists(subgenomegff)) {
-    setInternet2(TRUE)
     download.file('ftp://ftp.ensemblgenomes.org/pub/plants/release-40/gff3/zea_mays/Zea_mays.AGPv4.40.gff3.gz' ,'Zea_mays.AGPv4.40.gff3.gz',method="auto")
 #     system('gunzip Zea_mays.AGPv4.40.gff3.gz')
 }
@@ -46,6 +45,7 @@ te$closestgene.samestrand[queryHits(closest)]=g$notransc[subjectHits(closest)]
 te$closestgenetype.samestrand=NA
 te$closestgenetype.samestrand[queryHits(closest)]=as.character(g$type)[subjectHits(closest)]
 
+
 ## find closest gene, upstream (same strand) of TE (if TE is unstranded, this will always retrieve the closest TE on either strand!)
 closest.upstream=precede(te, g) ## this returns the index in g that 
 closest.upstreamdist=distance(te, g[closest.upstream,])
@@ -73,26 +73,26 @@ te$sup=substr(te$ID,1,3)
 te$fam=substr(te$ID,1,8)
 
 ## summarize across disjoint ranges by finding the minimum distance
-tg=as.data.frame(te[!is.na(te$closest),]) %>% group_by(sup, fam, ID) %>% summarize(closest=min(closest), 
+tg=as.data.frame(te[!is.na(te$closest),]) %>% group_by(sup, fam, ID) %>% dplyr::summarize(closest=min(closest), 
                                                               closestgene=closestgene[which.min(closest)],
                                                               closestgenetype=closestgenetype[which.min(closest)]
                                                               ### same strand
-                                                              summarize(closest.samestrand=min(closest.samestrand),
+                                                              dplyr::summarize(closest.samestrand=min(closest.samestrand),
                                                               closestgene.samestrand=closestgene.samestrand[which.min(closest.samestrand)],
                                                               closestgenetype.samestrand=closestgenetype.samestrand[which.min(closest.samestrand)],
                                                               ### upstream
-                                                              summarize(closest.upstream=min(closest.upstream),
+                                                              dplyr::summarize(closest.upstream=min(closest.upstream),
                                                               closestgene.upstream=closestgene.samestrand[which.min(closest.upstream)],
                                                               closestgenetype.upstream=closestgenetype.samestrand[which.min(closest.upstream)],
                                                               ### downstream
-                                                              summarize(closest.downstream=min(closest.downstream),
+                                                              dplyr::summarize(closest.downstream=min(closest.downstream),
                                                               closestgene.downstream=closestgene.downstream[which.min(closest.downstream)],
                                                               closestgenetype.downstream=closestgenetype.downstream[which.min(closest.downstream)]
 
                                                               
                                                               )
 
-write.table(tg, paste0(GENOMENAME, '_closest_gene.', System.Date(), '.txt'), quote=F, sep='\t', row.names=F, col.names=T)
+write.table(tg, paste0(GENOME, '_closest_gene.', Sys.Date(), '.txt'), quote=F, sep='\t', row.names=F, col.names=T)
 
 ## could summarize across families, not implemented here to save typing!
 #tg_fam=tg %>% group_by(sup, fam) %>% summarize(mean_dist=mean(closest, na.rm=T), 
