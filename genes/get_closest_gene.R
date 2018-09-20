@@ -92,6 +92,7 @@ tg=as.data.frame(te[!is.na(te$closest),]) %>% group_by(sup, fam, ID) %>% dplyr::
                                                               
                                                               )
 
+colnames(tg)[3]='TEID'
 write.table(tg, paste0(GENOME, '_closest_gene.', Sys.Date(), '.txt'), quote=F, sep='\t', row.names=F, col.names=T)
 
 ## could summarize across families, not implemented here to save typing!
