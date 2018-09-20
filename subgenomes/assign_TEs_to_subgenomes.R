@@ -28,13 +28,13 @@ s=data.frame(TEID=a$TEID, sup=substr(s$TEID,1,3), fam=substr(s$TEID,1,8), subgen
 
 table(s$sup, s$subgenome)/rowSums(table(s$sup, s$subgenome))
 
-write.table(s, paste0("B73v4_TE_subgenome.", System.Date(), ".txt"), quote=F, sep='\t', col.names=T, row.names=F)
+write.table(s, paste0(GENOME, "_TE_subgenome.", System.Date(), ".txt"), quote=F, sep='\t', col.names=T, row.names=F)
 
 s_fam=s %>% group_by(fam, sup) %>% dplyr::summarize(A=sum(subgenome=='A'), B=sum(subgenome=='B'))
-write.table(s_fam, "B73v4_TE_subgenome.fam.", System.Date(), ".txt", quote=F, sep='\t', col.names=T, row.names=F)
+write.table(s_fam, paste0(GENOME, "_TE_subgenome.fam.", System.Date(), ".txt"), quote=F, sep='\t', col.names=T, row.names=F)
 
 s_sup=s_fam %>% group_by(sup) %>% dplyr::summarize(A=sum(A, na.rm=T), B=sum(B, na.rm=T))
-write.table(s_sup, "B73v4_TE_subgenome.sup.", System.Date(), ".txt", quote=F, sep='\t', col.names=T, row.names=F)
+write.table(s_sup, paste0(GENOME, "_TE_subgenome.sup.", System.Date(), ".txt"), quote=F, sep='\t', col.names=T, row.names=F)
 
 ### report genome-wide proportions of bp in each subgenome
 gw=sum(width(a)[a$Subgenome=='A'])/(sum(width(a)[a$Subgenome=='A'])+sum(width(a)[a$Subgenome=='B']))
