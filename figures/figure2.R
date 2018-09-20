@@ -84,13 +84,15 @@ RIT5 = supChrFun5('RIT')
                               
 rightside=plot_grid(DHH, DTA, DTC, DTH, DTM, DTT, DTX, RLC, RLG, RLX, RIL, RIT, RST, labels=c('B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N'), ncol=1)
 bigones=plot_grid(DHH + theme(legend.position="none"), RLC + theme(legend.position="none"), RLG + theme(legend.position="none"), labels=c('B', 'C', 'D'), ncol=1, align='h')
-almostbig=plot_grid(DHH5+ theme(legend.position="none"), DTA5+ theme(legend.position="none"), RLC5+ theme(legend.position="none"), RLG5+ theme(legend.position="none"), labels=c('B', 'C', 'D', 'E', 'F', 'G'), ncol=1)
+almostbigH=plot_grid(DHH5+ theme(legend.position="none"), DTH5+ theme(legend.position="none"), RLC5+ theme(legend.position="none"), RLG5+ theme(legend.position="none"), labels=c('B', 'C', 'D', 'E', 'F', 'G'), ncol=1)
+almostbigT=plot_grid(DHH5+ theme(legend.position="none"), DTT5+ theme(legend.position="none"), RLC5+ theme(legend.position="none"), RLG5+ theme(legend.position="none"), labels=c('B', 'C', 'D', 'E', 'F', 'G'), ncol=1)
 bigones5=plot_grid(DHH5 + theme(legend.position="none"), RLC5 + theme(legend.position="none"), RLG5 + theme(legend.position="none"), labels=c('B', 'C', 'D'), ncol=1, align='h')
 
 #plot_grid(sups, rightside, labels=c('A', ''), ncol=2, align='v')
 plot_grid(sups, bigones, labels=c('A', ''), ncol=2, align='v')
 
-plot_grid(sups, almostbig, labels=c('A', ''), ncol=2, align='v')
+plot_grid(sups, almostbigH, labels=c('A', ''), ncol=2, align='v')
+plot_grid(sups, almostbigT, labels=c('A', ''), ncol=2, align='v')
 
 plot_grid(sups, bigones5, labels=c('A', ''), ncol=2, align='h', rel_widths = c(1.5, 1.1))
 
