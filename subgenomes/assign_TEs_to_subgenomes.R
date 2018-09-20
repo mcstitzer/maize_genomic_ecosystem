@@ -1,4 +1,5 @@
 library(dplyr)
+library(rtracklayer)
 
 ## loads TEFILE, TEDISJOINED, GENOMENAME, GENOME
 source('../GenomeInfo.R')
@@ -15,7 +16,7 @@ if (!file.exists(subgenomegff)) {
 system(paste0('bedtools intersect -names subgenome -wo -a ', TEDISJOINED ,' -b B73v4.subgenome_reconstruction.gff3 > B73v4_TE_subgenome.bedout.txt'))
 a=read.table('B73v4_TE_subgenome.bedout.txt', header=F)
 
-a$TEID=substr(a$V9, 4,27)
+a$TEID=substr(a$V9, 4,24)
 a$subgenome=sub(".*.Subgenome=", "", a$V18)
 a$subgenome=sub(";Ancestral.*","", a$subgenome)
 
@@ -24,19 +25,21 @@ a$subgenome=sub(";Ancestral.*","", a$subgenome)
 table(a$subgenome)
 
 
-s=data.frame(TEID=a$TEID, sup=substr(s$TEID,1,3), fam=substr(s$TEID,1,8), subgenome=a$subgenome)
+s=data.frame(TEID=a$TEID, sup=substr(a$TEID,1,3), fam=substr(a$TEID,1,8), subgenome=a$subgenome)
 
 table(s$sup, s$subgenome)/rowSums(table(s$sup, s$subgenome))
 
-write.table(s, paste0(GENOME, "_TE_subgenome.", System.Date(), ".txt"), quote=F, sep='\t', col.names=T, row.names=F)
+write.table(s, paste0(GENOME, "_TE_subgenome.", Sys.Date(), ".txt"), quote=F, sep='\t', col.names=T, row.names=F)
 
 s_fam=s %>% group_by(fam, sup) %>% dplyr::summarize(A=sum(subgenome=='A'), B=sum(subgenome=='B'))
-write.table(s_fam, paste0(GENOME, "_TE_subgenome.fam.", System.Date(), ".txt"), quote=F, sep='\t', col.names=T, row.names=F)
+write.table(s_fam, paste0(GENOME, "_TE_subgenome.fam.", Sys.Date(), ".txt"), quote=F, sep='\t', col.names=T, row.names=F)
 
 s_sup=s_fam %>% group_by(sup) %>% dplyr::summarize(A=sum(A, na.rm=T), B=sum(B, na.rm=T))
-write.table(s_sup, paste0(GENOME, "_TE_subgenome.sup.", System.Date(), ".txt"), quote=F, sep='\t', col.names=T, row.names=F)
+write.table(s_sup, paste0(GENOME, "_TE_subgenome.sup.", Sys.Date(), ".txt"), quote=F, sep='\t', col.names=T, row.names=F)
 
 ### report genome-wide proportions of bp in each subgenome
-gw=sum(width(a)[a$Subgenome=='A'])/(sum(width(a)[a$Subgenome=='A'])+sum(width(a)[a$Subgenome=='B']))
-write.table(gw, paste0('genome-wide-proportion-subgenomeA.', System.Date(), '.txt', quote=F, sep='\t', col.names=F, row.names=F)
+gwg=import.gff3('B73v4.subgenome_reconstruction.gff3')
+
+gw=sum(width(gwg)[gwg$Subgenome=='A'])/(sum(width(gwg)[gwg$Subgenome=='A'])+sum(width(gwg)[gwg$Subgenome=='B']))
+write.table(gw, paste0('genome-wide-proportion-subgenomeA.', Sys.Date(), '.txt'), quote=F, sep='\t', col.names=F, row.names=F)
 
