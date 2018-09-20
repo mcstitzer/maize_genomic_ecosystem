@@ -193,7 +193,7 @@ ingene=plot_percentages('ingene', 'Proportion in \ntranscript', invert=TRUE)
 #plot_grid(tel, age, cl, ingene, disr ,  labels = "AUTO", ncol = 1, align = 'v')
 #plot_grid(tel, cl, ingene, piece, disr + scale_x_discrete(labels=substr(names(largest10),1,3)[!duplicated(substr(names(largest10),1,3))]),  labels = "AUTO", ncol = 1, align = 'v')
 ## version with a legend.
-legend <- get_legend( ggplot(get_largest_quantile_backgroundbox('tebp'), aes(x=x, y=median, ymin=min, ymax=max, color=sup, fill=sup))+ geom_pointrange(size=1)+ 
+legend <- get_legend( ggplot(get_largest_quantile_backgroundbox('tebp'), aes(x=x, y=median, ymin=min, ymax=max, color=factor(sup, levels=c('DHH', 'DTA', 'DTC', 'DTH', 'DTM', 'DTT', 'DTX', 'RLC', 'RLG', 'RLX', 'RIL', 'RIT', 'RST')), fill=sup))+ geom_pointrange(size=1)+ 
                      theme(legend.title=element_blank())+ scale_color_manual(values=dd.col))
 #plots <- plot_grid(tel, age, cl, ingene, disr ,  labels = c('B', 'C', 'D', 'E', 'F'), ncol = 1, align = 'v')
 plots <- plot_grid(tel, cl, ingene, disr ,  labels = c('B', 'C', 'D', 'E'), ncol = 1, align = 'v')
@@ -241,7 +241,7 @@ piece=plot_percentages('pieces', 'Proportion intact')
 span=plotlargest('tespan', 'TE Span (bp)')
 
 ## version with a legend.
-legend <- get_legend( ggplot(get_largest_quantile_backgroundbox('tebp'), aes(x=x, y=median, ymin=min, ymax=max, color=sup, fill=sup))+ geom_pointrange(size=1)+ 
+legend <- get_legend( ggplot(get_largest_quantile_backgroundbox('tebp'), aes(x=x, y=median, ymin=min, ymax=max, color=factor(sup, levels=c('DHH', 'DTA', 'DTC', 'DTH', 'DTM', 'DTT', 'DTX', 'RLC', 'RLG', 'RLX', 'RIL', 'RIT', 'RST')), fill=sup))+ geom_pointrange(size=1)+ 
                      theme(legend.title=element_blank())+ scale_color_manual(values=dd.col))
 plots <- plot_grid(piece, span, labels = 'AUTO', ncol = 1, align = 'v')
 plot_grid(plots,legend, ncol = 2, align = 'v', labels='', rel_widths = c(1, .1))                              
@@ -257,7 +257,7 @@ anyprot=plot_percentages('anyprot', 'Protein coding', invert=T)
 ltrgag=plot_percentages('ltrgag', 'GAG', invert=T)
 ltrpol=plot_percentages('ltrpol', 'Polyprotein', invert=T)
 ltrauton=plot_percentages('ltrauton', 'All five LTR domains', invert=T)
-legend <- get_legend( ggplot(get_largest_quantile_backgroundbox('seqlen'), aes(x=x, y=median, ymin=min, ymax=max, color=sup, fill=sup))+ geom_pointrange(size=1)+ 
+legend <- get_legend( ggplot(get_largest_quantile_backgroundbox('seqlen'), aes(x=x, y=median, ymin=min, ymax=max, color=factor(sup, levels=c('DHH', 'DTA', 'DTC', 'DTH', 'DTM', 'DTT', 'DTX', 'RLC', 'RLG', 'RLX', 'RIL', 'RIT', 'RST')), fill=sup))+ geom_pointrange(size=1)+ 
                      theme(legend.title=element_blank())+ scale_color_manual(values=dd.col))
 plots <- plot_grid(anyprot, ltrgag, ltrpol, ltrauton,  labels = 'AUTO', ncol = 1, align = 'v')
 plot_grid(plots,legend, ncol = 2, align = 'v', labels='', rel_widths = c(1, .1))                              
