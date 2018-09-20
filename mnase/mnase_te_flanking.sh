@@ -1,7 +1,5 @@
 
-TEFILE=/home/mstitzer/projects/agpv4_te_annotation/ncbi_pseudomolecule/B73.structuralTEv2.2018-08-31.gff3.gz
-TEDISJOINED=/home/mstitzer/projects/agpv4_te_annotation/ncbi_pseudomolecule/B73.structuralTEv2.2018-08-31.disjoined.gff3.gz
-
+source('../GenomeInfo.sh')
 
 
 ## find overlaps with TEs
