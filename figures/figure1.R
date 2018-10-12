@@ -198,7 +198,7 @@ famplotbp=ggplot(fs, aes(
 
 
 # figure 1                               
-pdf(paste0('figure1.', Sys.Date(), '.pdf'), 20,8)
+pdf(paste0('figure1.', Sys.Date(), '.pdf'), 24,8)
 tel=plotlargest('tebp', 'TE Length (bp)')
 #age=plotlargest('mya', 'Age \n(million years)') + coord_cartesian(ylim=c(0,3))
 #piece=plot_percentages('pieces', 'Proportion intact')
@@ -209,12 +209,12 @@ ingene=plot_percentages('ingene', 'Proportion in \ntranscript', invert=TRUE)
 #plot_grid(tel, age, cl, ingene, disr ,  labels = "AUTO", ncol = 1, align = 'v')
 #plot_grid(tel, cl, ingene, piece, disr + scale_x_discrete(labels=substr(names(largest10),1,3)[!duplicated(substr(names(largest10),1,3))]),  labels = "AUTO", ncol = 1, align = 'v')
 ## version with a legend.
-legend <- get_legend( ggplot(get_largest_quantile_backgroundbox('tebp'), aes(x=x, y=median, ymin=min, ymax=max, color=factor(sup, levels=c('DHH', 'DTA', 'DTC', 'DTH', 'DTM', 'DTT', 'DTX', 'RLC', 'RLG', 'RLX', 'RIL', 'RIT', 'RST')), fill=sup))+ geom_pointrange(size=1)+ 
+legend <- get_legend( ggplot(get_largest_quantile_backgroundbox('tebp'), aes(x=x, y=median, ymin=min, ymax=max, color=factor(sup, levels=c('DHH', 'DTA', 'DTC', 'DTH', 'DTM', 'DTT', 'DTX', 'RLC', 'RLG', 'RLX', 'RIL', 'RIT', 'RST'))))+ geom_pointrange(size=1)+ 
                      theme(legend.title=element_blank())+ scale_color_manual(values=dd.col))
 #plots <- plot_grid(tel, age, cl, ingene, disr ,  labels = c('B', 'C', 'D', 'E', 'F'), ncol = 1, align = 'v')
 plots <- plot_grid(tel, cl, ingene, disr ,  labels = c('C', 'D', 'E', 'F'), ncol = 1, align = 'v')
-supplots <- plot_grid(tempfamplot, famplotbp, labels=c('A', 'B'), ncol=2, align='v')
-plot_grid(tempfamplot, plots,legend, ncol = 3, align = 'v', labels=c('A', '', ''), scale=c(0.96,1,1), rel_widths = c(0.35, 1, .1))                              
+supplots <- plot_grid(tempfamplot, famplotbp, labels=c('A', 'B'), ncol=2, align='v', scale=0.96)
+plot_grid(supplots, plots,legend, ncol = 3, align = 'v', labels=c('','', ''), scale=c(0.96,1,1), rel_widths = c(0.8, 1, .1))                              
 dev.off()                             
 
 
