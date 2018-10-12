@@ -18,4 +18,10 @@ ind=merge(techar, gene, all=T)
 ind$ingene=ind$closest==0
 
 
-data.frame(ind %>% group_by(substr(sup,1,2)) %>% summarize(bp=sum(tebp), meanbp=mean(tebp), medianbp=median(tebp), meangenedist=mean(closest, na.rm=T), mediangenedist=median(closest, na.rm=T), disrupted=sum(pieces!=1)/n(), disruptor=sum(disruptor>1)/n()))
+data.frame(ind %>% group_by(substr(sup,1,2)) %>% dplyr::summarize(bp=sum(tebp), meanbp=mean(tebp), medianbp=median(tebp), disrupted=sum(pieces!=1)/n(), disruptor=sum(disruptor>1)/n()))
+
+## nonuniform chr, results paragraph 2
+data.frame(ind %>% group_by(substr(sup,1,2)) %>% dplyr::summarize(meangenedist=mean(closest, na.rm=T), mediangenedist=median(closest, na.rm=T)))
+# for nonLTR as a whole!
+data.frame(ind %>% group_by(substr(sup,1,2) %in% c('RI', 'RS')) %>% dplyr::summarize(meangenedist=mean(closest, na.rm=T), mediangenedist=median(closest, na.rm=T)))
+## gene expression - needs reading in a ton more data!!!
