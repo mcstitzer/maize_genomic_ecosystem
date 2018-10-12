@@ -181,7 +181,20 @@ tempfamplot=ggplot(fs, aes(
     reflow = T) +  
    scale_fill_manual(values=dd.col) +
   theme(legend.position="none")
-
+                               
+## this one uses bp instead to contrast
+famplotbp=ggplot(fs, aes(
+  area = famcopynumber*avg_bp,
+  fill = sup,
+  subgroup = paste0(sup, '\n', round(supcopynumber*avg_bp_sup/1e6, digits=0), ' Mb'),
+  label = paste0(sup, '\n', round(supcopynumber*avg_bp_sup/1e6, digits=0), ' Mb'))) +
+  geom_treemap(color='gray') +
+  geom_treemap_subgroup_text(
+    colour = "grey10",
+    place = "center",
+    reflow = T) +  
+   scale_fill_manual(values=dd.col)+
+  theme(legend.position="none")
 
 
 # figure 1                               
@@ -199,7 +212,8 @@ ingene=plot_percentages('ingene', 'Proportion in \ntranscript', invert=TRUE)
 legend <- get_legend( ggplot(get_largest_quantile_backgroundbox('tebp'), aes(x=x, y=median, ymin=min, ymax=max, color=factor(sup, levels=c('DHH', 'DTA', 'DTC', 'DTH', 'DTM', 'DTT', 'DTX', 'RLC', 'RLG', 'RLX', 'RIL', 'RIT', 'RST')), fill=sup))+ geom_pointrange(size=1)+ 
                      theme(legend.title=element_blank())+ scale_color_manual(values=dd.col))
 #plots <- plot_grid(tel, age, cl, ingene, disr ,  labels = c('B', 'C', 'D', 'E', 'F'), ncol = 1, align = 'v')
-plots <- plot_grid(tel, cl, ingene, disr ,  labels = c('B', 'C', 'D', 'E'), ncol = 1, align = 'v')
+plots <- plot_grid(tel, cl, ingene, disr ,  labels = c('C', 'D', 'E', 'F'), ncol = 1, align = 'v')
+supplots <- plot_grid(tempfamplot, famplotbp, labels=c('A', 'B'), ncol=2, align='v')
 plot_grid(tempfamplot, plots,legend, ncol = 3, align = 'v', labels=c('A', '', ''), scale=c(0.96,1,1), rel_widths = c(0.35, 1, .1))                              
 dev.off()                             
 
