@@ -18,7 +18,7 @@ d = techar %>% group_by(sup) %>% dplyr::summarize(number.copies=n(),
 
 d=data.frame(class=c('DNA transposon', 'DNA transposon','DNA transposon','DNA transposon','DNA transposon','DNA transposon','DNA transposon','Retrotransposon','Retrotransposon','Retrotransposon','Retrotransposon','Retrotransposon','Retrotransposon'), 
              order=c('Helitron', 'TIR', 'TIR', 'TIR', 'TIR', 'TIR', 'TIR', 'nonLTR', 'nonLTR', 'LTR', 'LTR', 'LTR', 'nonLTR'),
-             common.name=c('Helitron', 'hAT', 'CACTA', 'Pif/Harbinger', 'Mutator', 'Tc1/Mariner', 'Unknown TIR', 'Jockey', 'L1', 'Copia', 'Gypsy', 'Unknown LTR', 'SINE'), 
+             common.name=c('Helitron', 'hAT', 'CACTA', 'Pif/Harbinger', 'Mutator', 'Tc1/Mariner', 'Unknown TIR', 'L1', 'RTE', 'Copia', 'Gypsy', 'Unknown LTR', 'SINE'), 
              d)
 d=d[match(TESUPFACTORLEVELS, d$sup),]             
 d=d[,c('class', 'order', 'sup', 'common.name', 'number.copies', 'number.families')]
