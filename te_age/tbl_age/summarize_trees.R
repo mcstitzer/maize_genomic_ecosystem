@@ -33,18 +33,18 @@ tes=rbind(tes,data.frame(TEID=rlx$tip.label, tbl=rlx$edge.length[rlx$edge[,2]<=N
      
 ## get rid of reversed notation from mafft
 tes$TEID=gsub('_R_','',tes$TEID)
-tes=tes[order(tes$TEID),]
-write.table(tes, 'B73v4_terminalbranchlength.txt', col.names=T, row.names=F, sep='\t', quote=F)
-
-
-tes$sup=substr(tes$TEID,1,3)
 tes$fam=substr(tes$TEID,1,8)
+tes$sup=substr(tes$TEID,1,3)
+tes=tes[order(tes$TEID),c('TEID', 'fam', 'sup', 'tbl')]
+write.table(tes, paste0('B73v4_terminalbranchlength', Sys.Date(), '.txt'), col.names=T, row.names=F, sep='\t', quote=F)
+
+
 te_fam=tes %>% group_by(sup,fam) %>% dplyr::summarize(avg_tbl=mean(tbl, na.rm=T))
-write.table(te_fam, 'B73v4_terminalbranchlength.fam.txt', quote=F, sep='\t', col.names=T, row.names=F)
+write.table(te_fam, paste0('B73v4_terminalbranchlength', Sys.Date(), '.fam.txt'), quote=F, sep='\t', col.names=T, row.names=F)
 
 ## note i'm taking averages of averages here! Should each family count equally? Or should it be weighted by famsize?
 te_sup=te_fam %>% group_by(sup) %>% dplyr::summarize(avg_tbl=mean(avg_tbl, na.rm=T))
-write.table(te_sup, 'B73v4_terminalbranchlength.sup.txt', quote=F, sep='\t', row.names=F, col.names=T)
+write.table(te_sup, paste0('B73v4_terminalbranchlength', Sys.Date(), '.sup.txt'), quote=F, sep='\t', row.names=F, col.names=T)
 
 
 tes$famsize=table(tes$fam)[tes$fam]
