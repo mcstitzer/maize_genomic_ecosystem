@@ -29,12 +29,12 @@ slen=int(sys.argv[2])
 
 fams=[]
 for te in b.keys():
-	if te[0:8] not in fams:
-		fams.append(te[0:8])
-		if slen > 0:
-			print '>'+te+'\n'+printFasta(''.join(b[te])[:slen])
-		elif slen <=0:
-			print '>'+te+'\n'+printFasta(''.join(b[te])[slen:])
+#	if te[0:8] not in fams:
+#		fams.append(te[0:8])
+	if slen > 0:
+		print '>'+te+'\n'+printFasta(''.join(b[te])[:slen])
+	elif slen <=0:
+		print '>'+te+'\n'+printFasta(''.join(b[te])[slen:])
 
 
 #for entry in b:
