@@ -87,3 +87,25 @@ write.table(mm[,c(1,31:36)], paste0(GENOME, '_TE_methylatable.flank.txt'), quote
 write.table(mm_sup[,c('sup', 'percGC', 'nCG', 'nCHG', 'nCHH')], paste0(GENOME, '_TE_methylatable.flank.superfam.txt'), quote=F, sep='\t', row.names=F, col.names=T)
 write.table(mm_fam[,c('sup', 'fam', 'percGC', 'nCG', 'nCHG', 'nCHH')], paste0(GENOME, '_TE_methylatable.flank.fam.txt'), quote=F, sep='\t', row.names=F, col.names=T)
 
+############# ##########
+## Chromosome-wide #####
+########################
+                        
+me=fread(paste0(GENOME, '.entirechr.cytpatterns.out'))
+
+colnames(me)[1:12]=c('chr', 'a', 'b', 'p_at', 'p_gc', 'A', 'C', 'G', 'T', 'N', 'other', 'seqlen')
+colnames(me)[13:34]=c('CG', 'CAG', 'CTG', 'CCG', 'CAA', 'CAT', 'CAC', 'CTA', 'CTT', 'CTC', 'CCC', 'CCA', 'CCT', 'TTG', 'ATG', 'GTG', 'TAG', 'AAG', 'GAG', 'GGG', 'TGG', 'AGG')
+
+mm=me %>% summarize_if(.predicate=function(x) is.integer(x), .funs=funs('sum'))
+
+### summarize in proportions - GC, CG, CHG, CHH
+mm$percGC=(mm$C+mm$G)/(mm$seqlen-mm$N)
+mm$nCG=mm$CG/(mm$seqlen-mm$N)
+mm$nCHG=(mm$CAG + mm$CTG + mm$CCG)/(mm$seqlen-mm$N)  ## these are normalized, because, for example, a CHG could be double counted in CHG and CG if it were CCG
+mm$nCHH=(mm$CAA + mm$CAT + mm$CAC + mm$CTA + mm$CTT + mm$CTC + mm$CCC + mm$CCA + mm$CCT + mm$TTG + mm$ATG + mm$GTG + mm$TAG + mm$AAG + mm$GAG + mm$GGG + mm$TGG + mm$AGG)/(mm$seqlen-mm$N)/2
+
+
+write.table(mm[,c(9, 32:35)], paste0(GENOME, '.basecomp_genomewide.txt'), quote=F, sep='\t', row.names=F, col.names=T)
+                                            
+                                             
+                                             
