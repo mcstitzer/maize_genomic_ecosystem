@@ -16,6 +16,7 @@ gene=fread('../genes/B73_closest_gene.2018-09-20.txt')
 colnames(gene)[3]='TEID'
 ind=merge(techar, gene, all=T)
 ind$ingene=ind$closest==0
+ind=ind[ind$tebp>=50,] ## after disjoining, some TEs are too short to be real :( - be sure to add this to all figures!!!
 
 
 data.frame(ind %>% group_by(substr(sup,1,2)) %>% dplyr::summarize(bp=sum(tebp), meanbp=mean(tebp), medianbp=median(tebp), disrupted=sum(pieces!=1)/n(), disruptor=sum(disruptor>1)/n()))
