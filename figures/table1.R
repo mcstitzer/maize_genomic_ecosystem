@@ -9,6 +9,7 @@ source('color_palette.R')
 
 ## could make these use GENOME to get the file name
 techar=fread('../te_characteristics/B73_TE_individual_copies.2018-09-19.txt')
+techar=techar[techar$tebp>=50,] ## after disjoining, some TEs are too short to be real :( - be sure to add this to all figures!!!
 
 
 d = techar %>% group_by(sup) %>% dplyr::summarize(number.copies=n(), 
