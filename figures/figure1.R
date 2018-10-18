@@ -17,6 +17,7 @@ colnames(gene)[3]='TEID'
 
 ind=merge(techar, gene, all=T)
 ind$ingene=ind$closest==0
+ind=ind[ind$tebp>=50,] ## after disjoining, some TEs are too short to be real :( - be sure to add this to all figures!!!
 
 nrow(ind)
 nrow(techar)
