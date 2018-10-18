@@ -132,10 +132,26 @@ plotlargest=function(feat, ylab='', hline=-1000){
                      ylab(ylab)
  }
 
+pdf(paste0('pointrange_basecomp_flank.', Sys.Date(), '.pdf'), 22,8)
+gc=plotlargest('percGC', '% GC', hline=genomewide$percGC)
+cg=plotlargest('nCG', 'Proportion\nCG methylatable', hline=genomewide$nCG)
+mnase=plotlargest('nCG', 'Proportion\Mnase hypersensitive', hline=genomewide$nCG)
+diversity=plotlargest('nCG', 'Proportion\nsegregating sites', hline=genomewide$nCG)
+                              
+gc.flank=plotlargest('percGC_1kbflank', 'Flanking % GC', hline=genomewide$percGC)
+cg.flank=plotlargest('nCG_1kbflank', 'Flanking proportion\nCG methylatable', hline=genomewide$nCG)
+mnase.flank=plotlargest('nCG', 'Flanking proportion\Mnase hypersensitive', hline=genomewide$nCG)
+diversity.flank=plotlargest('nCG', 'Flanking proportion\nsegregating sites', hline=genomewide$nCG)
 
+plot_grid(gc + ylim(0,0.8), gc.flank+ ylim(0,0.8),  
+          cg+ ylim(0,0.15),cg.flank+ ylim(0,0.15), 
+                   
+          labels = "AUTO", ncol = 2, align = 'v')
 
-
-
+dev.off()
+                              
+                              
+## supplemental base composition
 pdf(paste0('pointrange_basecomp_flank.', Sys.Date(), '.pdf'), 22,8)
 gc=plotlargest('percGC', '% GC', hline=genomewide$percGC)
 cg=plotlargest('nCG', 'Proportion\nCG methylatable', hline=genomewide$nCG)
