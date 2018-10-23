@@ -15,4 +15,7 @@ zcat *.vcf.gz | awk '/^#/ {next} {print $1, $2-1, $2}' OFS='\t' > hmp321_agpv4_s
 bedtools intersect -c -a $TEDISJOINED -b hmp321_agpv4_segsites.bed > ~/projects/maize_genomic_ecosystem/diversity/$GENOME.segsites.txt
 bedtools intersect -c -a ~/projects/maize_genomic_ecosystem/mnase/B73.allTE.FLANK1kbEACH.gff3 -b hmp321_agpv4_segsites.bed > ~/projects/maize_genomic_ecosystem/diversity/$GENOME.segsites.flank.txt
 
+## get total number of segregating sites in the genome
+wc -l hmp321_agpv4_segsites.bed > ~/projects/maize_genomic_ecosystem/diversity/genomewide_segsites.txt
+
 rm -rf /scratch/mstitzer
