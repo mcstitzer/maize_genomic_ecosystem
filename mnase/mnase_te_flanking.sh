@@ -1,5 +1,5 @@
 
-source('../GenomeInfo.R') ## works as bash as well as R
+source '../GenomeInfo.R' ## works as bash as well as R
 
 
 
@@ -24,4 +24,6 @@ FLANKGFF=${GENOME}.allTE.FLANK1kbEACH.gff3
 bedtools intersect -names AP RP -wo -a $FLANKGFF -b AP.bfthresh1.1.MNaseHS.Ranges.AGPv4.bed RP.bfthresh1.1.MNaseHS.Ranges.AGPv4.bed > ${GENOME}_MNaseHS.flank.bedout.txt
 
 
-
+## get genome-wide stats
+#echo "n_root_hs\troot_bp\tn_shoot_hs\tshoot_bp" > ${GENOME}.genomewide.mnase.txt
+paste <(wc -l RP.bfthresh1.1.MNaseHS.Ranges.AGPv4.bed) <(awk '{sum+=$3-$2} END {print sum}' RP.bfthresh1.1.MNaseHS.Ranges.AGPv4.bed) <(wc -l AP.bfthresh1.1.MNaseHS.Ranges.AGPv4.bed) <(awk '{sum+=$3-$2} END {print sum}' AP.bfthresh1.1.MNaseHS.Ranges.AGPv4.bed) > ${GENOME}.genomewide.mnase.txt
