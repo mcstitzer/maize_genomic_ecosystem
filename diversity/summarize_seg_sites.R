@@ -23,4 +23,8 @@ tf$flank_segsites.bp=tf$flank_segsites/tf$flank_bp
 
 segsites=merge(tl, tf, by='TEID', all=T)
 
+## reorder cols
+segsites=segsites[,c('TEID', 'fam', 'sup', 'te_bp', 'segsites', 'segsites.bp', 'flank_bp', 'flank_segsites', 'flank_segsites.bp')]
+
+
 write.table(segsites, paste0(GENOME, '.segregatingsites.TEandFlank.', Sys.Date(), '.txt'), quote=F, sep='\t', row.names=F, col.names=F)
