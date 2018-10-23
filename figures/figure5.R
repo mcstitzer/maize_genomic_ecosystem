@@ -13,13 +13,16 @@ source('color_palette.R')
 basecomp=fread('../base_composition/B73_TE_methylatable.txt')
 basecomp.flank=fread('../base_composition/B73_TE_methylatable.flank.txt')
 colnames(basecomp.flank)[4:7]=paste0(colnames(basecomp.flank)[4:7], '_1kbflank')
-mnase=fread('../mnase/B73_MNaseHS.bedout.txt')
-mnase.flank=fread('../mnase/B73_MNaseHS.flank.bedout.txt')
+mnase=fread('../mnase/B73_TEandFlank_mnase.2018-10-23.txt')
+
+diversity=fread('../diversity/B73.segregatingsites.TEandFlank.2018-10-23.txt')
 
 ## always bring this one in!!!
 allte=fread('../te_characteristics/B73_TE_individual_copies.2018-09-19.txt')
 ind=merge(basecomp, basecomp.flank, all=T)
-ind=merge(ind, allte)
+ind=merge(ind, diversity, all=T)
+ind=merge(ind, mnase, all=T)
+ind=merge(ind, allte, all=T)
 ind=ind[ind$tebp>=50,] ## after disjoining, some TEs are too short to be real :( - be sure to add this to all figures!!!
 
 nrow(ind)
@@ -27,6 +30,10 @@ nrow(basecomp)
 nrow(basecomp.flank)
 
 genomewide=fread('../base_composition/B73.basecomp_genomewide.txt')
+genomewide.ss=fread('../diversity/genomewide_segsites.txt')
+colnames(genomewide.ss)[1]='genomewide_bp_segsites'
+genomewide.mnase=read.table(paste0('../mnase/', GENOME, '.genomewide.mnase.txt'))
+colnames(genomewide.mnase)=c('n_root_hs_genomewide', 'V2', 'root_bp_genomewide', 'n_shoot_hs_genomewide', 'V5', 'shoot_bp_genomewide')
 
 largest10=unlist(unique(sapply(unique(ind$sup), function(x) rev(tail(sort(table(ind$fam[ind$sup==x & !duplicated(ind$TEID)])),10)))))
 
@@ -132,41 +139,48 @@ plotlargest=function(feat, ylab='', hline=-1000){
                      ylab(ylab)
  }
 
-pdf(paste0('pointrange_basecomp_flank.', Sys.Date(), '.pdf'), 22,8)
+pdf(paste0('figure5.', Sys.Date(), '.pdf'), 22,10)
 gc=plotlargest('percGC', '% GC', hline=genomewide$percGC)
 cg=plotlargest('nCG', 'Proportion\nCG methylatable', hline=genomewide$nCG)
-mnase=plotlargest('nCG', 'Proportion\Mnase hypersensitive', hline=genomewide$nCG)
-diversity=plotlargest('nCG', 'Proportion\nsegregating sites', hline=genomewide$nCG)
+mnase=plotlargest('shoot_prop', 'Proportion Mnase\nhypersensitive (shoot)', hline=genomewide.mnase$shoot_bp_genomewide/genomewide$seqlen)
+diversity=plotlargest('segsites.bp', 'Proportion\nsegregating sites', hline=genomewide.ss$genomewide_bp_segsites/genomewide$seqlen)
                               
 gc.flank=plotlargest('percGC_1kbflank', 'Flanking % GC', hline=genomewide$percGC)
 cg.flank=plotlargest('nCG_1kbflank', 'Flanking proportion\nCG methylatable', hline=genomewide$nCG)
-mnase.flank=plotlargest('nCG', 'Flanking proportion\Mnase hypersensitive', hline=genomewide$nCG)
-diversity.flank=plotlargest('nCG', 'Flanking proportion\nsegregating sites', hline=genomewide$nCG)
+mnase.flank=plotlargest('flank_shoot_prop', 'Flanking proportion Mnase\nhypersensitive (shoot)', hline=genomewide.mnase$shoot_bp_genomewide/genomewide$seqlen)
+diversity.flank=plotlargest('flank_segsites.bp', 'Flanking proportion\nsegregating sites', hline=genomewide.ss$genomewide_bp_segsites/genomewide$seqlen)
 
 plot_grid(gc + ylim(0,0.8), gc.flank+ ylim(0,0.8),  
           cg+ ylim(0,0.15),cg.flank+ ylim(0,0.15), 
-                   
+          mnase+ ylim(0,0.4), mnase.flank+ ylim(0,0.4),
+          diversity+ ylim(0,0.15), diversity.flank+ ylim(0,0.15),
           labels = "AUTO", ncol = 2, align = 'v')
 
 dev.off()
                               
                               
 ## supplemental base composition
-pdf(paste0('pointrange_basecomp_flank.', Sys.Date(), '.pdf'), 22,8)
+pdf(paste0('pointrange_basecomp_flank.', Sys.Date(), '.pdf'), 22,14)
 gc=plotlargest('percGC', '% GC', hline=genomewide$percGC)
 cg=plotlargest('nCG', 'Proportion\nCG methylatable', hline=genomewide$nCG)
 chg=plotlargest('nCHG', 'Proportion\nCHG methylatable', hline=genomewide$nCHG)
 chh=plotlargest('nCHH', 'Proportion\nCHH methylatable', hline=genomewide$nCHH)
+mnase.r=plotlargest('root_prop', 'Proportion Mnase\nhypersensitive (root)', hline=genomewide.mnase$root_bp_genomewide/genomewide$seqlen)
+mnase.s=plotlargest('shoot_prop', 'Proportion Mnase\nhypersensitive (shoot)', hline=genomewide.mnase$shoot_bp_genomewide/genomewide$seqlen)
 
 gc.flank=plotlargest('percGC_1kbflank', 'Flanking % GC', hline=genomewide$percGC)
 cg.flank=plotlargest('nCG_1kbflank', 'Flanking proportion\nCG methylatable', hline=genomewide$nCG)
 chg.flank=plotlargest('nCHG_1kbflank', 'Flanking proportion\nCHG methylatable', hline=genomewide$nCHG)
 chh.flank=plotlargest('nCHH_1kbflank', 'Flanking proportion\nCHH methylatable', hline=genomewide$nCHH)
+mnase.flank.r=plotlargest('flank_root_prop', 'Flanking proportion Mnase\nhypersensitive (root)', hline=genomewide.mnase$root_bp_genomewide/genomewide$seqlen)
+mnase.flank.s=plotlargest('flank_shoot_prop', 'Flanking proportion Mnase\nhypersensitive (shoot)', hline=genomewide.mnase$shoot_bp_genomewide/genomewide$seqlen)
 
 plot_grid(gc + ylim(0,0.8), gc.flank+ ylim(0,0.8),  
           cg+ ylim(0,0.15),cg.flank+ ylim(0,0.15), 
           chg + ylim(0,0.12), chg.flank+ ylim(0,0.12), 
           chh+ ylim(0,0.2), chh.flank+ ylim(0,0.2) , 
+          mnase.r+ ylim(0,0.15), mnase.flank.r + ylim(0,0.15),
+          mnase.s + ylim(0,0.4), mnase.flank.s + ylim(0,0.4),
           labels = "AUTO", ncol = 2, align = 'v')
 #plot_grid(tel, age, cl, ingene, disr ,  labels = "AUTO", ncol = 1, align = 'v')
 #plot_grid(tel, cl, ingene, piece, disr + scale_x_discrete(labels=substr(names(largest10),1,3)[!duplicated(substr(names(largest10),1,3))]),  labels = "AUTO", ncol = 1, align = 'v')
