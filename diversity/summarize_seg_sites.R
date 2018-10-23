@@ -27,4 +27,4 @@ segsites=merge(tl, tf, by='TEID', all=T)
 segsites=segsites[,c('TEID', 'fam', 'sup', 'te_bp', 'segsites', 'segsites.bp', 'flank_bp', 'flank_segsites', 'flank_segsites.bp')]
 
 
-write.table(segsites, paste0(GENOME, '.segregatingsites.TEandFlank.', Sys.Date(), '.txt'), quote=F, sep='\t', row.names=F, col.names=F)
+write.table(segsites, paste0(GENOME, '.segregatingsites.TEandFlank.', Sys.Date(), '.txt'), quote=F, sep='\t', row.names=F, col.names=T)
