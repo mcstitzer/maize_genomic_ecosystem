@@ -20,3 +20,17 @@ I included these files in this repo because I am not sure of the reproducibility
 ### Then, the order of operations is
 1. `mnase_te_flanking.sh` to find overlaps between the the TE, flanking sequence, and MNase hypersensitive regions
 2. `subset_mnase_by_TEID.R` to count overlaps for each TE copy
+ - this generates columns for:
+  - `TEID`, `sup`, `fam`
+  - `n_root_hs` the number of root hypersensitive peaks called that overlap a TE
+  - `root_bp` the total bp of root hypersensitive peaks that overlap a TE
+  - `root_prop` the proportion of TE bp that are in a root hypersensitive peak
+  - `n_shoot_hs` the number of shoot hypersensitive peaks called that overlap a TE
+  - `shoot_bp` the total bp of shoot hypersensitive peaks that overlap a TE
+  - `shoot_prop` the proportion of TE bp that are in a shoot hypersensitive peak
+  - `flank_n_root_hs` the number of root hypersensitive peaks called that overlap the (usually) 1kb flanking a TE on each side
+  - `flank_root_bp` the total bp of root hypersensitive peaks that overlap the (usually) 1kb flanking a TE on each side
+  - `flank_root_prop` the proportion of flanking bp that are in a root hypersensitive peak
+  - `flank_n_shoot_hs` the number of shoot hypersensitive peaks called that overlap the (usually) 1kb flanking a TE on each side
+  - `flank_shoot_bp` the total bp of shoot hypersensitive peaks that overlap the (usually) 1kb flanking a TE on each side
+  - `flank_shoot_prop` the proportion of flanking bp that are in a shoot hypersensitive peak
