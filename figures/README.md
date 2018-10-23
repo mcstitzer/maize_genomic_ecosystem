@@ -18,9 +18,6 @@
   
 ## Figure 5: Base comp and diversity within and flanking TE
   - figure5.R
-  - *todo* diversity estimates
-  - *todo* mnase results
-  - *todo* figure out 0 gc
   
 ## Figure 6: Methylation decay
   - *todo* plot!
