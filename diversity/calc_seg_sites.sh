@@ -10,9 +10,7 @@ do
 ~/software/icommands/iget /iplant/home/shared/panzea/hapmap3/hmp321/unimputed/uplifted_APGv4/hmp321_agpv4_chr${i}.vcf.gz
 done
 
-zcat *.vcf.gz | awk '/^#/ {next} {print $1, $2-1, $2}' > hmp321_agpv4_segsites.bed
-sed -e 's/ */\t/g' <hmp321_agpv4_segsites.bed >hmp321_agpv4_segsites.tmp.bed
-mv hmp321_agpv4_segsites.tmp.bed hmp321_agpv4_segsites.bed
+zcat *.vcf.gz | awk '/^#/ {next} {print $1, $2-1, $2}' OFS='\t' > hmp321_agpv4_segsites.bed
 
 bedtools intersect -c -a $TEDISJOINED -b hmp321_agpv4_segsites.bed > ~/projects/maize_genomic_ecosystem/diversity/$GENOME.segsites.txt
 bedtools intersect -c -a ~/projects/maize_genomic_ecosystem/mnase/B73.allTE.FLANK1kbEACH.gff3 -b hmp321_agpv4_segsites.bed > ~/projects/maize_genomic_ecosystem/diversity/$GENOME.segsites.flank.txt
