@@ -21,7 +21,7 @@ fammed=tgem %>% group_by(sup, fam) %>% summarize_if(.predicate=function(x) is.nu
 famge=melt(fammed, id.vars=c("sup", 'fam', 'closest','famsize'))
 
 
-pdf('gene_dist_expr.pdf')
+pdf('gene_dist_expr.pdf', 20,20)
 ggplot(supge, aes(x=log10(closest), y=log10(value), color=sup)) + geom_point()  + scale_color_manual(values=dd.col)
 ggplot(famge, aes(x=log10(closest), y=log10(value), color=factor(variable))) + geom_point()  + scale_color_manual(values=dd.col)
 ggplot(ge, aes(x=bins, y=value, color=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col)
