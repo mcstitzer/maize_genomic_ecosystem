@@ -25,8 +25,12 @@ pdf('gene_dist_expr.pdf')
 ggplot(supge, aes(x=log10(closest), y=log10(value), color=sup)) + geom_point()  + scale_color_manual(values=dd.col)
 ggplot(famge, aes(x=log10(closest), y=log10(value), color=factor(variable))) + geom_point()  + scale_color_manual(values=dd.col)
 ggplot(ge, aes(x=bins, y=value, color=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col)
-ggplot(ge, aes(x=bins, y=value, color=sup, group=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + stat_smooth(geom='loess', se=F, alpha=0.3)
-ggplot(ge, aes(x=bins, y=value, color=sup, group=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + stat_smooth(geom='loess', se=F, alpha=0.3)
+ggplot(ge, aes(x=bins, y=value, color=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + facet_wrap(~variable)
+ggplot(ge, aes(x=bins, y=value, color=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + facet_wrap(~variable, scales='free_y')
+ggplot(ge, aes(x=bins, y=value, color=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + facet_wrap(~variable, scales='free_y') + scale_y_log10()
+                                                    
+#ggplot(ge, aes(x=bins, y=value, color=sup, group=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + stat_smooth(geom='loess', se=F, alpha=0.3)
+#ggplot(ge, aes(x=bins, y=value, color=sup, group=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + stat_smooth(geom='loess', se=F, alpha=0.3)
 
 dev.off()
 
