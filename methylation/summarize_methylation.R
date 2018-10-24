@@ -1,0 +1,59 @@
+library(data.table)
+library(dplyr)
+library(fields)
+
+source('../GenomeInfo.R')
+
+## go through each TE and identify methylation across TE and flank, write to file
+
+for ( TISSUE in c('anther', 'earshoot', 'flag_leaf', 'SAM', 'all3')){
+  ORIGTISSUE=TISSUE
+  if (ORIGTISSUE =='flag_leaf'){TISSUE='flagleaf'}
+  if ( !file.exists(paste0('B73v4.Zm00001d.methylation_spread.', TISSUE, '.txt'))){
+    print(TISSUE)
+  bed=fread(paste0('TE_methylation_overlap.', TISSUE, '_Zm00001d.bed'))
+  bed$fam=substr(bed$V9, 4, 11)
+  bed$te=substr(bed$V9,4,24)
+  bed$sup=substr(bed$V9,4,6)
+  bed$cg=as.numeric(bed$V15)
+  bed$chg=as.numeric(bed$V21)
+  bed$chh=as.numeric(bed$V27)
+  mC=bed %>% group_by(te) %>% summarize(avg_cg=mean(cg, na.rm=T), avg_chg=mean(chg, na.rm=T), avg_chh=mean(chh, na.rm=T))
+#  write.table(mC, paste0('B73v4.Zm00001d.TE_methylation.', TISSUE, '.txt'), row.names=F, col.names=T, sep='\t', quote=F)
+  bed=fread(paste0('methylationbins_closest40.', TISSUE, '_Zm00001d.bed'))
+  bed$fam=substr(bed$V9, 4, 11)
+  bed$te=substr(bed$V9,4,24)
+  bed$sup=substr(bed$V9,4,6)
+  bed$abs.dist=abs(bed$V28)
+  bed$cg=as.numeric(bed$V15)
+  bed$chg=as.numeric(bed$V21)
+  bed$chh=as.numeric(bed$V27)
+## make data frame to fill in
+#all TEs
+  TEIDs=unique(bed$te)
+  met.data.all <- data.frame(matrix(NA,nrow=length(TEIDs),ncol=60))
+  rownames(met.data.all) <- TEIDs
+  colnames(met.data.all) <- paste(rep(c("CG","CHG","CHH"),each=20),rep(seq(from=100,to=2000,by=100),3), TISSUE,sep="_")
+
+
+# Use stats.bin() to fill in averages (very slow as a for loop, there is probably a better way that I do not know)
+
+# all fams
+for(i in 1:nrow(met.data.all)){
+  tmp <- subset(bed,bed$te == rownames(met.data.all)[i])
+  cg.stats <- stats.bin(tmp$abs.dist,tmp$cg,N=20,breaks = seq(from=0,to=2000,by=100))
+  chg.stats <- stats.bin(tmp$abs.dist,tmp$chg,N=20,breaks = seq(from=0,to=2000,by=100))
+  chh.stats <- stats.bin(tmp$abs.dist,tmp$chh,N=20,breaks = seq(from=0,to=2000,by=100))
+  met.data.all[i,] <- c(cg.stats$stats["mean",],chg.stats$stats["mean",],chh.stats$stats["mean",])
+}
+
+allmC=merge(mC, data.frame(TEID=rownames(met.data.all), met.data.all))
+write.table(allmC, paste0(GENOME, '.TEandFlank_methylation.', TISSUE, '.', Sys.Date(), '.txt'), row.names=F, col.names=T, sep='\t', quote=F)
+
+}
+}
+
+####### STOPPED HERE!!!!
+
+
+
