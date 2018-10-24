@@ -12,6 +12,9 @@ source('color_palette.R')
 tgem=fread('../genes/B73v4_closest_gene_expression.txt')
 ge=melt(tgem, id.vars=c("sup", 'fam', 'ID', 'closest', 'closestgene', 'closestgenetype', 'famsize'))
 ge$bins=cut(ge$closest, breaks=seq(0,750000, length.out=50), include.lowest=T)
+ge$bins.10kb=cut(ge$closest, breaks=seq(0,10000, length.out=20), include.lowest=T)
+ge$bins.20kb=cut(ge$closest, breaks=seq(0,20000, length.out=40), include.lowest=T)
+ge$bins.10kb100bp=cut(ge$closest, breaks=seq(0,10000, length.out=100), include.lowest=T)
 
 
 supmed=tgem %>% group_by(sup) %>% summarize_if(.predicate=function(x) is.numeric(x), .funs=funs(median(., na.rm=T)))
@@ -28,7 +31,32 @@ ggplot(ge, aes(x=bins, y=value, color=sup)) + stat_summary(fun.y="mean", geom="p
 ggplot(ge, aes(x=bins, y=value, color=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + facet_wrap(~variable)
 ggplot(ge, aes(x=bins, y=value, color=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + facet_wrap(~variable, scales='free_y')
 ggplot(ge, aes(x=bins, y=value, color=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + facet_wrap(~variable, scales='free_y') + scale_y_log10()
+    
+ggplot(ge, aes(x=bins.10kb, y=value, color=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + facet_wrap(~variable)
+ggplot(ge, aes(x=bins.10kb, y=value, color=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + facet_wrap(~variable, scales='free_y')
+ggplot(ge, aes(x=bins.10kb, y=value, color=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + facet_wrap(~variable, scales='free_y') + scale_y_log10()
+
                                                     
+ggplot(ge, aes(x=bins.20kb, y=value, color=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + facet_wrap(~variable)
+ggplot(ge, aes(x=bins.20kb, y=value, color=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + facet_wrap(~variable, scales='free_y')
+ggplot(ge, aes(x=bins.20kb, y=value, color=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + facet_wrap(~variable, scales='free_y') + scale_y_log10()
+      
+ggplot(ge, aes(x=bins.10kb100bp, y=value, color=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + facet_wrap(~variable)
+ggplot(ge, aes(x=bins.10kb100bp, y=value, color=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + facet_wrap(~variable, scales='free_y')
+ggplot(ge, aes(x=bins.10kb100bp, y=value, color=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + facet_wrap(~variable, scales='free_y') + scale_y_log10()
+                                                          
+ggplot(ge[ge$famsize>=10,], aes(x=bins.10kb, y=value, color=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + facet_wrap(~variable)
+ggplot(ge[ge$famsize>=10,], aes(x=bins.10kb, y=value, color=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + facet_wrap(~variable, scales='free_y')
+ggplot(ge[ge$famsize>=10,], aes(x=bins.10kb, y=value, color=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + facet_wrap(~variable, scales='free_y') + scale_y_log10()
+
+ggplot(ge[ge$famsize>=10,], aes(x=bins.20kb, y=value, color=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + facet_wrap(~variable)
+ggplot(ge[ge$famsize>=10,], aes(x=bins.20kb, y=value, color=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + facet_wrap(~variable, scales='free_y')
+ggplot(ge[ge$famsize>=10,], aes(x=bins.20kb, y=value, color=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + facet_wrap(~variable, scales='free_y') + scale_y_log10()
+      
+ggplot(ge[ge$famsize>=10,], aes(x=bins.10kb100bp, y=value, color=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + facet_wrap(~variable)
+ggplot(ge[ge$famsize>=10,], aes(x=bins.10kb100bp, y=value, color=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + facet_wrap(~variable, scales='free_y')
+ggplot(ge[ge$famsize>=10,], aes(x=bins.10kb100bp, y=value, color=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + facet_wrap(~variable, scales='free_y') + scale_y_log10()
+                                                       
 #ggplot(ge, aes(x=bins, y=value, color=sup, group=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + stat_smooth(geom='loess', se=F, alpha=0.3)
 #ggplot(ge, aes(x=bins, y=value, color=sup, group=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + stat_smooth(geom='loess', se=F, alpha=0.3)
 
