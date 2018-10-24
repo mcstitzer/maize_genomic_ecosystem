@@ -24,7 +24,7 @@ cut -c 4- SRR1482372_100bpcounts_sort.chr.bed | sort -k1,1 -k2,2n > h3k9me2.bed
 
 
   ## h3k9
-bedtools closest -D a -k 40 -io -a $TEFILE -b h3k9me2.bed > h3k9bins_closest40.Zm00001d.bed
-bedtools intersect -wa -wb -a $TEDISJOINED -b h3k9me2.bed > TE_h3k9_overlap.Zm00001d.bed
+bedtools closest -D a -k 40 -io -a <(sort -k1,1 -k4,4n $TEFILE) -b h3k9me2.bed > h3k9bins_closest40.Zm00001d.bed
+bedtools intersect -wa -wb -a <(sort -k1,1 -k4,4n $TEDISJOINED) -b h3k9me2.bed > TE_h3k9_overlap.Zm00001d.bed
 
 
