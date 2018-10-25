@@ -37,6 +37,9 @@ ggplot(ind.fam, aes(x=log10(famsize), y=segsites.bp, color=sup)) + scale_color_m
 ggplot(ind.fam, aes(x=log10(famsize), y=flank_segsites.bp, color=sup)) + scale_color_manual(values=dd.col) + geom_point(alpha=0.4)
 ggplot(ind.fam, aes(x=log10(famsize), y=flank_segsites.bp, color=sup)) + scale_color_manual(values=dd.col) + geom_point(alpha=0.4) + facet_wrap(~sup)
 
+ggplot(ind.fam, aes(x=segsites.bp, y=flank_segsites.bp, color=sup)) + scale_color_manual(values=dd.col) + geom_point(alpha=0.4)
+ggplot(ind.fam, aes(x=segsites.bp, y=flank_segsites.bp, color=sup)) + scale_color_manual(values=dd.col) + geom_point(alpha=0.4) + facet_wrap(~sup)
+
 
 dev.off()
 
