@@ -18,7 +18,8 @@ for ( TISSUE in c('anther', 'earshoot', 'flag_leaf', 'SAM', 'all3')){
   bed$cg=as.numeric(bed$V15)
   bed$chg=as.numeric(bed$V21)
   bed$chh=as.numeric(bed$V27)
-  mC=bed %>% group_by(te) %>% summarize(avg_cg=mean(cg, na.rm=T), avg_chg=mean(chg, na.rm=T), avg_chh=mean(chh, na.rm=T))
+  mC=bed %>% group_by(TEID) %>% summarize(avg_cg=mean(cg, na.rm=T), avg_chg=mean(chg, na.rm=T), avg_chh=mean(chh, na.rm=T))
+  colnames(mC)[2:4]=paste0(TISSUE, '_', colnames(mC)[2:4])
 #  write.table(mC, paste0('B73v4.Zm00001d.TE_methylation.', TISSUE, '.txt'), row.names=F, col.names=T, sep='\t', quote=F)
   bed=fread(paste0('methylationbins_closest40.', TISSUE, '_Zm00001d.bed'))
   bed$fam=substr(bed$V9, 4, 11)
@@ -41,15 +42,15 @@ bed$window=cut(bed$abs.dist, breaks=seq(from=0, to=2000, by=100))
     
 # Use stats.bin() to fill in averages (very slow as a for loop, there is probably a better way that I do not know)
 
-flank.cg=dcast(bed, te+fam+sup~window, value.var='cg', fun.aggregate=mean, na.rm=T)    
-flank.chg=dcast(bed, te+fam+sup~window, value.var='chg', fun.aggregate=mean, na.rm=T)    
-flank.ch=dcast(bed, te+fam+sup~window, value.var='chh', fun.aggregate=mean, na.rm=T)   
-colnames(flank.cg)[4:23]=paste0('flank_cg_', 1:20, '00')
-flank.cg$NA=NULL
-colnames(flank.chg)[4:23]=paste0('flank_chg_', 1:20, '00')
-flank.chg$NA=NULL
-colnames(flank.chh)[4:23]=paste0('flank_chh_', 1:20, '00')
-flank.chh$NA=NULL
+flank.cg=dcast(bed, TEID+fam+sup~window, value.var='cg', fun.aggregate=mean, na.rm=T)    
+flank.chg=dcast(bed, TEID+fam+sup~window, value.var='chg', fun.aggregate=mean, na.rm=T)    
+flank.chh=dcast(bed, TEID+fam+sup~window, value.var='chh', fun.aggregate=mean, na.rm=T)   
+colnames(flank.cg)[4:23]=paste0(TISSUE, '_flank_cg_', 1:20, '00')
+flank.cg$"NA"=NULL
+colnames(flank.chg)[4:23]=paste0(TISSUE, '_flank_chg_', 1:20, '00')
+flank.chg$"NA"=NULL
+colnames(flank.chh)[4:23]=paste0(TISSUE, '_flank_chh_', 1:20, '00')
+flank.chh$"NA"=NULL
 met.data.all=merge(flank.cg, flank.chg, all=T)
 met.data.all=merge(met.data.all, flank.chh, all=T)
 
@@ -60,7 +61,6 @@ write.table(allmC, paste0(GENOME, '.TEandFlank_methylation.', TISSUE, '.', Sys.D
 }
 }
 
-####### STOPPED HERE!!!!
 
 
 
