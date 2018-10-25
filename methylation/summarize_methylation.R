@@ -11,7 +11,7 @@ for ( TISSUE in c('anther', 'earshoot', 'flag_leaf', 'SAM', 'all3')){
   if (ORIGTISSUE =='flag_leaf'){TISSUE='flagleaf'}
   if ( !file.exists(paste0('B73v4.Zm00001d.methylation_spread.', TISSUE, '.txt'))){
     print(TISSUE)
-  bed=fread(paste0('TE_methylation_overlap.', TISSUE, '_Zm00001d.bed'))
+  bed=fread(paste0('TE_methylation_overlap.', ORIGTISSUE, '_Zm00001d.bed'))
   bed$fam=substr(bed$V9, 4, 11)
   bed$TEID=substr(bed$V9,4,24)
   bed$sup=substr(bed$V9,4,6)
@@ -21,7 +21,7 @@ for ( TISSUE in c('anther', 'earshoot', 'flag_leaf', 'SAM', 'all3')){
   mC=bed %>% group_by(TEID) %>% summarize(avg_cg=mean(cg, na.rm=T), avg_chg=mean(chg, na.rm=T), avg_chh=mean(chh, na.rm=T))
   colnames(mC)[2:4]=paste0(TISSUE, '_', colnames(mC)[2:4])
 #  write.table(mC, paste0('B73v4.Zm00001d.TE_methylation.', TISSUE, '.txt'), row.names=F, col.names=T, sep='\t', quote=F)
-  bed=fread(paste0('methylationbins_closest40.', TISSUE, '_Zm00001d.bed'))
+  bed=fread(paste0('methylationbins_closest40.', ORIGTISSUE, '_Zm00001d.bed'))
   bed$fam=substr(bed$V9, 4, 11)
   bed$TEID=substr(bed$V9,4,24)
   bed$sup=substr(bed$V9,4,6)
