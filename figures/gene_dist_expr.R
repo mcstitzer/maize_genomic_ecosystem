@@ -9,57 +9,124 @@ library(data.table)
 source('../GenomeInfo.R')
 source('color_palette.R')
 
-tgem=fread('../genes/B73v4_closest_gene_expression.txt')
-ge=melt(tgem, id.vars=c("sup", 'fam', 'ID', 'closest', 'closestgene', 'closestgenetype', 'famsize'))
-ge$bins=cut(ge$closest, breaks=seq(0,750000, length.out=50), include.lowest=T)
-ge$bins.10kb=cut(ge$closest, breaks=seq(0,10000, length.out=20), include.lowest=T)
-ge$bins.20kb=cut(ge$closest, breaks=seq(0,20000, length.out=40), include.lowest=T)
-ge$bins.10kb100bp=cut(ge$closest, breaks=seq(0,10000, length.out=100), include.lowest=T)
+tgem=fread('../genes/B73_closest_gene_expression.maizegdbWalley.txt')
 
+colnames(tgem)[3]='TEID'
+allte=fread('../te_characteristics/B73_TE_individual_copies.2018-09-19.txt')
+ind=merge(tgem, allte, all=T)
+ind=ind[ind$tebp>=50,] ## after disjoining, some TEs are too short to be real :( - be sure to add this to all figures!!!
 
-supmed=tgem %>% group_by(sup) %>% summarize_if(.predicate=function(x) is.numeric(x), .funs=funs(median(., na.rm=T)))
-supge=melt(supmed, id.vars=c("sup", 'closest','famsize'))
+largest10=unlist(unique(sapply(unique(ind$sup), function(x) rev(tail(sort(table(ind$fam[ind$sup==x & !duplicated(ind$TEID)])),10)))))
 
-fammed=tgem %>% group_by(sup, fam) %>% summarize_if(.predicate=function(x) is.numeric(x), .funs=funs(median(., na.rm=T)))
-famge=melt(fammed, id.vars=c("sup", 'fam', 'closest','famsize'))
+largest10
+ind$largest10=ind$fam %in% names(largest10)                               
+largest10=largest10[c(1:70,83:112,71:82,113:122)] ## super hard coded to get the nonLTR together!                     
+ind$famsize=as.numeric(table(ind$fam)[ind$fam])
+ind=ind[,-c('chr', 'start', 'end', 'strand', 'source', 'type', 'tebp', 'tespan', 'pieces', 'disruptor', 'largest10', 'geneID')]
+                               
+                               
+ge=melt(ind, id.vars=c("sup", 'fam', 'TEID', 'closest', 'closestgene', 'closestgenetype', 'famsize'))
+ge$bins=cut(ge$closest, breaks=seq(0,750000, length.out=51), include.lowest=T, labels=seq(0,750000, length.out=51)[-1])
+ge$bins.10kb=cut(ge$closest, breaks=seq(0,10000, length.out=21), include.lowest=T, labels=seq(0,10000, length.out=21)[-1])
+ge$bins.20kb=cut(ge$closest, breaks=seq(0,20000, length.out=41), include.lowest=T, labels=seq(0,20000, length.out=41)[-1])
+ge$bins.10kb100bp=cut(ge$closest, breaks=seq(0,10000, length.out=101), include.lowest=T, labels=seq(0,10000, length.out=101)[-1])
 
+#supmed=tgem %>% group_by(sup) %>% summarize_if(.predicate=function(x) is.numeric(x), .funs=funs(median(., na.rm=T)))
+#supge=melt(supmed, id.vars=c("sup", 'closest','famsize'))
 
-pdf('gene_dist_expr.pdf', 20,20)
-ggplot(supge, aes(x=log10(closest), y=log10(value), color=sup)) + geom_point()  + scale_color_manual(values=dd.col)
-ggplot(famge, aes(x=log10(closest), y=log10(value), color=factor(variable))) + geom_point()  + scale_color_manual(values=dd.col)
-ggplot(ge, aes(x=bins, y=value, color=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col)
-ggplot(ge, aes(x=bins, y=value, color=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + facet_wrap(~variable)
-ggplot(ge, aes(x=bins, y=value, color=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + facet_wrap(~variable, scales='free_y')
-ggplot(ge, aes(x=bins, y=value, color=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + facet_wrap(~variable, scales='free_y') + scale_y_log10()
-    
-ggplot(ge, aes(x=bins.10kb, y=value, color=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + facet_wrap(~variable)
-ggplot(ge, aes(x=bins.10kb, y=value, color=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + facet_wrap(~variable, scales='free_y')
-ggplot(ge, aes(x=bins.10kb, y=value, color=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + facet_wrap(~variable, scales='free_y') + scale_y_log10()
+fammed=ge %>% group_by(sup, fam, bins.10kb100bp, variable, famsize)  %>% dplyr::summarize(value=median(value, na.rm=T))
+fammean=ge %>% group_by(sup, fam, bins, bins.10kb, bins.20kb, bins.10kb100bp, variable) %>% dplyr::summarize(value=mean(value, na.rm=T))
+#famge=melt(fammed, id.vars=c("sup", 'fam', 'closest','famsize'))
 
-                                                    
-ggplot(ge, aes(x=bins.20kb, y=value, color=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + facet_wrap(~variable)
-ggplot(ge, aes(x=bins.20kb, y=value, color=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + facet_wrap(~variable, scales='free_y')
-ggplot(ge, aes(x=bins.20kb, y=value, color=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + facet_wrap(~variable, scales='free_y') + scale_y_log10()
-      
-ggplot(ge, aes(x=bins.10kb100bp, y=value, color=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + facet_wrap(~variable)
-ggplot(ge, aes(x=bins.10kb100bp, y=value, color=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + facet_wrap(~variable, scales='free_y')
-ggplot(ge, aes(x=bins.10kb100bp, y=value, color=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + facet_wrap(~variable, scales='free_y') + scale_y_log10()
-                                                          
-ggplot(ge[ge$famsize>=10,], aes(x=bins.10kb, y=value, color=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + facet_wrap(~variable)
-ggplot(ge[ge$famsize>=10,], aes(x=bins.10kb, y=value, color=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + facet_wrap(~variable, scales='free_y')
-ggplot(ge[ge$famsize>=10,], aes(x=bins.10kb, y=value, color=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + facet_wrap(~variable, scales='free_y') + scale_y_log10()
+#d.lg=d.l %>% group_by(sup, fam, variable, distance, context) %>% dplyr::summarize(value=mean(value, na.rm=T))
+#d.mg=d.m%>% group_by(sup, fam, variable, distance, context, famsize) %>% dplyr::summarize(value=mean(value, na.rm=T))
+  
 
-ggplot(ge[ge$famsize>=10,], aes(x=bins.20kb, y=value, color=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + facet_wrap(~variable)
-ggplot(ge[ge$famsize>=10,], aes(x=bins.20kb, y=value, color=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + facet_wrap(~variable, scales='free_y')
-ggplot(ge[ge$famsize>=10,], aes(x=bins.20kb, y=value, color=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + facet_wrap(~variable, scales='free_y') + scale_y_log10()
-      
-ggplot(ge[ge$famsize>=10,], aes(x=bins.10kb100bp, y=value, color=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + facet_wrap(~variable)
-ggplot(ge[ge$famsize>=10,], aes(x=bins.10kb100bp, y=value, color=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + facet_wrap(~variable, scales='free_y')
-ggplot(ge[ge$famsize>=10,], aes(x=bins.10kb100bp, y=value, color=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + facet_wrap(~variable, scales='free_y') + scale_y_log10()
-                                                       
-#ggplot(ge, aes(x=bins, y=value, color=sup, group=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + stat_smooth(geom='loess', se=F, alpha=0.3)
-#ggplot(ge, aes(x=bins, y=value, color=sup, group=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + stat_smooth(geom='loess', se=F, alpha=0.3)
+#pdf('gene_dist_expr.pdf', 20,20)
+#ggplot(supge, aes(x=log10(closest), y=log10(value), color=sup)) + geom_point()  + scale_color_manual(values=dd.col)
+#ggplot(famge, aes(x=log10(closest), y=log10(value), color=factor(variable))) + geom_point()  + scale_color_manual(values=dd.col)
+#ggplot(ge, aes(x=bins, y=value, color=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col)
+#ggplot(ge, aes(x=bins, y=value, color=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + facet_wrap(~variable)
+#ggplot(ge, aes(x=bins, y=value, color=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + facet_wrap(~variable, scales='free_y')
+#ggplot(ge, aes(x=bins, y=value, color=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + facet_wrap(~variable, scales='free_y') + scale_y_log10()
+#    
+#ggplot(ge, aes(x=bins.10kb, y=value, color=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + facet_wrap(~variable)
+#ggplot(ge, aes(x=bins.10kb, y=value, color=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + facet_wrap(~variable, scales='free_y')
+#ggplot(ge, aes(x=bins.10kb, y=value, color=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + facet_wrap(~variable, scales='free_y') + scale_y_log10()
+#
+#                                                    
+#ggplot(ge, aes(x=bins.20kb, y=value, color=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + facet_wrap(~variable)
+#ggplot(ge, aes(x=bins.20kb, y=value, color=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + facet_wrap(~variable, scales='free_y')
+#ggplot(ge, aes(x=bins.20kb, y=value, color=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + facet_wrap(~variable, scales='free_y') + scale_y_log10()
+#      
+#ggplot(ge, aes(x=bins.10kb100bp, y=value, color=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + facet_wrap(~variable)
+#ggplot(ge, aes(x=bins.10kb100bp, y=value, color=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + facet_wrap(~variable, scales='free_y')
+#ggplot(ge, aes(x=bins.10kb100bp, y=value, color=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + facet_wrap(~variable, scales='free_y') + scale_y_log10()
+#                                                          
+#ggplot(ge[ge$famsize>=10,], aes(x=bins.10kb, y=value, color=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + facet_wrap(~variable)
+#ggplot(ge[ge$famsize>=10,], aes(x=bins.10kb, y=value, color=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + facet_wrap(~variable, scales='free_y')
+#ggplot(ge[ge$famsize>=10,], aes(x=bins.10kb, y=value, color=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + facet_wrap(~variable, scales='free_y') + scale_y_log10()
+#
+#ggplot(ge[ge$famsize>=10,], aes(x=bins.20kb, y=value, color=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + facet_wrap(~variable)
+#ggplot(ge[ge$famsize>=10,], aes(x=bins.20kb, y=value, color=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + facet_wrap(~variable, scales='free_y')
+#ggplot(ge[ge$famsize>=10,], aes(x=bins.20kb, y=value, color=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + facet_wrap(~variable, scales='free_y') + scale_y_log10()
+#      
+#ggplot(ge[ge$famsize>=10,], aes(x=bins.10kb100bp, y=value, color=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + facet_wrap(~variable)
+#ggplot(ge[ge$famsize>=10,], aes(x=bins.10kb100bp, y=value, color=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + facet_wrap(~variable, scales='free_y')
+#ggplot(ge[ge$famsize>=10,], aes(x=bins.10kb100bp, y=value, color=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + facet_wrap(~variable, scales='free_y') + scale_y_log10()
+#                                                       
+##ggplot(ge, aes(x=bins, y=value, color=sup, group=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + stat_smooth(geom='loess', se=F, alpha=0.3)
+##ggplot(ge, aes(x=bins, y=value, color=sup, group=sup)) + stat_summary(fun.y="mean", geom="point")  + scale_color_manual(values=dd.col) + stat_smooth(geom='loess', se=F, alpha=0.3)
+#
+#dev.off()
+                                                                                               
+                                                                                               
+fammed$distance=as.numeric(as.character(fammed$bins.10kb100bp))                                                                                               
+pdf('expression_decay.pdf', 25,25)
+#for (tissue in c('anther', 'SAM', 'earshoot', 'all3')){
+tissue='anther'
+## ten largest families of each sup
+ggplot(data.frame(fammed[fammed$fam%in%names(largest10),]), aes(x=distance, y=value, color=sup, group=paste(fam, variable))) + geom_line() + scale_color_manual(values=dd.col) + facet_wrap(variable~sup, ncol=13) +
+                               theme(strip.background = element_blank(), strip.text.x=element_blank()) + ylim(0,100)
+## all families >10
+print(ggplot(fammed[fammed$famsize>=10,], aes(x=distance, y=value, col=sup, group=paste(fam, variable))) + geom_line() + scale_color_manual(values=dd.col) + facet_wrap(variable~sup, ncol=13) +
+                               theme(strip.background = element_blank(), strip.text.x=element_blank())+ ylim(0,100))
+#print(ggplot(d.mg, aes(x=distance, y=value, col=sup, group=paste(fam, context), linetype=context)) + geom_line() + scale_color_manual(values=dd.col) + facet_wrap(context~sup, nrow=3, scales='free_y') +
+#                               theme(strip.background = element_blank(), strip.text.y = element_blank(), strip.text.x=element_blank(), axis.line=element_blank(), axis.text.y=element_blank(), axis.ticks.y=element_blank()) + 
+#                               geom_point(data = df3, aes(x = distance, y = value), colour = "white", alpha=0) + ggtitle(tissue))
+## all families >10, alpha by famsize
+print(ggplot(fammed[fammed$famsize>=10,], aes(x=distance, y=value, col=sup, group=paste(fam, variable), alpha=log10(famsize)/4)) + geom_line() + scale_color_manual(values=dd.col) + facet_wrap(variable~sup, ncol=13) +
+                               theme(strip.background = element_blank(), strip.text.x=element_blank())+ ylim(0,100))
 
-dev.off()
+                               
+ggplot(data.frame(fammed[fammed$fam%in%names(largest10),]), aes(x=distance, y=log10(value), color=sup, group=paste(fam, variable))) + geom_line() + scale_color_manual(values=dd.col) + facet_wrap(variable~sup, ncol=13) +
+                               theme(strip.background = element_blank(), strip.text.y = element_blank(), strip.text.x=element_blank())+ ylim(0,2)
+## all families >10
+print(ggplot(fammed[fammed$famsize>=10,], aes(x=distance, y=log10(value), col=sup, group=paste(fam, variable))) + geom_line() + scale_color_manual(values=dd.col) + facet_wrap(variable~sup, ncol=13) +
+                               theme(strip.background = element_blank(), strip.text.x=element_blank())+ ylim(0,2))
+#print(ggplot(d.mg, aes(x=distance, y=value, col=sup, group=paste(fam, context), linetype=context)) + geom_line() + scale_color_manual(values=dd.col) + facet_wrap(context~sup, nrow=3, scales='free_y') +
+#                               theme(strip.background = element_blank(), strip.text.y = element_blank(), strip.text.x=element_blank(), axis.line=element_blank(), axis.text.y=element_blank(), axis.ticks.y=element_blank()) + 
+#                               geom_point(data = df3, aes(x = distance, y = value), colour = "white", alpha=0) + ggtitle(tissue))
+## all families >10, alpha by famsize
+print(ggplot(fammed[fammed$famsize>=10,], aes(x=distance, y=log10(value), col=sup, group=paste(fam, variable), alpha=log10(famsize)/4)) + geom_line() + scale_color_manual(values=dd.col) + facet_wrap(variable~sup, ncol=13) +
+                               theme(strip.background = element_blank(), strip.text.x=element_blank())+ ylim(0,2))
+                                                                                            
+dev.off()                                           
 
+pdf('expression_decay.2kb.pdf', 25,25)
+#for (tissue in c('anther', 'SAM', 'earshoot', 'all3')){
+tissue='anther'
+## ten largest families of each sup
+ggplot(data.frame(fammed[fammed$fam%in%names(largest10),]), aes(x=distance, y=value, color=sup, group=paste(fam, variable))) + geom_line() + scale_color_manual(values=dd.col) + facet_grid(variable~sup) +
+                               theme(strip.background = element_blank(), strip.text.y = element_text(angle = 180), strip.text.x=element_blank()) + ylim(0,100)+ xlim(0,2100)
+print(ggplot(fammed[fammed$famsize>=10,], aes(x=distance, y=value, col=sup, group=paste(fam, variable), alpha=log10(famsize)/4)) + geom_line() + scale_color_manual(values=dd.col) + facet_grid(variable~sup) +
+                               theme(strip.background = element_blank(), strip.text.y = element_text(angle = 180), strip.text.x=element_blank())+ ylim(0,100)+ xlim(0,2100))
+
+ggplot(data.frame(fammed[fammed$fam%in%names(largest10),]), aes(x=distance, y=log10(value), color=sup, group=paste(fam, variable))) + geom_line() + scale_color_manual(values=dd.col) + facet_grid(variable~sup) +
+                               theme(strip.background = element_blank(), strip.text.y = element_text(angle = 180), strip.text.x=element_blank())+ ylim(0,2)+ xlim(0,2100)
+## all families >10, alpha by famsize
+print(ggplot(fammed[fammed$famsize>=10,], aes(x=distance, y=log10(value), col=sup, group=paste(fam, variable), alpha=log10(famsize)/4)) + geom_line() + scale_color_manual(values=dd.col) + facet_grid(variable~sup) +
+                               theme(strip.background = element_blank(), strip.text.y = element_text(angle = 180), strip.text.x=element_blank())+ ylim(0,2)+ xlim(0,2100))
+                                                                                            
+dev.off()                                           
 
