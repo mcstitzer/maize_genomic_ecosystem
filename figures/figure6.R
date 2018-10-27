@@ -81,8 +81,8 @@ print(ggplot(d.mg, aes(x=distance, y=value, col=sup, group=paste(fam, context), 
  #                              theme(strip.background = element_blank(), strip.text.y = element_blank(), strip.text.x=element_blank(), axis.line=element_blank(), axis.text.y=element_blank(), axis.ticks.y=element_blank()) + 
  #                              geom_point(data = df3, aes(x = distance, y = value), colour = "white", alpha=0) + ggtitle(tissue))
 ## all families >10, alpha by famsize
-print(ggplot(d.mg, aes(x=distance, y=value, col=sup, group=paste(fam, context), linetype=context, alpha=log10(famsize)/4)) + geom_line() + scale_color_manual(values=dd.col) + facet_wrap(context~sup, nrow=3, strip.position='left', labeller=as_labeller(c(cg=paste0('mCG in ', tissue), chg=paste0('mCHG in ', tissue), chh=paste0('mCHH in ', tissue)))) +
-                               theme(strip.background = element_blank(), strip.placement = "outside", strip.text.x=element_blank()))
+print(ggplot(d.mg, aes(x=distance, y=value, col=factor(sup, levels=TESUPFACTORLEVELS), group=paste(fam, context), linetype=context, alpha=log10(famsize)/4)) + geom_line() + scale_color_manual(values=dd.col, name='superfamily') + facet_wrap(context~sup, nrow=3) +
+                               theme(strip.background = element_blank(), strip.text.y = element_blank(), strip.text.x=element_blank()) + ylab('mC proportion') + scale_alpha(guide = 'none'))
 #print(ggplot(d.mg, aes(x=distance, y=value, col=sup, group=paste(fam, context), linetype=context, alpha=log10(famsize)/4)) + geom_line() + scale_color_manual(values=dd.col) + facet_wrap(context~sup, nrow=3, scales='free_y') +
    #                            theme(strip.background = element_blank(), strip.text.y = element_blank(), strip.text.x=element_blank(), axis.line=element_blank(), axis.text.y=element_blank(), axis.ticks.y=element_blank()) + 
    #                            geom_point(data = df3, aes(x = distance, y = value), colour = "white", alpha=0) )
