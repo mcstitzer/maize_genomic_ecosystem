@@ -52,7 +52,7 @@ supAgeFun5=function(superfam){
 
 ## figure 3
 pdf('matching_age_dists.pdf', 10,10)
-sups=ggplot(te[!is.na(te$sup),], aes(x=mya*1e6, fill=sup)) + geom_histogram(binwidth=1e4) + facet_wrap(~sup, ncol=1, scales='free_y')+ theme(strip.background = element_blank(),strip.text.x = element_blank(), axis.text=element_text(size=10)) +  scale_fill_manual(values=dd.col) + scale_x_continuous(name='Age (million years)', breaks=c(0,1e6,2e6), labels=c(0,1,2), limits=c(0,2.1e6)) + ylab('Number copies')
+sups=ggplot(te[!is.na(te$sup),], aes(x=mya*1e6, fill=factor(sup, levels=TESUPFACTORLEVELS))) + geom_histogram(binwidth=1e4) + facet_wrap(~factor(sup, levels=TESUPFACTORLEVELS), ncol=1, scales='free_y')+ theme(strip.background = element_blank(),strip.text.x = element_blank(), axis.text=element_text(size=10)) +  scale_fill_manual(values=dd.col, name='') + scale_x_continuous(name='Age (million years)', breaks=c(0,1e6,2e6), labels=c(0,1,2), limits=c(0,2.1e6)) + ylab('Number copies')
 #DHH= ggplot(te[te$chr==1 & te$largest10 & te$famsize>10 & te$sup=='DHH',], aes(x=start, fill=sup, group=fam)) + geom_histogram(binwidth=1e6) + facet_wrap(~fam, ncol=1, scales='free_y', drop=T, strip.position='right')+ 
 #           theme(strip.background = element_blank(),strip.text.x = element_blank()) + scale_fill_manual(values=dd.col)
 DHH = supAgeFun('DHH')
