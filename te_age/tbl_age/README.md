@@ -10,4 +10,9 @@
   - each outputs a .tre and .aln.fa file for the superfamily
   
 3. get terminal branch lengths for each copy
-  - `Rscript summarize_trees.R` 
+  - `Rscript summarize_trees.R` outputs `B73_terminalbranchlength.txt`
+    - this has columns
+      1. TEID - TE identifier
+      2. fam - family
+      3. sup - superfamily code
+      4. tbl - terminal branch length of this copy
