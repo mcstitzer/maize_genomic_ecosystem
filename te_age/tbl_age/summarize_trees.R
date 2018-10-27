@@ -1,17 +1,19 @@
 library('ape')
 library('dplyr')
 
+source('../../GenomeInfo.R')
+
 rst=read.tree('RST.tre')
 rit=read.tree('RIT.tre')
 ril=read.tree('RIL.tre')
 dta=read.tree('DTA.tre')
 dtc=read.tree('DTC.tre')
-dth=read.tree('DTH.tre')
+dth=read.tree('DTH.mpi.fastest.tre')
 dtm=read.tree('DTM.tre')
-dtt=read.tree('DTT.tre')
-dtx=read.tree('DTX.tre')
-rlc=read.tree('RLC.1000.tre')
-rlg=read.tree('RLG.1000.tre')
+dtt=read.tree('DTT.mpi.fastest.tre')
+dtx=read.tree('DTX.mpi.tre')
+rlc=read.tree('RLC.1000.mpi.tre')
+rlg=read.tree('RLG.1000.mpi.fastest.tre')
 rlx=read.tree('RLX.1000.tre')
 dhh=read.tree('DHH.last1000.tre')
 
@@ -36,15 +38,15 @@ tes$TEID=gsub('_R_','',tes$TEID)
 tes$fam=substr(tes$TEID,1,8)
 tes$sup=substr(tes$TEID,1,3)
 tes=tes[order(tes$TEID),c('TEID', 'fam', 'sup', 'tbl')]
-write.table(tes, paste0('B73v4_terminalbranchlength', Sys.Date(), '.txt'), col.names=T, row.names=F, sep='\t', quote=F)
+write.table(tes, paste0(GENOME, '_terminalbranchlength', Sys.Date(), '.txt'), col.names=T, row.names=F, sep='\t', quote=F)
 
 
-te_fam=tes %>% group_by(sup,fam) %>% dplyr::summarize(avg_tbl=mean(tbl, na.rm=T))
-write.table(te_fam, paste0('B73v4_terminalbranchlength', Sys.Date(), '.fam.txt'), quote=F, sep='\t', col.names=T, row.names=F)
-
-## note i'm taking averages of averages here! Should each family count equally? Or should it be weighted by famsize?
-te_sup=te_fam %>% group_by(sup) %>% dplyr::summarize(avg_tbl=mean(avg_tbl, na.rm=T))
-write.table(te_sup, paste0('B73v4_terminalbranchlength', Sys.Date(), '.sup.txt'), quote=F, sep='\t', row.names=F, col.names=T)
-
-
-tes$famsize=table(tes$fam)[tes$fam]
+#te_fam=tes %>% group_by(sup,fam) %>% dplyr::summarize(avg_tbl=mean(tbl, na.rm=T))
+#write.table(te_fam, paste0('B73v4_terminalbranchlength', Sys.Date(), '.fam.txt'), quote=F, sep='\t', col.names=T, row.names=F)
+#
+### note i'm taking averages of averages here! Should each family count equally? Or should it be weighted by famsize?
+#te_sup=te_fam %>% group_by(sup) %>% dplyr::summarize(avg_tbl=mean(avg_tbl, na.rm=T))
+#write.table(te_sup, paste0('B73v4_terminalbranchlength', Sys.Date(), '.sup.txt'), quote=F, sep='\t', row.names=F, col.names=T)
+#
+#
+#tes$famsize=table(tes$fam)[tes$fam]
