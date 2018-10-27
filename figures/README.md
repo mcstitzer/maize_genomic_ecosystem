@@ -19,7 +19,9 @@
   - figure5.R
   
 ## Figure 6: Methylation decay
-  - *todo* plot!
+  - figure6.R
+  - *todo* add H3k9 methylation, maybe as supplement?
+  - possibly use another row here for nearby gene expression?
   
 ## Figure 7: Model results
   - barplot of each order, importance of aggregated and individual features
