@@ -10,7 +10,6 @@
   
 ## Figure 3: Age distribution of TE superfamilies and families
   - figure3.R
-  - *todo* generate new age results
   
 ## Figure 4: Expression heatmap and tissue categorization
   - figure4.R
