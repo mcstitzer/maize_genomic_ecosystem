@@ -7,6 +7,7 @@ library(dplyr)
 
 source('../GenomeInfo.R')
 source('color_palette.R')
+source('meanSD_functions.R')
 
 ## note that this expects there to be an ind data frame
 
@@ -14,10 +15,25 @@ source('color_palette.R')
 techar=fread('../te_characteristics/B73_TE_individual_copies.2018-09-19.txt')
 gene=fread('../genes/B73_closest_gene.2018-09-20.txt')
 colnames(gene)[3]='TEID'
+tbl=fread('../te_age/tbl_age/B73_terminalbranchlength2018-10-27.txt')
+ltr=fread('../te_age/B73v4_recovered_ages.txt')
+ltr$TEID=gsub('B73v4', 'Zm00001d', ltr$tename)
+ltr$tename=NULL
+
 
 ind=merge(techar, gene, all=T)
 ind$ingene=ind$closest==0
+ind=merge(ind, ltr, all.x=T, by='TEID')
+ind=merge(ind, tbl, all.x=T, by=c('TEID', 'fam', 'sup'))
+
 ind=ind[ind$tebp>=50,] ## after disjoining, some TEs are too short to be real :( - be sure to add this to all figures!!!
+
+ind$age=ind$tbl
+ind$age[!is.na(ind$k2p)]=ind$k2p[!is.na(ind$k2p)]
+ind$mya=ind$age/3.3e-8/2/1e6
+ind$ya=ind$age/3.3e-8/2
+ind$tblmya=ind$tbl/3.3e-8/2/1e6
+
 
 nrow(ind)
 nrow(techar)
@@ -33,94 +49,6 @@ largest10
 ind$largest10=ind$fam %in% names(largest10)                               
 largest10=largest10[c(1:70,83:112,71:82,113:122)] ## super hard coded to get the nonLTR together!                     
                      
-get_largest_quantile_backgroundbox=function(feat){
- library(plyr)
- sub2=cbind(ind[ind$largest10 & !duplicated(ind$TEID),] %>% select_(feat) , ind[ind$largest10 & !duplicated(ind$TEID),] %>% select(fam))
- sub3=sub2 %>% group_by(fam) %>% summarize_all(funs(median(., na.rm=TRUE), min=quantile(., na.rm=TRUE, 0.25), max=quantile(.,na.rm=TRUE, 0.75)))
- sub3$sup=substr(sub3$fam,1,3)
- sub3$value=NA
- sub3$plt='point'
- sub1=cbind(ind %>% select_(feat) , ind %>% select(sup))
- af=sub1 %>% group_by(sup) %>% summarize_all(funs(median(., na.rm=TRUE), min=quantile(., na.rm=TRUE, 0.25), max=quantile(.,na.rm=TRUE, 0.75)))
- af$fam=af$sup
- af$value=NA
- af$plt='suppoint'
- colnames(af)[1]='fam'
- colnames(af)[5]='sup'
- colnames(af)[2:4]=paste0(colnames(af)[2:4], '_sup')
- sub3$median_sup=as.numeric(as.character(mapvalues(sub3$sup, from=af$sup, to=af$median_sup)))
- sub3$min_sup=as.numeric(as.character(mapvalues(sub3$sup, from=af$sup, to=af$max_sup)))
- sub3$max_sup=as.numeric(as.character(mapvalues(sub3$sup, from=af$sup, to=af$min_sup)))
- sub3=sub3[match(names(largest10), sub3$fam),]
- sub3$x=1:nrow(sub3)
- sub3$px=sub3$x
- sub3$x1=sub3$x+1
- sub3$px1=sub3$x1
- sub3$x[!duplicated(sub3$sup)]=sub3$x1[!duplicated(sub3$sup)]-0.75
- sub3$x1[which(!duplicated(sub3$sup))[-1]-1]=sub3$x1[which(!duplicated(sub3$sup))[-1]-1]-0.75
-
-# sub4=merge(sub3, af, all=T)
- return(sub3)
-}
-
-## figure out percentages
-get_largest_percents_backgroundbox=function(feat, invert=FALSE){
- library(plyr)
- sub2=cbind(ind[ind$largest10 & !duplicated(ind$TEID),] %>% select_(feat) , ind[ind$largest10 & !duplicated(ind$TEID),] %>% select(fam))
- classes=names(table(sub2[,feat, with=F]))
- if(invert){classes=rev(classes)}
- print(classes)
- if (length(classes)>2){
-  print("warning - make sure the first class here is one you want to compare to all others")
-  }
- sub3=sub2 %>% group_by(fam) %>% dplyr::summarize_all(funs(propFirst=sum(.==classes[1], na.rm=T)/sum(!is.na(.))))
- sub3$sup=substr(sub3$fam,1,3)
- sub3$plot='family'
- sub1=cbind(ind %>% select_(feat) , ind %>% select(sup))
- af=sub1 %>% group_by(sup) %>% dplyr::summarize_all(funs(propFirst=sum(.==classes[1], na.rm=T)/sum(!is.na(.))))
- af$fam=af$sup
- af$plot='superfamily'
- sub3$supperc=as.numeric(mapvalues(sub3$sup, from=af$sup, to=af$propFirst))
- sub3=sub3[match(names(largest10), sub3$fam),]
- sub3$x=1:nrow(sub3)
- sub3$px=sub3$x
- sub3$x1=sub3$x+1
- sub3$px1=sub3$x1
- sub3$x[!duplicated(sub3$sup)]=sub3$x1[!duplicated(sub3$sup)]-0.75
- sub3$x1[which(!duplicated(sub3$sup))[-1]-1]=sub3$x1[which(!duplicated(sub3$sup))[-1]-1]-0.75
-
-# sub4=merge(sub3, af, all=T)
- return(sub3)
-}
-
-
-plot_percentages=function(feat, ylab='', invert=FALSE){
- ggplot(get_largest_percents_backgroundbox(feat, invert), aes(x=px, y=propFirst, fill=sup)) + 
-                     geom_point(aes(color=sup), size=2) +
-                      geom_col(aes(y=supperc), alpha=0.3, width=1) + 
-#                     geom_ribbon(aes(x=fam, y=median_sup, ymin=min_sup, ymax=max_sup), alpha = 0.3)+
-#                     geom_pointrange(fatten=3, size=10, shape='-', alpha=0.4, aes(x=fam, y=median_sup, ymin=min_sup, ymax=max_sup)) +  
-                     scale_fill_manual(values=dd.col) +  scale_color_manual(values=dd.col) +#ggtitle('TE length')+ 
-                     theme(legend.position="none", axis.title.x=element_blank(), axis.text.x=element_blank(),axis.ticks.x=element_blank()) +
-                     ylab(ylab)
- }
-
-
-### repeat for other figure of te vs flank
-
-
-plotlargest=function(feat, ylab=''){
- ggplot(get_largest_quantile_backgroundbox(feat), aes(x=x, y=median, ymin=min, ymax=max, color=sup, fill=sup)) + 
-                     geom_pointrange(fatten=4/3, size=1.5) + 
-                     geom_rect(aes(xmin=x, xmax=x1, fill=sup, ymin=min_sup, ymax=max_sup), alpha=0.2, colour=NA) +
-                     geom_point(aes(x=px+0.5, color=sup, y=median_sup), alpha=0.5, shape="-", size=1.5) +
-#                     geom_ribbon(aes(x=fam, y=median_sup, ymin=min_sup, ymax=max_sup), alpha = 0.3)+
-#                     geom_pointrange(fatten=3, size=10, shape='-', alpha=0.4, aes(x=fam, y=median_sup, ymin=min_sup, ymax=max_sup)) +  
-                     scale_fill_manual(values=dd.col) +  scale_color_manual(values=dd.col) + #ggtitle('TE length')+ 
-                     theme(legend.position="none", axis.title.x=element_blank(), axis.text.x=element_blank(),axis.ticks.x=element_blank()) +
-                     ylab(ylab)
- }
-
 
 
 
@@ -132,7 +60,7 @@ plotlargest=function(feat, ylab=''){
 
 pdf(paste0('pointrange_fams_quantileWideBox_selfTE.', Sys.Date(), '.pdf'), 16,8)
 tel=plotlargest('tebp', 'TE Length (bp)')
-#age=plotlargest('mya', 'Age \n(million years)') + coord_cartesian(ylim=c(0,3))
+age=plotlargest('mya', 'Age \n(million years)') + coord_cartesian(ylim=c(0,3))
 #piece=plot_percentages('pieces', 'Proportion intact')
 disr=plot_percentages('disruptor', 'Proportion in \nanother TE')
 cl=plotlargest('closest', 'Distance from \ngene (bp)')
@@ -201,7 +129,7 @@ famplotbp=ggplot(fs, aes(
 # figure 1                               
 pdf(paste0('figure1.', Sys.Date(), '.pdf'), 24,8)
 tel=plotlargest('tebp', 'TE Length (bp)')
-#age=plotlargest('mya', 'Age \n(million years)') + coord_cartesian(ylim=c(0,3))
+age=plotlargest('mya', 'Age \n(million years)') + coord_cartesian(ylim=c(0,3))
 #piece=plot_percentages('pieces', 'Proportion intact')
 disr=plot_percentages('disruptor', 'Proportion in \nanother TE')
 cl=plotlargest('closest', 'Distance from \ngene (bp)')
@@ -210,10 +138,10 @@ ingene=plot_percentages('ingene', 'Proportion in \ntranscript', invert=TRUE)
 #plot_grid(tel, age, cl, ingene, disr ,  labels = "AUTO", ncol = 1, align = 'v')
 #plot_grid(tel, cl, ingene, piece, disr + scale_x_discrete(labels=substr(names(largest10),1,3)[!duplicated(substr(names(largest10),1,3))]),  labels = "AUTO", ncol = 1, align = 'v')
 ## version with a legend.
-legend <- get_legend( ggplot(get_largest_quantile_backgroundbox('tebp'), aes(x=x, y=median, ymin=min, ymax=max, color=factor(sup, levels=c('DHH', 'DTA', 'DTC', 'DTH', 'DTM', 'DTT', 'DTX', 'RLC', 'RLG', 'RLX', 'RIL', 'RIT', 'RST'))))+ geom_pointrange(size=1)+ 
+legend <- get_legend( ggplot(get_largest_quantile_backgroundbox('tebp'), aes(x=x, y=median, ymin=min, ymax=max, color=factor(sup, levels=TESUPFACTORLEVELS)))+ geom_pointrange(size=1)+ 
                      theme(legend.title=element_blank())+ scale_color_manual(values=dd.col))
 #plots <- plot_grid(tel, age, cl, ingene, disr ,  labels = c('B', 'C', 'D', 'E', 'F'), ncol = 1, align = 'v')
-plots <- plot_grid(tel, cl, ingene, disr ,  labels = c('C', 'D', 'E', 'F'), ncol = 1, align = 'v')
+plots <- plot_grid(tel, age, cl, ingene, disr ,  labels = c('C', 'D', 'E', 'F', 'G'), ncol = 1, align = 'v')
 supplots <- plot_grid(tempfamplot, famplotbp, labels=c('A', 'B'), ncol=2, align='v', scale=0.96)
 plot_grid(supplots, plots,legend, ncol = 3, align = 'v', labels=c('','', ''), scale=c(0.96,1,1), rel_widths = c(0.8, 1, .1))                              
 dev.off()                             
