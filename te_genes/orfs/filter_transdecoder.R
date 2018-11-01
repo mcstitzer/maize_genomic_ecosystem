@@ -3,7 +3,7 @@ library(dplyr)
 
 ## read in this transdecoder file (which only contains the LONGEST orf for each)
 ## note that there is a minimum ORF length of 100 aa, so some TEs won't have an ORF called.
-a=import.gff3('B73v4.Zm00001d.allTE.fa.transdecoder.gff3')
+a=import.gff3('B73.eachTE.fa.transdecoder.gff3')
 b=a[a$type=='CDS',]
 
 ## make a new df that only has orf length
