@@ -1,5 +1,6 @@
-## need to add libraries
-
+library(data.table)
+library(plyr)
+library(dplyr)
 
 source('../GenomeInfo.R')
 
@@ -31,3 +32,5 @@ ind=merge(ind, ind%>%group_by(fam) %>% summarize(tpaseprotfam=sum(tpaseprot)>0),
 
 ## need to add write to file at the end
 write.table(ind, paste0(GENOME, '.te_proteins.txt'), col.names=T, row.names=F, sep='\t', quote=F)
+
+
