@@ -21,6 +21,7 @@ ltr$TEID=gsub('B73v4', 'Zm00001d', ltr$tename)
 ltr$tename=NULL
 
 
+
 ind=merge(techar, gene, all=T)
 ind$ingene=ind$closest==0
 ind=merge(ind, ltr, all.x=T, by='TEID')
@@ -34,6 +35,13 @@ ind$mya=ind$age/3.3e-8/2/1e6
 ind$ya=ind$age/3.3e-8/2
 ind$tblmya=ind$tbl/3.3e-8/2/1e6
 
+## add in te proteins
+tegenes=fread('../te_genes/proteins/B73.hmmprotein.txt')
+ltrgenes=fread('../te_genes/ltr_protein_domains/B73v4_ltr_proteins.txt')
+ltrgenes$TEID=gsub('B73v4', 'Zm00001d', ltrgenes$TEID)
+ind=merge(ind, tegenes, all.x=T, by=c('TEID', 'fam', 'sup'))
+ind=merge(ind, ltrgenes, all.x=T, by=c('TEID'))
+ind[,c('helprot', 'rveprot', 'tpaseprot', 'GAG', 'AP', 'INT', 'RT', 'RNaseH', 'ENV', 'CHR', 'pol', 'auton')][is.na(ind[,c('helprot', 'rveprot', 'tpaseprot', 'GAG', 'AP', 'INT', 'RT', 'RNaseH', 'ENV', 'CHR', 'pol', 'auton')])]=F
 
 nrow(ind)
 nrow(techar)
@@ -199,13 +207,38 @@ dev.off()
 #########################
 ## need to invert so we're counting  percent that have the protein! (TRUE value)                               
 pdf('supp_TE_coding.pdf', 16,8)
+helprot=plot_percentages('helprot', 'Helitron proteins', invert=T)      
+tirprot=plot_percentages('tpaseprot', 'Transposase proteins', invert=T)
+rveprot=plot_percentages('rveprot', 'Integrase proteins', invert=T)
 anyprot=plot_percentages('anyprot', 'Protein coding', invert=T)
-ltrgag=plot_percentages('ltrgag', 'GAG', invert=T)
-ltrpol=plot_percentages('ltrpol', 'Polyprotein', invert=T)
-ltrauton=plot_percentages('ltrauton', 'All five LTR domains', invert=T)
-legend <- get_legend( ggplot(get_largest_quantile_backgroundbox('seqlen'), aes(x=x, y=median, ymin=min, ymax=max, color=factor(sup, levels=c('DHH', 'DTA', 'DTC', 'DTH', 'DTM', 'DTT', 'DTX', 'RLC', 'RLG', 'RLX', 'RIL', 'RIT', 'RST')), fill=sup))+ geom_pointrange(size=1)+ 
-                     theme(legend.title=element_blank())+ scale_color_manual(values=dd.col))
-plots <- plot_grid(anyprot, ltrgag, ltrpol, ltrauton,  labels = 'AUTO', ncol = 1, align = 'v')
-plot_grid(plots,legend, ncol = 2, align = 'v', labels='', rel_widths = c(1, .1))                              
+ltrgag=plot_percentages('GAG', 'GAG', invert=T)
+ltrap=plot_percentages('AP', 'Aspartic Proteinase', invert=T)
+ltrint=plot_percentages('INT', 'Integrase', invert=T)
+ltrrt=plot_percentages('RT', 'Reverse Transcriptase', invert=T)
+ltrrnaseh=plot_percentages('RNaseH', 'RNase H', invert=T)
+ltrenv=plot_percentages('ENV', 'Envelope', invert=T)
+ltrchr=plot_percentages('CHR', 'Chromodomain', invert=T)
+ltrpol=plot_percentages('pol', 'Polyprotein', invert=T)
+ltrauton=plot_percentages('auton', 'All five LTR domains', invert=T)
+                               
+helprotfam=plot_percentages('helprotfam', 'Family member with\nhelitron proteins', invert=T)      
+tirprotfam=plot_percentages('tpaseprotfam', 'Family member with\ntransposase proteins', invert=T)
+rveprotfam=plot_percentages('rveprotfam', 'Family member with\nintegrase proteins', invert=T)
+anyprotfam=plot_percentages('anyprotfam', 'Family member with\nprotein coding', invert=T)
+ltrgagfam=plot_percentages('GAGfam', 'Family member with\nGAG', invert=T)
+ltrapfam=plot_percentages('APfam', 'Family member with\nAspartic Proteinase', invert=T)
+ltrintfam=plot_percentages('INTfam', 'Family member with\nIntegrase', invert=T)
+ltrrtfam=plot_percentages('RTfam', 'Family member with\nReverse Transcriptase', invert=T)
+ltrrnasehfam=plot_percentages('RNaseHfam', 'Family member with\nRNase H', invert=T)
+ltrenvfam=plot_percentages('ENVfam', 'Family member with\nEnvelope', invert=T)
+ltrchrfam=plot_percentages('CHRfam', 'Family member with\nChromodomain', invert=T)
+ltrpolfam=plot_percentages('polfam', 'Family member with\nPolyprotein', invert=T)
+ltrautonfam=plot_percentages('autonfam', 'Family member with\nAll five LTR domains', invert=T)
+plots <- plot_grid(helprot, tirprot, ltrgag, ltrpol, ltrauton,  labels = 'AUTO', ncol = 1, align = 'v')
+plot_grid(plots,legend, ncol = 2, align = 'v', labels='', rel_widths = c(1, .1))
+ltronly = plot_grid(ltrgag, ltrap, ltrint, ltrrt, ltrrnaseh, ltrenv, ltrchr, ltrpol, ltrauton, labels='AUTO', ncol=1, align='v')
+plot_grid(ltronly, legend, ncol=2, align='v', labels='', rel_widths=c(1,0.1))
+sides=plot_grid(helprot, helprotfam, tirprot, tirprotfam, ltrgag, ltrgagfam, ltrpol, ltrpolfam, ltrauton, ltrautonfam, labels='AUTO', ncol=2, align='v')
+plot_grid(sides, legend, ncol=2, align='v', labels='', rel_widths=c(1,0.1))     
 dev.off() 
                                
