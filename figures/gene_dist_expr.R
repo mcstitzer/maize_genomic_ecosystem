@@ -168,16 +168,16 @@ pdf('expression_decay.scaledmax.pdf', 25,25)
 tissue='anther'
 ## ten largest families of each sup
 ggplot(data.frame(fammed[fammed$fam%in%names(largest10),]), aes(x=distance, y=value, color=sup, group=paste(fam, variable))) + geom_line() + scale_color_manual(values=dd.col) + facet_wrap(variable~sup, ncol=13) +
-                               theme(strip.background = element_blank(), strip.text.x=element_blank()) + ylim(0,100)
+                               theme(strip.background = element_blank(), strip.text.x=element_blank()) + ylim(0,1)
 ## all families >10
 print(ggplot(fammed[fammed$famsize>=10,], aes(x=distance, y=value, col=sup, group=paste(fam, variable))) + geom_line() + scale_color_manual(values=dd.col) + facet_wrap(variable~sup, ncol=13) +
-                               theme(strip.background = element_blank(), strip.text.x=element_blank())+ ylim(0,100))
+                               theme(strip.background = element_blank(), strip.text.x=element_blank())+ ylim(0,1))
 #print(ggplot(d.mg, aes(x=distance, y=value, col=sup, group=paste(fam, context), linetype=context)) + geom_line() + scale_color_manual(values=dd.col) + facet_wrap(context~sup, nrow=3, scales='free_y') +
 #                               theme(strip.background = element_blank(), strip.text.y = element_blank(), strip.text.x=element_blank(), axis.line=element_blank(), axis.text.y=element_blank(), axis.ticks.y=element_blank()) + 
 #                               geom_point(data = df3, aes(x = distance, y = value), colour = "white", alpha=0) + ggtitle(tissue))
 ## all families >10, alpha by famsize
 print(ggplot(fammed[fammed$famsize>=10,], aes(x=distance, y=value, col=sup, group=paste(fam, variable), alpha=log10(famsize)/4)) + geom_line() + scale_color_manual(values=dd.col) + facet_wrap(variable~sup, ncol=13) +
-                               theme(strip.background = element_blank(), strip.text.x=element_blank())+ ylim(0,100))
+                               theme(strip.background = element_blank(), strip.text.x=element_blank())+ ylim(0,1))
 
                                
 ggplot(data.frame(fammed[fammed$fam%in%names(largest10),]), aes(x=distance, y=log10(value), color=sup, group=paste(fam, variable))) + geom_line() + scale_color_manual(values=dd.col) + facet_wrap(variable~sup, ncol=13) +
@@ -199,9 +199,9 @@ pdf('expression_decay.2kb.scaledmax.pdf', 25,25)
 tissue='anther'
 ## ten largest families of each sup
 ggplot(data.frame(fammed[fammed$fam%in%names(largest10),]), aes(x=distance, y=value, color=sup, group=paste(fam, variable))) + geom_line() + scale_color_manual(values=dd.col) + facet_grid(variable~sup) +
-                               theme(strip.background = element_blank(), strip.text.y = element_text(angle = 180), strip.text.x=element_blank()) + ylim(0,100)+ xlim(0,2100)
+                               theme(strip.background = element_blank(), strip.text.y = element_text(angle = 180), strip.text.x=element_blank()) + ylim(0,1)+ xlim(0,2100)
 print(ggplot(fammed[fammed$famsize>=10,], aes(x=distance, y=value, col=sup, group=paste(fam, variable), alpha=log10(famsize)/4)) + geom_line() + scale_color_manual(values=dd.col) + facet_grid(variable~sup) +
-                               theme(strip.background = element_blank(), strip.text.y = element_text(angle = 180), strip.text.x=element_blank())+ ylim(0,100)+ xlim(0,2100))
+                               theme(strip.background = element_blank(), strip.text.y = element_text(angle = 180), strip.text.x=element_blank())+ ylim(0,1)+ xlim(0,2100))
 
 ggplot(data.frame(fammed[fammed$fam%in%names(largest10),]), aes(x=distance, y=log10(value), color=sup, group=paste(fam, variable))) + geom_line() + scale_color_manual(values=dd.col) + facet_grid(variable~sup) +
                                theme(strip.background = element_blank(), strip.text.y = element_text(angle = 180), strip.text.x=element_blank())+ ylim(0,2)+ xlim(0,2100)
@@ -230,16 +230,16 @@ pdf('expression_decay.standardized.pdf', 25,25)
 tissue='anther'
 ## ten largest families of each sup
 ggplot(data.frame(fammed[fammed$fam%in%names(largest10),]), aes(x=distance, y=value, color=sup, group=paste(fam, variable))) + geom_line() + scale_color_manual(values=dd.col) + facet_wrap(variable~sup, ncol=13) +
-                               theme(strip.background = element_blank(), strip.text.x=element_blank()) + ylim(0,100)
+                               theme(strip.background = element_blank(), strip.text.x=element_blank()) + ylim(-5,5)
 ## all families >10
 print(ggplot(fammed[fammed$famsize>=10,], aes(x=distance, y=value, col=sup, group=paste(fam, variable))) + geom_line() + scale_color_manual(values=dd.col) + facet_wrap(variable~sup, ncol=13) +
-                               theme(strip.background = element_blank(), strip.text.x=element_blank())+ ylim(0,100))
+                               theme(strip.background = element_blank(), strip.text.x=element_blank())+ ylim(-5,5))
 #print(ggplot(d.mg, aes(x=distance, y=value, col=sup, group=paste(fam, context), linetype=context)) + geom_line() + scale_color_manual(values=dd.col) + facet_wrap(context~sup, nrow=3, scales='free_y') +
 #                               theme(strip.background = element_blank(), strip.text.y = element_blank(), strip.text.x=element_blank(), axis.line=element_blank(), axis.text.y=element_blank(), axis.ticks.y=element_blank()) + 
 #                               geom_point(data = df3, aes(x = distance, y = value), colour = "white", alpha=0) + ggtitle(tissue))
 ## all families >10, alpha by famsize
 print(ggplot(fammed[fammed$famsize>=10,], aes(x=distance, y=value, col=sup, group=paste(fam, variable), alpha=log10(famsize)/4)) + geom_line() + scale_color_manual(values=dd.col) + facet_wrap(variable~sup, ncol=13) +
-                               theme(strip.background = element_blank(), strip.text.x=element_blank())+ ylim(0,100))
+                               theme(strip.background = element_blank(), strip.text.x=element_blank())+ ylim(-5,5))
 
                                
 ggplot(data.frame(fammed[fammed$fam%in%names(largest10),]), aes(x=distance, y=log10(value), color=sup, group=paste(fam, variable))) + geom_line() + scale_color_manual(values=dd.col) + facet_wrap(variable~sup, ncol=13) +
@@ -261,9 +261,9 @@ pdf('expression_decay.2kb.standardized.pdf', 25,25)
 tissue='anther'
 ## ten largest families of each sup
 ggplot(data.frame(fammed[fammed$fam%in%names(largest10),]), aes(x=distance, y=value, color=sup, group=paste(fam, variable))) + geom_line() + scale_color_manual(values=dd.col) + facet_grid(variable~sup) +
-                               theme(strip.background = element_blank(), strip.text.y = element_text(angle = 180), strip.text.x=element_blank()) + ylim(0,100)+ xlim(0,2100)
+                               theme(strip.background = element_blank(), strip.text.y = element_text(angle = 180), strip.text.x=element_blank()) + ylim(-5,5)+ xlim(0,2100)
 print(ggplot(fammed[fammed$famsize>=10,], aes(x=distance, y=value, col=sup, group=paste(fam, variable), alpha=log10(famsize)/4)) + geom_line() + scale_color_manual(values=dd.col) + facet_grid(variable~sup) +
-                               theme(strip.background = element_blank(), strip.text.y = element_text(angle = 180), strip.text.x=element_blank())+ ylim(0,100)+ xlim(0,2100))
+                               theme(strip.background = element_blank(), strip.text.y = element_text(angle = 180), strip.text.x=element_blank())+ ylim(-5,5)+ xlim(0,2100))
 
 ggplot(data.frame(fammed[fammed$fam%in%names(largest10),]), aes(x=distance, y=log10(value), color=sup, group=paste(fam, variable))) + geom_line() + scale_color_manual(values=dd.col) + facet_grid(variable~sup) +
                                theme(strip.background = element_blank(), strip.text.y = element_text(angle = 180), strip.text.x=element_blank())+ ylim(0,2)+ xlim(0,2100)
