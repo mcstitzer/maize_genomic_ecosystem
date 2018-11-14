@@ -161,6 +161,13 @@ ge$bins.10kb100bp=cut(ge$closest, breaks=seq(0,10000, length.out=101), include.l
 
 fammed=ge %>% group_by(sup, fam, bins.10kb100bp, variable, famsize)  %>% dplyr::summarize(value=median(value, na.rm=T))
 fammean=ge %>% group_by(sup, fam, bins, bins.10kb, bins.20kb, bins.10kb100bp, variable) %>% dplyr::summarize(value=mean(value, na.rm=T))
+## keep only those with at least one observation of a gene in each bin.
+fammedEach=ge %>% group_by(sup, fam, bins.10kb100bp, variable, famsize) %>% filter(all(seq(0,10000, length.out=101)[-1] %in% bins.10kb100bp)) %>% dplyr::summarize(value=median(value, na.rm=T))
+## keep only those with at least one observation of a gene in each bin.
+fammed10=ge %>% group_by(sup, fam, bins.10kb100bp, variable, famsize) %>% filter(n() >= 10) %>% dplyr::summarize(value=median(value, na.rm=T))
+               
+fammedEach$distance=as.numeric(as.character(fammedEach$bins.10kb100bp))                   
+fammed10$distance=as.numeric(as.character(fammed10$bins.10kb100bp))                   
                                                                                             
 fammed$distance=as.numeric(as.character(fammed$bins.10kb100bp))                                                                                               
 pdf('expression_decay.scaledmax.pdf', 25,25)
@@ -203,12 +210,11 @@ ggplot(data.frame(fammed[fammed$fam%in%names(largest10),]), aes(x=distance, y=va
 print(ggplot(fammed[fammed$famsize>=10,], aes(x=distance, y=value, col=sup, group=paste(fam, variable), alpha=log10(famsize)/4)) + geom_line() + scale_color_manual(values=dd.col) + facet_grid(variable~sup) +
                                theme(strip.background = element_blank(), strip.text.y = element_text(angle = 180), strip.text.x=element_blank())+ ylim(0,1)+ xlim(0,2100))
 
-ggplot(data.frame(fammed[fammed$fam%in%names(largest10),]), aes(x=distance, y=log10(value), color=sup, group=paste(fam, variable))) + geom_line() + scale_color_manual(values=dd.col) + facet_grid(variable~sup) +
-                               theme(strip.background = element_blank(), strip.text.y = element_text(angle = 180), strip.text.x=element_blank())+ ylim(0,2)+ xlim(0,2100)
-## all families >10, alpha by famsize
-print(ggplot(fammed[fammed$famsize>=10,], aes(x=distance, y=log10(value), col=sup, group=paste(fam, variable), alpha=log10(famsize)/4)) + geom_line() + scale_color_manual(values=dd.col) + facet_grid(variable~sup) +
-                               theme(strip.background = element_blank(), strip.text.y = element_text(angle = 180), strip.text.x=element_blank())+ ylim(0,2)+ xlim(0,2100))
-                                                                                            
+ggplot(data.frame(fammed10[fammed10$fam%in%names(largest10),]), aes(x=distance, y=value, color=sup, group=paste(fam, variable))) + geom_line() + scale_color_manual(values=dd.col) + facet_grid(variable~sup) +
+                               theme(strip.background = element_blank(), strip.text.y = element_text(angle = 180), strip.text.x=element_blank()) + ylim(0,1)+ xlim(0,2100)
+print(ggplot(fammed10[fammed10$famsize>=10,], aes(x=distance, y=value, col=sup, group=paste(fam, variable), alpha=log10(famsize)/4)) + geom_line() + scale_color_manual(values=dd.col) + facet_grid(variable~sup) +
+                               theme(strip.background = element_blank(), strip.text.y = element_text(angle = 180), strip.text.x=element_blank())+ ylim(0,1)+ xlim(0,2100))
+                         
 dev.off()                    
                  
                   
@@ -223,7 +229,13 @@ ge$bins.10kb100bp=cut(ge$closest, breaks=seq(0,10000, length.out=101), include.l
 
 fammed=ge %>% group_by(sup, fam, bins.10kb100bp, variable, famsize)  %>% dplyr::summarize(value=median(value, na.rm=T))
 fammean=ge %>% group_by(sup, fam, bins, bins.10kb, bins.20kb, bins.10kb100bp, variable) %>% dplyr::summarize(value=mean(value, na.rm=T))
-                                                                                            
+## keep only those with at least one observation of a gene in each bin.
+fammedEach=ge %>% group_by(sup, fam, bins.10kb100bp, variable, famsize) %>% filter(all(seq(0,10000, length.out=101)[-1] %in% bins.10kb100bp)) %>% dplyr::summarize(value=median(value, na.rm=T))
+## keep only those with at least one observation of a gene in each bin.
+fammed10=ge %>% group_by(sup, fam, bins.10kb100bp, variable, famsize) %>% filter(n() >= 10) %>% dplyr::summarize(value=median(value, na.rm=T))
+               
+fammedEach$distance=as.numeric(as.character(fammedEach$bins.10kb100bp))                   
+fammed10$distance=as.numeric(as.character(fammed10$bins.10kb100bp))                   
 fammed$distance=as.numeric(as.character(fammed$bins.10kb100bp))                                                                                               
 pdf('expression_decay.standardized.pdf', 25,25)
 #for (tissue in c('anther', 'SAM', 'earshoot', 'all3')){
@@ -244,31 +256,20 @@ print(ggplot(fammed[fammed$famsize>=10,], aes(x=distance, y=value, col=sup, grou
                                
 ggplot(data.frame(fammed[fammed$fam%in%names(largest10),]), aes(x=distance, y=log10(value), color=sup, group=paste(fam, variable))) + geom_line() + scale_color_manual(values=dd.col) + facet_wrap(variable~sup, ncol=13) +
                                theme(strip.background = element_blank(), strip.text.y = element_blank(), strip.text.x=element_blank())+ ylim(0,2)
-## all families >10
-print(ggplot(fammed[fammed$famsize>=10,], aes(x=distance, y=log10(value), col=sup, group=paste(fam, variable))) + geom_line() + scale_color_manual(values=dd.col) + facet_wrap(variable~sup, ncol=13) +
-                               theme(strip.background = element_blank(), strip.text.x=element_blank())+ ylim(0,2))
-#print(ggplot(d.mg, aes(x=distance, y=value, col=sup, group=paste(fam, context), linetype=context)) + geom_line() + scale_color_manual(values=dd.col) + facet_wrap(context~sup, nrow=3, scales='free_y') +
-#                               theme(strip.background = element_blank(), strip.text.y = element_blank(), strip.text.x=element_blank(), axis.line=element_blank(), axis.text.y=element_blank(), axis.ticks.y=element_blank()) + 
-#                               geom_point(data = df3, aes(x = distance, y = value), colour = "white", alpha=0) + ggtitle(tissue))
-## all families >10, alpha by famsize
-print(ggplot(fammed[fammed$famsize>=10,], aes(x=distance, y=log10(value), col=sup, group=paste(fam, variable), alpha=log10(famsize)/4)) + geom_line() + scale_color_manual(values=dd.col) + facet_wrap(variable~sup, ncol=13) +
-                               theme(strip.background = element_blank(), strip.text.x=element_blank())+ ylim(0,2))
-                                                                                            
+                                                                                           
 dev.off()                                           
 
 pdf('expression_decay.2kb.standardized.pdf', 25,25)
 #for (tissue in c('anther', 'SAM', 'earshoot', 'all3')){
-tissue='anther'
 ## ten largest families of each sup
 ggplot(data.frame(fammed[fammed$fam%in%names(largest10),]), aes(x=distance, y=value, color=sup, group=paste(fam, variable))) + geom_line() + scale_color_manual(values=dd.col) + facet_grid(variable~sup) +
                                theme(strip.background = element_blank(), strip.text.y = element_text(angle = 180), strip.text.x=element_blank()) + ylim(-5,5)+ xlim(0,2100)
 print(ggplot(fammed[fammed$famsize>=10,], aes(x=distance, y=value, col=sup, group=paste(fam, variable), alpha=log10(famsize)/4)) + geom_line() + scale_color_manual(values=dd.col) + facet_grid(variable~sup) +
                                theme(strip.background = element_blank(), strip.text.y = element_text(angle = 180), strip.text.x=element_blank())+ ylim(-5,5)+ xlim(0,2100))
+ggplot(data.frame(fammed10[fammed10$fam%in%names(largest10),]), aes(x=distance, y=value, color=sup, group=paste(fam, variable))) + geom_line() + scale_color_manual(values=dd.col) + facet_grid(variable~sup) +
+                               theme(strip.background = element_blank(), strip.text.y = element_text(angle = 180), strip.text.x=element_blank()) + ylim(-2,2)+ xlim(0,2100)
+print(ggplot(fammed10[fammed10$famsize>=10,], aes(x=distance, y=value, col=sup, group=paste(fam, variable), alpha=log10(famsize)/4)) + geom_line() + scale_color_manual(values=dd.col) + facet_grid(variable~sup) +
+                               theme(strip.background = element_blank(), strip.text.y = element_text(angle = 180), strip.text.x=element_blank())+ ylim(-2,2)+ xlim(0,2100))
 
-ggplot(data.frame(fammed[fammed$fam%in%names(largest10),]), aes(x=distance, y=log10(value), color=sup, group=paste(fam, variable))) + geom_line() + scale_color_manual(values=dd.col) + facet_grid(variable~sup) +
-                               theme(strip.background = element_blank(), strip.text.y = element_text(angle = 180), strip.text.x=element_blank())+ ylim(0,2)+ xlim(0,2100)
-## all families >10, alpha by famsize
-print(ggplot(fammed[fammed$famsize>=10,], aes(x=distance, y=log10(value), col=sup, group=paste(fam, variable), alpha=log10(famsize)/4)) + geom_line() + scale_color_manual(values=dd.col) + facet_grid(variable~sup) +
-                               theme(strip.background = element_blank(), strip.text.y = element_text(angle = 180), strip.text.x=element_blank())+ ylim(0,2)+ xlim(0,2100))
                                                                                             
 dev.off() 
