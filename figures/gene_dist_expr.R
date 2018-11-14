@@ -266,9 +266,9 @@ ggplot(data.frame(fammed[fammed$fam%in%names(largest10),]), aes(x=distance, y=va
                                theme(strip.background = element_blank(), strip.text.y = element_text(angle = 180), strip.text.x=element_blank()) + ylim(-5,5)+ xlim(0,2100)
 print(ggplot(fammed[fammed$famsize>=10,], aes(x=distance, y=value, col=sup, group=paste(fam, variable), alpha=log10(famsize)/4)) + geom_line() + scale_color_manual(values=dd.col) + facet_grid(variable~sup) +
                                theme(strip.background = element_blank(), strip.text.y = element_text(angle = 180), strip.text.x=element_blank())+ ylim(-5,5)+ xlim(0,2100))
-ggplot(data.frame(fammed10[fammed10$fam%in%names(largest10),]), aes(x=distance, y=value, color=sup, group=paste(fam, variable))) + geom_line() + scale_color_manual(values=dd.col) + facet_grid(variable~sup) +
+ggplot(data.frame(fammed10[fammed10$fam%in%names(largest10),]), aes(x=distance, y=value, color=sup, group=paste(fam, variable))) + geom_hline(yintercept=0, color='gray', linetype='dashed') + geom_line() + scale_color_manual(values=dd.col) + facet_grid(variable~sup) +
                                theme(strip.background = element_blank(), strip.text.y = element_text(angle = 180), strip.text.x=element_blank()) + ylim(-2,2)+ xlim(0,2100)
-print(ggplot(fammed10[fammed10$famsize>=10,], aes(x=distance, y=value, col=sup, group=paste(fam, variable), alpha=log10(famsize)/4)) + geom_line() + scale_color_manual(values=dd.col) + facet_grid(variable~sup) +
+print(ggplot(fammed10[fammed10$famsize>=10,], aes(x=distance, y=value, col=sup, group=paste(fam, variable), alpha=log10(famsize)/4)) + geom_hline(yintercept=0, color='gray', linetype='dashed') + geom_line() + scale_color_manual(values=dd.col) + facet_grid(variable~sup) +
                                theme(strip.background = element_blank(), strip.text.y = element_text(angle = 180), strip.text.x=element_blank())+ ylim(-2,2)+ xlim(0,2100))
 
                                                                                             
