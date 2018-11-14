@@ -273,3 +273,20 @@ print(ggplot(fammed10[fammed10$famsize>=10,], aes(x=distance, y=value, col=sup, 
 
                                                                                             
 dev.off() 
+
+                  
+### tissue expectation of standardization based on all genes in the genome     
+gene=fread('../genes/walley_fpkm.txt')
+gene$genemean=apply(gene[,2:24], 1, function(x) mean(x, na.rm=T))
+gene$genemean[is.infinite(gene$genemean)]=NA
+gene$genesd=apply(gene[,2:24],1, function(x) sd(x, na.rm=T))
+gene$genesd[is.infinite(gene$genesd)]=NA
+gene.standardized=gene
+gene.standardized[,2:24]=(gene[,2:24]-gene$genemean)/gene$genesd
+
+pdf('tissue_standardized_expr.pdf', 20,20)
+ggplot(genemelt[!genemelt$variable %in% c('genemean', 'genesd'),], aes(x=value, group=variable, color=variable, fill=variable)) + geom_density(alpha=0.5) + xlim(-2,2)                  
+dev.off()                  
+                  
+                  
+                  
