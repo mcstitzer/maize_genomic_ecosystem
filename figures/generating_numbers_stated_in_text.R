@@ -25,7 +25,22 @@ data.frame(ind %>% group_by(substr(sup,1,2)) %>% dplyr::summarize(bp=sum(tebp), 
 data.frame(ind %>% group_by(substr(sup,1,2)) %>% dplyr::summarize(meangenedist=mean(closest, na.rm=T), mediangenedist=median(closest, na.rm=T)))
 # for nonLTR as a whole!
 data.frame(ind %>% group_by(substr(sup,1,2) %in% c('RI', 'RS')) %>% dplyr::summarize(meangenedist=mean(closest, na.rm=T), mediangenedist=median(closest, na.rm=T)))
+
+
+
 ## gene expression - needs reading in a ton more data!!!
+
+### walley expr atlas from maizegdb
+tgem=fread('../genes/B73_closest_gene_expression.maizegdbWalley.txt')
+## gene rpkm
+data.frame(tgem %>% group_by(substr(sup,1,2)) %>% dplyr::summarize(mean=mean(gene_median, na.rm=T), median=median(gene_median, na.rm=T)))
+# for nonLTR as a whole!
+data.frame(tgem %>% group_by(substr(sup,1,2) %in% c('RI', 'RS')) %>% dplyr::summarize(mean=mean(gene_median, na.rm=T), median=median(gene_median, na.rm=T)))
+## gene rpkm, genes within 2kb of TE
+data.frame(tgem[tgem$closest<2000,] %>% group_by(substr(sup,1,2)) %>% dplyr::summarize(mean=mean(gene_median, na.rm=T), median=median(gene_median, na.rm=T)))
+# for nonLTR as a whole!
+data.frame(tgem[tgem$closest<2000,] %>% group_by(substr(sup,1,2) %in% c('RI', 'RS')) %>% dplyr::summarize(mean=mean(gene_median, na.rm=T), median=median(gene_median, na.rm=T)))
+
 
 
 ### paragraph 3 ages
