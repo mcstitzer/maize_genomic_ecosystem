@@ -290,3 +290,54 @@ dev.off()
                   
                   
                   
+######################
+## try as pointrange!!
+######################
+                  
+source('../GenomeInfo.R')
+source('color_palette.R')
+source('meanSD_functions.R') ## note this needs an ind data frame, including a tebp column for the legend to work.
+
+ind$largest10=ind$fam %in% names(largest10)                               
+                  
+colnames(ind.standardized)=paste0('Standardized_', colnames(ind.standardized))
+colnames(ind.scaledmax)=paste0('ScaledMax_', colnames(ind.scaledmax))
+ind=cbind(ind, ind.standardized[,7:29])                
+ind=cbind(ind, ind.scaledmax[,7:29])
+                            
+                  
+pdf(paste0('supp_gene_expr.', Sys.Date(), '.pdf'), 16,8)
+#tel=plotlargest('seqlen', 'TE Length (bp)')
+#age=plotlargest('mya', 'Age \n(million years)') + coord_cartesian(ylim=c(0,3))
+#piece=plot_percentages('pieces', 'Proportion intact')
+#disr=plot_percentages('disruptor', 'Proportion in \nanother TE')
+#cl=plotlargest('closest', 'Distance from \ngene (bp)')
+#ingene=plot_percentages('ingene', 'Proportion in \ntranscript', invert=TRUE)
+med=plotlargest('gene_median', 'Median FPKM')
+coefvar=plotlargest('gene_coefvar', 'Coefficient of Variation')
+plotlist=lapply(colnames(ind)[7:29], function(x) plotlargest(x, x) + ylim(0,50))
+
+## version with a legend.
+legend <- get_legend( ggplot(get_largest_quantile_backgroundbox('famsize'), aes(x=x, y=median, ymin=min, ymax=max, color=factor(sup, levels=TESUPFACTORLEVELS)))+ geom_pointrange(size=1)+ 
+                     theme(legend.title=element_blank())+ scale_color_manual(values=dd.col))
+plots <- plot_grid(med, coefvar, labels = 'AUTO', ncol = 1, align = 'v')
+plot_grid(plots,legend, ncol = 2, align = 'v', labels='', rel_widths = c(1, .1))  
+plot_grid(plotlist=plotlist[1:8], ncol=1, align='v')
+plot_grid(plotlist=plotlist[9:16], ncol=1, align='v')                
+plot_grid(plotlist=plotlist[17:23], ncol=1, align='v')                
+      
+plotlistStand=lapply(colnames(ind)[34:56], function(x) plotlargest(x, x))
+plotlistScaled=lapply(colnames(ind)[57:79], function(x) plotlargest(x, x) + ylim(0,1))
+plot_grid(plotlist=plotlistStand[1:8], ncol=1, align='v')
+plot_grid(plotlist=plotlistStand[9:16], ncol=1, align='v')                
+plot_grid(plotlist=plotlistStand[17:23], ncol=1, align='v')                 
+plot_grid(plotlist=plotlistScaled[1:8], ncol=1, align='v')
+plot_grid(plotlist=plotlistScaled[9:16], ncol=1, align='v')                
+plot_grid(plotlist=plotlistScaled[17:23], ncol=1, align='v')                  
+                
+dev.off() 
+
+                  
+                  
+                  
+                  
