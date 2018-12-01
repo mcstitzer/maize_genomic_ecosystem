@@ -4,6 +4,7 @@ library(vip)
 library(cowplot)
 library(data.table)
 library(dplyr)
+library(IPMRF)
 
 source('../figures/color_palette.R')
 
@@ -12,7 +13,7 @@ ind$sup=as.factor(ind$sup)
 samplerow=sample.int(n=nrow(ind), size=floor(0.5*nrow(ind)), replace=F)
 
 ## this will come in data generation soon
-ind$famsize=table(ind$fam)[ind$fam]
+ind$famsize=as.numeric(table(ind$fam)[ind$fam])
 ind=ind[,-c('segsites', 'flank_segsites')]
 
 ## make family category with <53 levels
@@ -30,7 +31,7 @@ minitest.origfam=minitest$fam
 minitest$fam=minitest$famlev
 minitest$famlev=NULL
 set.seed(1234)
-subset_rf=randomForest(age~., data=minitest[,-c(2)], importance=T, do.trace=10, ntree=1000) ## too many factor levels for TEID
+subset_rf=randomForest(age~., data=minitest[,-c(2)], importance=T, keep.inbag=T, replace=F, do.trace=10, ntree=1000) ## too many factor levels for TEID
 ## could use strata=sup to get equal sampling by superfamily in building the tree!
 
 minitest2=ind[sample.int(n=nrow(ind), size=500, replace=F),]
@@ -59,6 +60,11 @@ vip(subset_rf, bar=F, horizontal=F, size=1)
 randomForest::varImpPlot(subset_rf)
 ggplot(impsort, aes(y=category, x=sum)) + geom_point() + scale_y_discrete(limits=impsort$category)
 dev.off()
+
+
+### predict on different data (like subset by superfamily or order!
+
+newpred=ipmrf(subset_rf, da=minitest2[minitest2$sup=='RLC',-c(1,2)], ntree=1000)
 
 ########### 
 ## partial dependences
