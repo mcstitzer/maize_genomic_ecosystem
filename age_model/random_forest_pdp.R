@@ -5,6 +5,7 @@ library(cowplot)
 library(data.table)
 library(dplyr)
 library(IPMRF)
+library(reshape2)
 
 source('../figures/color_palette.R')
 
@@ -18,9 +19,45 @@ ind=ind[,-c('segsites', 'flank_segsites')]
 
 ## make family category with <53 levels
 ## this works out to keeping family name for big stuff (>1053 copies, then a category of smaller fams)
-ind$famlev=factor(ind$fam, levels=c(names(tail(sort(table(ind$fam)), 52)), 'smaller'))
+#ind$famlev=factor(ind$fam, levels=c(names(tail(sort(table(ind$fam)), 52)), 'smaller'))
+#ind$famlev[is.na(ind$famlev)]='smaller'
+
+## turns out IPMRF can only deal with 32 levels (or 31?!?!?!?)
+ind$famlev=factor(ind$fam, levels=c(names(tail(sort(table(ind$fam)), 30)), 'smaller'))
 ind$famlev[is.na(ind$famlev)]='smaller'
 
+## full corr matrix for interactive plot!
+allcorr=melt(round(cor(ind[,5:(ncol(ind)-1)]*1, use='na.or.complete'),2))
+### corr matrix by sup
+suplist=vector("list", 13)
+names(suplist)=names(table(ind$sup))
+for(sup in names(table(ind$sup))){a=melt(round(cor(data.frame(ind)[ind$sup==sup,5:(ncol(ind)-1)]*1, use='na.or.complete'),2))
+                                 suplist[[sup]]=a}
+## quick corr heatmap
+
+pdf('correlation_all.pdf', 50,50)
+ggplot(data=melt(round(cor(ind[,5:(ncol(ind)-1)]*1, use='na.or.complete'),2)), aes(x=Var1, y=Var2, fill=value)) + geom_tile(color = "white")+
+ scale_fill_gradient2(low = "blue", high = "red", mid = "white", 
+   midpoint = 0, limit = c(-1,1), space = "Lab", 
+   name="Pearson\nCorrelation") +
+  theme_minimal()+ 
+ theme(axis.text.x = element_text(angle = 45, vjust = 1, 
+    size = 12, hjust = 1))+
+ coord_fixed()
+## then by superfamily!
+for(sup in names(table(ind$sup))){
+print(ggplot(data=melt(round(cor(data.frame(ind)[ind$sup==sup,5:(ncol(ind)-1)]*1, use='na.or.complete'),2)), aes(x=Var1, y=Var2, fill=value)) + geom_tile(color = "white")+
+ scale_fill_gradient2(low = "blue", high = "red", mid = "white", 
+   midpoint = 0, limit = c(-1,1), space = "Lab", 
+   name="Pearson\nCorrelation") +
+  theme_minimal()+ 
+ theme(axis.text.x = element_text(angle = 45, vjust = 1, 
+    size = 12, hjust = 1))+
+ coord_fixed() + ggtitle(sup))
+  }
+dev.off()
+
+## split data into managable pieces!
 train=ind[samplerow,]
 test=ind[-samplerow,]
 
@@ -64,8 +101,27 @@ dev.off()
 
 ### predict on different data (like subset by superfamily or order!
 
-newpred=ipmrf(subset_rf, da=minitest2[minitest2$sup=='RLC',-c(1,2)], ntree=1000)
+## there's an is.numeric step that doesn't deal with logicals appropriately - force them to numeric here!!!
+minitest3=minitest2
+minitest3[,5:ncol(minitest3)]=minitest3[,5:ncol(minitest3)]*1
 
+newpreds=lapply(names(table(ind$sup)), function(sup) ipmrfnew(subset_rf, da=data.frame(minitest3)[minitest3$sup==sup,-c(1,2)][1:10,], ntree=1000))
+#newpred=ipmrfnew(subset_rf, da=minitest3[minitest3$sup=='DTA',-c(1,2)], ntree=1000)
+#sapply(1:ncol(newpred), function(x) mean(newpred[,x]))
+for(newpred in newpreds){
+subimp=data.frame(meanimp=sapply(1:ncol(newpred), function(x) mean(newpred[,x])), feat=as.character(colnames(newpred)))
+subimp$feat=as.character(subimp$feat)
+subimp$category=subimp$feat
+subimp$category[grepl("flank_cg", subimp$feat)]='flank_cg_methylation'
+subimp$category[grepl("flank_chg", subimp$feat)]='flank_chg_methylation'
+subimp$category[grepl("flank_chh", subimp$feat)]='flank_chh_methylation'
+subimp$category[grepl("avg_cg", subimp$feat)]='te_cg_methylation'
+subimp$category[grepl("avg_chg", subimp$feat)]='te_chg_methylation'
+subimp$category[grepl("avg_chh", subimp$feat)]='te_chh_methylation'
+subimpsort=subimp %>% group_by(category) %>% summarize(sum=sum(meanimp)) %>% arrange(desc(sum))
+print(head(subimpsort))
+}
+       
 ########### 
 ## partial dependences
 
