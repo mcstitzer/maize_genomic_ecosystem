@@ -6,6 +6,8 @@ library(data.table)
 library(dplyr)
 library(IPMRF)
 library(reshape2)
+library(plyr)
+library(RColorBrewer)
 
 source('../figures/color_palette.R')
 
@@ -82,6 +84,7 @@ minitest2$famlev=NULL
 ##   difficult to do, needs to drop a column, retrain model, and then subtract importance value from missing model from importance from baseline model
 
 imp=data.frame(importance(subset_rf, type=1, scale=F)) #permutation importances, see https://explained.ai/rf-importance/index.html
+imp$scaled=data.frame(importance(subset_rf, type=1, scale=T))[,1]
 imp$feat=rownames(imp)
 imp$category=imp$feat
 imp$category[grepl("flank_cg", imp$feat)]='flank_cg_methylation'
@@ -90,12 +93,13 @@ imp$category[grepl("flank_chh", imp$feat)]='flank_chh_methylation'
 imp$category[grepl("avg_cg", imp$feat)]='te_cg_methylation'
 imp$category[grepl("avg_chg", imp$feat)]='te_chg_methylation'
 imp$category[grepl("avg_chh", imp$feat)]='te_chh_methylation'
-impsort=imp %>% group_by(category) %>% summarize(sum=sum(X.IncMSE)) %>% arrange(desc(sum))
+impsort=imp %>% group_by(category) %>% summarize(sum=sum(X.IncMSE), meanscaled=mean(scaled)) %>% arrange(desc(sum))
 
 pdf('variable_importance_plot.pdf')
 vip(subset_rf, bar=F, horizontal=F, size=1)
 randomForest::varImpPlot(subset_rf)
 ggplot(impsort, aes(y=category, x=sum)) + geom_point() + scale_y_discrete(limits=impsort$category)
+ggplot(impsort, aes(y=category, x=meanscaled)) + geom_point() + scale_y_discrete(limits=(impsort %>% arrange(desc(meanscaled)))$category)
 dev.off()
 
 
@@ -105,23 +109,74 @@ dev.off()
 minitest3=minitest2
 minitest3[,5:ncol(minitest3)]=minitest3[,5:ncol(minitest3)]*1
 
-newpreds=lapply(names(table(ind$sup)), function(sup) ipmrfnew(subset_rf, da=data.frame(minitest3)[minitest3$sup==sup,-c(1,2)][1:10,], ntree=1000))
+#newpreds=lapply(names(table(ind$sup)), function(sup) ipmrfnew(subset_rf, da=data.frame(minitest3)[minitest3$sup==sup,-c(1,2)][1:10,], ntree=1000))
 #newpred=ipmrfnew(subset_rf, da=minitest3[minitest3$sup=='DTA',-c(1,2)], ntree=1000)
 #sapply(1:ncol(newpred), function(x) mean(newpred[,x]))
-for(newpred in newpreds){
-subimp=data.frame(meanimp=sapply(1:ncol(newpred), function(x) mean(newpred[,x])), feat=as.character(colnames(newpred)))
-subimp$feat=as.character(subimp$feat)
-subimp$category=subimp$feat
-subimp$category[grepl("flank_cg", subimp$feat)]='flank_cg_methylation'
-subimp$category[grepl("flank_chg", subimp$feat)]='flank_chg_methylation'
-subimp$category[grepl("flank_chh", subimp$feat)]='flank_chh_methylation'
-subimp$category[grepl("avg_cg", subimp$feat)]='te_cg_methylation'
-subimp$category[grepl("avg_chg", subimp$feat)]='te_chg_methylation'
-subimp$category[grepl("avg_chh", subimp$feat)]='te_chh_methylation'
-subimpsort=subimp %>% group_by(category) %>% summarize(sum=sum(meanimp)) %>% arrange(desc(sum))
-print(head(subimpsort))
-}
+for(sup in names(table(ind$sup))){
+  newpred=ipmrfnew(subset_rf, da=data.frame(minitest3)[minitest3$sup==sup,-c(1,2)], ntree=1000) ## may need to subset to make this not over the top number of things to summarize - but some less than 10 so hard to do and I gave up with small minitest3
+  temp=data.frame(meanimp=sapply(1:ncol(newpred), function(x) mean(newpred[,x])), feat=as.character(colnames(newpred)))
+  imp[,sup]=as.numeric(mapvalues(imp$feat, from=temp$feat, to=temp$meanimp))
+ }
+#for(newpred in newpreds){
+#subimp=data.frame(meanimp=sapply(1:ncol(newpred), function(x) mean(newpred[,x])), feat=as.character(colnames(newpred)))
+#subimp$feat=as.character(subimp$feat)
+#subimp$category=subimp$feat
+#subimp$category[grepl("flank_cg", subimp$feat)]='flank_cg_methylation'
+#subimp$category[grepl("flank_chg", subimp$feat)]='flank_chg_methylation'
+#subimp$category[grepl("flank_chh", subimp$feat)]='flank_chh_methylation'
+#subimp$category[grepl("avg_cg", subimp$feat)]='te_cg_methylation'
+#subimp$category[grepl("avg_chg", subimp$feat)]='te_chg_methylation'
+#subimp$category[grepl("avg_chh", subimp$feat)]='te_chh_methylation'
+#subimpsort=subimp %>% group_by(category) %>% summarize(sum=sum(meanimp)) %>% arrange(desc(sum))
+#print(head(subimpsort))
+#}
        
+## colors for poster: paired for flank vs TE
+#Create a custom color scale
+myColors <- brewer.pal(12,"Paired")
+myColors=myColors[c(1:6,8,10,11,12)]
+names(myColors) <- c('flank_base_composition', 'TE_base_composition', 'flank_methylation_mnase', 'TE_methylation_mnase',
+                     'flank_closest_gene_expression', 'TE_expression', 'TE_genes', 'TE_taxonomy', 'flank_selection', 'TE_features')
+colScale <- scale_colour_manual(name = "feature",values = myColors)
+                                 
+## assign to categories
+categories=data.frame(feature=imp$feat)
+categories$category=NA
+categories$category[categories$feature %in% c('fam', 'sup')]='TE_taxonomy'
+categories$category[categories$feature %in% c('famsize', 'pieces', 'chr', 'helLCV3p', 'helLCV5p', 'TIRlen', 'avg_ltr_length','te_bp', 'tebp', 'tespan' )]='TE_features'
+categories$category[grepl('fam_', categories$feature) | grepl('unique', categories$feature)]='TE_expression'
+categories$category[grepl('avg_', categories$feature) | categories$feature %in% c('shoot_prop', 'shoot_bp','root_bp', 'root_prop', 'n_shoot_hs', 'n_root_hs') ]='TE_methylation_mnase'
+categories$category[categories$feature %in% c('nCG', 'nCHG', 'nCHH',  'percGC') ]='TE_base_composition'
+categories$category[categories$feature %in% c('GAG', 'AP', 'RT', 'RNaseH', 'INT', 'ENV', 'CHR', 'auton', 'pol', 'orfAA', 'helprot', 'tirprot', 'rveprot', 'tpaseprot')]='TE_genes'
+categories$category[grepl('^gene_', categories$feature) ]='flank_closest_gene_expression'
+categories$category[grepl('_[[:digit:]]+_', categories$feature) | grepl('h3k9me2_[[:digit:]]+', categories$feature) | categories$feature %in% c('flank_h3k9me2', 'flank_cg', 'flank_chg', 'flank_chh')  | (grepl('_flank', categories$feature) &  grepl('oot', categories$feature))]='flank_methylation_mnase'
+categories$category[grepl('_flank', categories$feature) & ! grepl('oot', categories$feature)]='flank_base_composition'
+categories$category[grepl('cm', categories$feature) | grepl('segsites', categories$feature) | categories$feature %in% c('closest', 'ingene', 'subgenome', 'disruptor')]='flank_selection'
+## new ways to get at this - quick fix :(
+categories$category[categories$feature %in% c('percGC_1kbflank','nCG_1kbflank','nCHG_1kbflank','nCHH_1kbflank','flank_bp')]='flank_base_composition'
+categories$category[categories$feature %in% c('flank_n_root_hs','flank_root_bp','flank_root_prop','flank_n_shoot_hs','flank_shoot_bp','flank_shoot_prop')]='flank_methylation_mnase'
+categories[is.na(categories$category),]
+
+imp$category=mapvalues(imp$feat, from=categories$feature, to=categories$category)
+meltimp=melt(imp[rev(order(imp$X.IncMSE)),][1:20,]) ## keep this managable!
+meltimpsum=melt(imp %>% group_by(category) %>% summarize_if(.predicate="is.numeric", .funs="sum") %>% arrange(desc(X.IncMSE))) #sum=sum(X.IncMSE), meanscaled=mean(scaled)) %>% arrange(desc(sum))
+
+pdf('variable_importance_bysup_plot.pdf')
+ggplot(impsort, aes(y=category, x=sum)) + geom_point() + scale_y_discrete(limits=impsort$category)
+ggplot(impsort, aes(y=category, x=meanscaled)) + geom_point() + scale_y_discrete(limits=(impsort %>% arrange(desc(meanscaled)))$category)
+
+ggplot(meltimp[meltimp$variable!='scaled',], aes(x=feat, y=value, group=variable, fill=category)) + geom_bar(position="dodge",stat="identity") + 
+#       geom_errorbar(aes(ymin=weight-std/2, ymax=weight+std/2), size=.3, width=.2, position=position_dodge(.9)) +
+       scale_x_discrete(limits=rev(imp$feat[order(imp$X.IncMSE)])[1:20]) + coord_flip() + scale_fill_brewer(palette='Set3') + 
+       ggtitle('Feature weights for gradient boosted forest') + facet_wrap(~variable)
+ggplot(meltimpsum[meltimpsum$variable!='scaled',], aes(x=category, y=value, fill=category)) + geom_bar(position="dodge",stat="identity") + 
+#       geom_errorbar(aes(ymin=weight-std/2, ymax=weight+std/2), size=.3, width=.2, position=position_dodge(.9)) +
+#       scale_x_discrete(limits=rev(wm$feature)) +  
+       coord_flip() + scale_fill_brewer(palette='Set3') + 
+       facet_wrap(~variable) +
+       ggtitle('Feature weights for gradient boosted forest, summaries') #+                               
+dev.off()                                 
+                                 
 ########### 
 ## partial dependences
 
