@@ -81,7 +81,7 @@ ind=merge(ind, sam, all.x=T, by=c('TEID', 'fam', 'sup'))
 
 tgem=fread('../genes/B73_closest_gene_expression.maizegdbWalley.txt')
 colnames(tgem)[3]='TEID'
-ind=merge(ind, tgem, all.x=T, by=c('TEID', 'fam', 'sup', 'closestgene', 'closestgenetype'))
+ind=merge(ind, tgem, all.x=T, by=c('TEID', 'fam', 'sup', 'closest', 'closestgene', 'closestgenetype'))
 
 
 ################# te expression
@@ -132,6 +132,8 @@ ind$bp=NULL
 ##remove extra te_bp that comes in, and flank_bp
 ind$te_bp=NULL
 ind$flank_bp=NULL
+ind$geneID=NULL
+
 
 ## add famsize 
 ind$famsize=as.numeric(table(ind$fam)[ind$fam])
