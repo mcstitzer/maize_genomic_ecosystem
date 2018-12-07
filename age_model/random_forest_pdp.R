@@ -11,13 +11,14 @@ library(RColorBrewer)
 
 source('../figures/color_palette.R')
 
-ind=fread('B73.LTRAGE.allDescriptors.2018-11-29.txt')
+ind=fread('B73.LTRAGE.allDescriptors.2018-12-06.txt')
 ind$sup=as.factor(ind$sup)
 samplerow=sample.int(n=nrow(ind), size=floor(0.5*nrow(ind)), replace=F)
 
 ## this will come in data generation soon
-ind$famsize=as.numeric(table(ind$fam)[ind$fam])
-ind=ind[,-c('segsites', 'flank_segsites')]
+### Don't need anymore!!!
+#ind$famsize=as.numeric(table(ind$fam)[ind$fam])
+#ind=ind[,-c('segsites', 'flank_segsites')]
 
 ## make family category with <53 levels
 ## this works out to keeping family name for big stuff (>1053 copies, then a category of smaller fams)
@@ -29,12 +30,17 @@ ind$famlev=factor(ind$fam, levels=c(names(tail(sort(table(ind$fam)), 30)), 'smal
 ind$famlev[is.na(ind$famlev)]='smaller'
 
 ## full corr matrix for interactive plot!
-allcorr=melt(round(cor(ind[,5:(ncol(ind)-1)]*1, use='na.or.complete'),2))
+allcorr=melt(round(cor(ind[,c(1,5:(ncol(ind)-1))]*1, use='na.or.complete'),2))
 ### corr matrix by sup
 suplist=vector("list", 13)
 names(suplist)=names(table(ind$sup))
-for(sup in names(table(ind$sup))){a=melt(round(cor(data.frame(ind)[ind$sup==sup,5:(ncol(ind)-1)]*1, use='na.or.complete'),2))
+for(sup in names(table(ind$sup))){a=melt(round(cor(data.frame(ind)[ind$sup==sup,c(1,5:(ncol(ind)-1))]*1, use='na.or.complete'),2))
                                  suplist[[sup]]=a}
+## output these so shiny can play!
+for(sup in names(table(ind$sup))){allcorr[,sup]=suplist[[sup]]$value}
+write.table(allcorr, 'correlations_by_sup.txt', row.names=F, col.names=T, sep='\t', quote=F)
+
+
 ## quick corr heatmap
 
 pdf('correlation_all.pdf', 50,50)
@@ -93,7 +99,7 @@ imp$category[grepl("flank_chh", imp$feat)]='flank_chh_methylation'
 imp$category[grepl("avg_cg", imp$feat)]='te_cg_methylation'
 imp$category[grepl("avg_chg", imp$feat)]='te_chg_methylation'
 imp$category[grepl("avg_chh", imp$feat)]='te_chh_methylation'
-impsort=imp %>% group_by(category) %>% summarize(sum=sum(X.IncMSE), meanscaled=mean(scaled)) %>% arrange(desc(sum))
+impsort=imp %>% group_by(category) %>% dplyr::summarize(sum=sum(X.IncMSE), meanscaled=mean(scaled)) %>% arrange(desc(sum))
 
 pdf('variable_importance_plot.pdf')
 vip(subset_rf, bar=F, horizontal=F, size=1)
@@ -267,7 +273,18 @@ ggplot(rm.ice, aes(all3_avg_chh, yhat.centered/2/3.3e-8, color=sup)) + geom_line
 ggplot(rm.ice, aes(all3_avg_chh, yhat/2/3.3e-8, color=sup)) + geom_line(aes(group = yhat.id), alpha = 0.2) + stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  scale_color_manual(values=dd.col) +facet_wrap(~sup)+ xlim(0,0.2)
 ggplot(rm.ice, aes(all3_avg_chh, yhat.centered/2/3.3e-8, color=sup)) + geom_line(aes(group = yhat.id), alpha = 0.2) + stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  scale_color_manual(values=dd.col) +facet_wrap(~sup)+ xlim(0,0.2)
 
+rm.ice=generateICE('gene_Mature_Leaf_8', subset_rf)
+ggplot(rm.ice, aes(gene_Mature_Leaf_8, yhat/2/3.3e-8, color=sup)) + geom_line(aes(group = yhat.id), alpha = 0.2) + stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  scale_color_manual(values=dd.col) 
+ggplot(rm.ice, aes(gene_Mature_Leaf_8, yhat.centered/2/3.3e-8, color=sup)) + geom_line(aes(group = yhat.id), alpha = 0.2) + stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  scale_color_manual(values=dd.col) 
+ggplot(rm.ice, aes(gene_Mature_Leaf_8, yhat/2/3.3e-8, color=sup)) + geom_line(aes(group = yhat.id), alpha = 0.2) + stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  scale_color_manual(values=dd.col) +facet_wrap(~sup)
+ggplot(rm.ice, aes(gene_Mature_Leaf_8, yhat.centered/2/3.3e-8, color=sup)) + geom_line(aes(group = yhat.id), alpha = 0.2) + stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  scale_color_manual(values=dd.col) +facet_wrap(~sup)
 
+
+rm.ice=generateICE('te_germk_combo', subset_rf)
+ggplot(rm.ice, aes(te_germk_combo, yhat/2/3.3e-8, color=sup)) + geom_line(aes(group = yhat.id), alpha = 0.2) + stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  scale_color_manual(values=dd.col) 
+ggplot(rm.ice, aes(te_germk_combo, yhat.centered/2/3.3e-8, color=sup)) + geom_line(aes(group = yhat.id), alpha = 0.2) + stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  scale_color_manual(values=dd.col) 
+ggplot(rm.ice, aes(te_germk_combo, yhat/2/3.3e-8, color=sup)) + geom_line(aes(group = yhat.id), alpha = 0.2) + stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  scale_color_manual(values=dd.col) +facet_wrap(~sup)
+ggplot(rm.ice, aes(te_germk_combo, yhat.centered/2/3.3e-8, color=sup)) + geom_line(aes(group = yhat.id), alpha = 0.2) + stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  scale_color_manual(values=dd.col) +facet_wrap(~sup)
 
 dev.off()
 
