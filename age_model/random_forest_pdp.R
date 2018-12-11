@@ -36,9 +36,15 @@ suplist=vector("list", 13)
 names(suplist)=names(table(ind$sup))
 for(sup in names(table(ind$sup))){a=melt(round(cor(data.frame(ind)[ind$sup==sup,c(1,5:(ncol(ind)-1))]*1, use='na.or.complete'),2))
                                  suplist[[sup]]=a}
+### corr matrix by fam
+famlist=vector("list", 107) ## this gets you families >500
+names(famlist)=head(names(rev(sort(table(ind$fam)))),107)
+for(fam in head(names(rev(sort(table(ind$fam)))),107)){a=melt(round(cor(data.frame(ind)[ind$fam==fam,c(1,5:(ncol(ind)-1))]*1, use='na.or.complete'),2))
+                                 famlist[[fam]]=a}
 ## output these so shiny can play!
 for(sup in names(table(ind$sup))){allcorr[,sup]=suplist[[sup]]$value}
-write.table(allcorr, 'correlations_by_sup.txt', row.names=F, col.names=T, sep='\t', quote=F)
+for(fam in head(names(rev(sort(table(ind$fam)))),107)){allcorr[,fam]=famlist[[fam]]$value}
+write.table(allcorr, 'correlations_by_sup_fam.txt', row.names=F, col.names=T, sep='\t', quote=F)
 
 
 ## quick corr heatmap
