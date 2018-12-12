@@ -156,17 +156,19 @@ categories=data.frame(feature=imp$feat)
 categories$category=NA
 categories$category[categories$feature %in% c('fam', 'sup')]='TE_taxonomy'
 categories$category[categories$feature %in% c('famsize', 'pieces', 'chr', 'helLCV3p', 'helLCV5p', 'TIRlen', 'avg_ltr_length','te_bp', 'tebp', 'tespan' )]='TE_features'
-categories$category[grepl('fam_', categories$feature) | grepl('unique', categories$feature)]='TE_expression'
 categories$category[grepl('avg_', categories$feature) | categories$feature %in% c('shoot_prop', 'shoot_bp','root_bp', 'root_prop', 'n_shoot_hs', 'n_root_hs') ]='TE_methylation_mnase'
 categories$category[categories$feature %in% c('nCG', 'nCHG', 'nCHH',  'percGC') ]='TE_base_composition'
 categories$category[categories$feature %in% c('GAG', 'AP', 'RT', 'RNaseH', 'INT', 'ENV', 'CHR', 'auton', 'pol', 'orfAA', 'helprot', 'tirprot', 'rveprot', 'tpaseprot')]='TE_genes'
-categories$category[grepl('^gene_', categories$feature) ]='flank_closest_gene_expression'
-categories$category[grepl('_[[:digit:]]+_', categories$feature) | grepl('h3k9me2_[[:digit:]]+', categories$feature) | categories$feature %in% c('flank_h3k9me2', 'flank_cg', 'flank_chg', 'flank_chh')  | (grepl('_flank', categories$feature) &  grepl('oot', categories$feature))]='flank_methylation_mnase'
-categories$category[grepl('_flank', categories$feature) & ! grepl('oot', categories$feature)]='flank_base_composition'
+categories$category[grepl('_[[:digit:]]+', categories$feature) | grepl('h3k9me2_[[:digit:]]+', categories$feature) | categories$feature %in% c('flank_h3k9me2', 'flank_cg', 'flank_chg', 'flank_chh')  | (grepl('_flank', categories$feature) &  grepl('oot', categories$feature))]='flank_methylation_mnase'
+categories$category[grepl('avg_c', categories$feature)]='flank_base_composition'
 categories$category[grepl('cm', categories$feature) | grepl('segsites', categories$feature) | categories$feature %in% c('closest', 'ingene', 'subgenome', 'disruptor')]='flank_selection'
+categories$category[grepl('^gene_', categories$feature) ]='flank_closest_gene_expression'
+categories$category[grepl('_combo', categories$feature) | grepl('unique', categories$feature)]='TE_expression'
+
 ## new ways to get at this - quick fix :(
 categories$category[categories$feature %in% c('percGC_1kbflank','nCG_1kbflank','nCHG_1kbflank','nCHH_1kbflank','flank_bp')]='flank_base_composition'
 categories$category[categories$feature %in% c('flank_n_root_hs','flank_root_bp','flank_root_prop','flank_n_shoot_hs','flank_shoot_bp','flank_shoot_prop')]='flank_methylation_mnase'
+categories$category[categories$feature %in% c('segsites.bp', 'disruptor')]='TE_features'
 categories[is.na(categories$category),]
 
 imp$category=mapvalues(imp$feat, from=categories$feature, to=categories$category)
@@ -176,6 +178,15 @@ meltimpsum=melt(imp %>% group_by(category) %>% summarize_if(.predicate="is.numer
 pdf('variable_importance_bysup_plot.pdf')
 ggplot(impsort, aes(y=category, x=sum)) + geom_point() + scale_y_discrete(limits=impsort$category)
 ggplot(impsort, aes(y=category, x=meanscaled)) + geom_point() + scale_y_discrete(limits=(impsort %>% arrange(desc(meanscaled)))$category)
+
+ggplot(meltimpsum[meltimpsum$variable=='X.IncMSE',], aes(x=category, y=value, fill=category)) + geom_bar(position="dodge",stat="identity") + 
+#       geom_errorbar(aes(ymin=weight-std/2, ymax=weight+std/2), size=.3, width=.2, position=position_dodge(.9)) +
+       scale_x_discrete(limits=meltimpsum$category[order(meltimpsum[meltimpsum$variable=='X.IncMSE','value'])]) +  
+       coord_flip() + scale_fill_brewer(palette='Set3') #+ colScale
+ggplot(meltimpsum[meltimpsum$variable=='scaled',], aes(x=category, y=value, fill=category)) + geom_bar(position="dodge",stat="identity") + 
+#       geom_errorbar(aes(ymin=weight-std/2, ymax=weight+std/2), size=.3, width=.2, position=position_dodge(.9)) +
+       scale_x_discrete(limits=meltimpsum$category[order(meltimpsum[meltimpsum$variable=='X.IncMSE','value'])]) +  
+       coord_flip() + scale_fill_brewer(palette='Set3') #+ colScale
 
 ggplot(meltimp[meltimp$variable!='scaled',], aes(x=feat, y=value, group=variable, fill=category)) + geom_bar(position="dodge",stat="identity") + 
 #       geom_errorbar(aes(ymin=weight-std/2, ymax=weight+std/2), size=.3, width=.2, position=position_dodge(.9)) +
@@ -188,6 +199,10 @@ ggplot(meltimpsum[meltimpsum$variable!='scaled',], aes(x=category, y=value, fill
        facet_wrap(~variable) +
        ggtitle('Feature weights for gradient boosted forest, summaries') #+                               
 dev.off()                                 
+
+### correlations based on important variables                                 
+                                 
+                                 
                                  
 ########### 
 ## partial dependences
