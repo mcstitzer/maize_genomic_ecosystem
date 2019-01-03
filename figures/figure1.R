@@ -74,13 +74,16 @@ disr=plot_percentages('disruptor', 'Proportion in \nanother TE')
 cl=plotlargest('closest', 'Distance from \ngene (bp)')
 ingene=plot_percentages('ingene', 'Proportion in \ntranscript', invert=TRUE)
 
-plot_grid(tel, cl, ingene, disr ,  labels = "AUTO", ncol = 1, align = 'v')
+disrX=plot_percentages('disruptor', 'Proportion in \nanother TE', xaxis=TRUE)
+
+                               
+plot_grid(tel, cl, ingene, disrX ,  labels = "AUTO", ncol = 1, align = 'v')
 #plot_grid(tel, age, cl, ingene, disr ,  labels = "AUTO", ncol = 1, align = 'v')
 #plot_grid(tel, cl, ingene, piece, disr + scale_x_discrete(labels=substr(names(largest10),1,3)[!duplicated(substr(names(largest10),1,3))]),  labels = "AUTO", ncol = 1, align = 'v')
 ## version with a legend.
 legend <- get_legend( ggplot(get_largest_quantile_backgroundbox('tebp'), aes(x=x, y=median, ymin=min, ymax=max, color=sup, fill=sup))+ geom_pointrange(size=1)+ 
                      theme(legend.title=element_blank())+ scale_color_manual(values=dd.col))
-plots <- plot_grid(tel, cl, ingene, disr ,  labels = "AUTO", ncol = 1, align = 'v')
+plots <- plot_grid(tel, cl, ingene, disrX ,  labels = "AUTO", ncol = 1, align = 'v')
 #plots <- plot_grid(tel, age, cl, ingene, disr ,  labels = "AUTO", ncol = 1, align = 'v')
 plot_grid(plots,legend, ncol = 2, align = 'v',  rel_widths = c(1, .1))                              
 dev.off()
@@ -135,50 +138,53 @@ famplotbp=ggplot(fs, aes(
 
 
 # figure 1                               
-pdf(paste0('figure1.', Sys.Date(), '.pdf'), 24,8)
+pdf(paste0('figure1.', Sys.Date(), '.pdf'), 28,8)
 tel=plotlargest('tebp', 'TE Length (bp)')
 age=plotlargest('mya', 'Age \n(million years)') + coord_cartesian(ylim=c(0,3))
 #piece=plot_percentages('pieces', 'Proportion intact')
 disr=plot_percentages('disruptor', 'Proportion in \nanother TE')
 cl=plotlargest('closest', 'Distance from \ngene (bp)')
 ingene=plot_percentages('ingene', 'Proportion in \ntranscript', invert=TRUE)
+disrX=plot_percentages('disruptor', 'Proportion in \nanother TE', xaxis=TRUE)
 
+                               
+                               
 #plot_grid(tel, age, cl, ingene, disr ,  labels = "AUTO", ncol = 1, align = 'v')
 #plot_grid(tel, cl, ingene, piece, disr + scale_x_discrete(labels=substr(names(largest10),1,3)[!duplicated(substr(names(largest10),1,3))]),  labels = "AUTO", ncol = 1, align = 'v')
 ## version with a legend.
 legend <- get_legend( ggplot(get_largest_quantile_backgroundbox('tebp'), aes(x=x, y=median, ymin=min, ymax=max, color=factor(sup, levels=TESUPFACTORLEVELS)))+ geom_pointrange(size=1)+ 
                      theme(legend.title=element_blank())+ scale_color_manual(values=dd.col))
 #plots <- plot_grid(tel, age, cl, ingene, disr ,  labels = c('B', 'C', 'D', 'E', 'F'), ncol = 1, align = 'v')
-plots <- plot_grid(tel, age, cl, ingene, disr ,  labels = c('C', 'D', 'E', 'F', 'G'), ncol = 1, align = 'v')
+plots <- plot_grid(tel, age, cl, ingene, disrX ,  labels = c('C', 'D', 'E', 'F', 'G'), rel_heights=c(0.8,0.8,0.8,0.8,1), ncol = 1, align = 'v')
 supplots <- plot_grid(tempfamplot, famplotbp, labels=c('A', 'B'), ncol=2, align='v', scale=0.96)
 plot_grid(supplots, plots,legend, ncol = 3, align = 'v', labels=c('','', ''), scale=c(0.96,1,1), rel_widths = c(0.8, 1, .1))                              
 dev.off()                             
 
-
+##### no longer needed
 ## supp figure 1
-famplotbp=ggplot(fs, aes(
-  area = famcopynumber*avg_bp,
-  fill = sup,
-  subgroup = paste0(sup, '\n', round(supcopynumber*avg_bp_sup/1e6, digits=0), ' Mb'),
-  label = paste0(sup, '\n', round(supcopynumber*avg_bp_sup/1e6, digits=0), ' Mb'))) +
-  geom_treemap(color='gray') +
-  geom_treemap_subgroup_text(
-    colour = "grey10",
-    place = "center",
-    reflow = T) +  
-   scale_fill_manual(values=dd.col)+
-  theme(legend.position="none")
+#famplotbp=ggplot(fs, aes(
+#  area = famcopynumber*avg_bp,
+#  fill = sup,
+#  subgroup = paste0(sup, '\n', round(supcopynumber*avg_bp_sup/1e6, digits=0), ' Mb'),
+#  label = paste0(sup, '\n', round(supcopynumber*avg_bp_sup/1e6, digits=0), ' Mb'))) +
+#  geom_treemap(color='gray') +
+#  geom_treemap_subgroup_text(
+#    colour = "grey10",
+#    place = "center",
+#    reflow = T) +  
+#   scale_fill_manual(values=dd.col)+
+#  theme(legend.position="none")
 # make these giant so that I can combine in keynote
 #  but also make normal sized with the bp plot
-pdf('supp_famsize_copies_bp.giant.pdf', 16, 32)                       
-tempfamplot        
-famplotbp
-dev.off()
-                               
-pdf('supp_famsize_copies_bp.pdf', 8, 16)                       
-tempfamplot        
-famplotbp
-dev.off()
+#pdf('supp_famsize_copies_bp.giant.pdf', 16, 32)                       
+#tempfamplot        
+#famplotbp
+#dev.off()
+#                               
+#pdf('supp_famsize_copies_bp.pdf', 8, 16)                       
+#tempfamplot        
+#famplotbp
+#dev.off()
 
 
 #### may not work below this point???
