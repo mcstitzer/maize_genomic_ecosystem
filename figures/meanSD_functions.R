@@ -71,7 +71,7 @@ get_largest_percents_backgroundbox=function(feat, invert=FALSE){
 }
 
 
-plot_percentages=function(feat, ylab='', invert=FALSE, xaxis=FALSE){
+plot_percentages=function(feat, ylab='', invert=FALSE, xaxis=FALSE, angle=90){
  d = get_largest_percents_backgroundbox(feat, invert)
  if(xaxis){
  ggplot(d, aes(x=factor(px), y=propFirst, fill=sup)) + 
@@ -80,7 +80,7 @@ plot_percentages=function(feat, ylab='', invert=FALSE, xaxis=FALSE){
 #                     geom_ribbon(aes(x=fam, y=median_sup, ymin=min_sup, ymax=max_sup), alpha = 0.3)+
 #                     geom_pointrange(fatten=3, size=10, shape='-', alpha=0.4, aes(x=fam, y=median_sup, ymin=min_sup, ymax=max_sup)) +  
                      scale_fill_manual(values=dd.col) +  scale_color_manual(values=dd.col) +#ggtitle('TE length')+ 
-                     theme(legend.position="none", axis.title.x=element_blank(),axis.ticks.x=element_blank(), axis.text.x=element_text(angle=60), axis.line.x=element_blank()) + 
+                     theme(legend.position="none", axis.title.x=element_blank(),axis.ticks.x=element_blank(), axis.text.x=element_text(hjust=1, angle=angle), axis.line.x=element_blank()) + 
                      scale_x_discrete(labels=d$fam, breaks=factor(d$px)) +
                      ylab(ylab)
   }else{
@@ -99,7 +99,7 @@ plot_percentages=function(feat, ylab='', invert=FALSE, xaxis=FALSE){
 ### repeat for other figure of te vs flank
 
 
-plotlargest=function(feat, ylab='', xaxis=FALSE){
+plotlargest=function(feat, ylab='', xaxis=FALSE, angle=90){
  d = get_largest_quantile_backgroundbox(feat)
  if(xaxis){
  ggplot(d, aes(x=factor(x), y=median, ymin=min, ymax=max, color=sup, fill=sup)) + 
@@ -109,7 +109,7 @@ plotlargest=function(feat, ylab='', xaxis=FALSE){
 #                     geom_ribbon(aes(x=fam, y=median_sup, ymin=min_sup, ymax=max_sup), alpha = 0.3)+
 #                     geom_pointrange(fatten=3, size=10, shape='-', alpha=0.4, aes(x=fam, y=median_sup, ymin=min_sup, ymax=max_sup)) +  
                      scale_fill_manual(values=dd.col) +  scale_color_manual(values=dd.col) + #ggtitle('TE length')+ 
-                     theme(legend.position="none", axis.title.x=element_blank(),axis.ticks.x=element_blank(), axis.text.x=element_text(angle=60), axis.line.x=element_blank()) + 
+                     theme(legend.position="none", axis.title.x=element_blank(),axis.ticks.x=element_blank(), axis.text.x=element_text(angle=angle, hjust=1), axis.line.x=element_blank()) + 
                      scale_x_discrete(labels=d$fam, breaks=factor(d$x)) +
                      ylab(ylab)
   }else{
@@ -127,7 +127,7 @@ plotlargest=function(feat, ylab='', xaxis=FALSE){
 
 
 
-plot_percentagesLTR=function(feat, ylab='', invert=FALSE, xaxis=FALSE){
+plot_percentagesLTR=function(feat, ylab='', invert=FALSE, xaxis=FALSE, angle=90){
 d=get_largest_percents_backgroundbox(feat, invert)
 if(xaxis){
  ggplot(subset(d, sup%in%c('RLC', 'RLG', 'RLX')), aes(x=factor(px), y=propFirst, fill=sup)) +
@@ -136,7 +136,7 @@ if(xaxis){
 #                     geom_ribbon(aes(x=fam, y=median_sup, ymin=min_sup, ymax=max_sup), alpha = 0.3)+
 #                     geom_pointrange(fatten=3, size=10, shape='-', alpha=0.4, aes(x=fam, y=median_sup, ymin=min_sup, ymax=max_sup)) +
                      scale_fill_manual(values=dd.col) +  scale_color_manual(values=dd.col) +#ggtitle('TE length')+
-                    theme(legend.position="none", axis.title.x=element_blank(),axis.ticks.x=element_blank(), axis.text.x=element_text(angle=60), axis.line.x=element_blank()) + 
+                    theme(legend.position="none", axis.title.x=element_blank(),axis.ticks.x=element_blank(), axis.text.x=element_text(angle=angle, hjust=1), axis.line.x=element_blank()) + 
                      scale_x_discrete(labels=d$fam, breaks=factor(d$x)) +
                     ylab(ylab)
 }else{
@@ -156,7 +156,7 @@ if(xaxis){
 ### repeat for other figure of te vs flank
 
 
-plotlargestLTR=function(feat, ylab='', xaxis=FALSE){
+plotlargestLTR=function(feat, ylab='', xaxis=FALSE, angle=90){
 d=get_largest_quantile_backgroundbox(feat)
 if(xaxis){
  ggplot(subset(d, sup%in%c('RLC', 'RLG', 'RLX')), aes(x=factor(x), y=median, ymin=min, ymax=max, color=sup, fill=sup)) +
@@ -166,7 +166,7 @@ if(xaxis){
 #                     geom_ribbon(aes(x=fam, y=median_sup, ymin=min_sup, ymax=max_sup), alpha = 0.3)+
 #                     geom_pointrange(fatten=3, size=10, shape='-', alpha=0.4, aes(x=fam, y=median_sup, ymin=min_sup, ymax=max_sup)) +
                      scale_fill_manual(values=dd.col) +  scale_color_manual(values=dd.col) + #ggtitle('TE length')+
-                     theme(legend.position="none", axis.title.x=element_blank(),axis.ticks.x=element_blank(), axis.text.x=element_text(angle=60), axis.line.x=element_blank()) + 
+                     theme(legend.position="none", axis.title.x=element_blank(),axis.ticks.x=element_blank(), axis.text.x=element_text(angle=angle, hjust=1), axis.line.x=element_blank()) + 
                      scale_x_discrete(labels=d$fam, breaks=factor(d$x)) +
                      ylab(ylab)
 }else{
