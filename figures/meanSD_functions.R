@@ -71,23 +71,49 @@ get_largest_percents_backgroundbox=function(feat, invert=FALSE){
 }
 
 
-plot_percentages=function(feat, ylab='', invert=FALSE){
- ggplot(get_largest_percents_backgroundbox(feat, invert), aes(x=px, y=propFirst, fill=sup)) + 
+plot_percentages=function(feat, ylab='', invert=FALSE, xaxis=FALSE){
+ d = get_largest_percents_backgroundbox(feat, invert)
+ if(xaxis){
+ ggplot(d, aes(x=factor(px), y=propFirst, fill=sup)) + 
                      geom_point(aes(color=sup), size=2) +
                       geom_col(aes(y=supperc), alpha=0.3, width=1) + 
 #                     geom_ribbon(aes(x=fam, y=median_sup, ymin=min_sup, ymax=max_sup), alpha = 0.3)+
 #                     geom_pointrange(fatten=3, size=10, shape='-', alpha=0.4, aes(x=fam, y=median_sup, ymin=min_sup, ymax=max_sup)) +  
                      scale_fill_manual(values=dd.col) +  scale_color_manual(values=dd.col) +#ggtitle('TE length')+ 
-                     theme(legend.position="none", axis.title.x=element_blank(), axis.text.x=element_blank(),axis.ticks.x=element_blank()) +
+                     theme(legend.position="none", axis.title.x=element_blank(),axis.ticks.x=element_blank(), axis.text.x=element_text(angle=60), axis.line.x=element_blank()) + 
+                     scale_x_discrete(labels=d$fam, breaks=factor(d$px)) +
                      ylab(ylab)
+  }else{
+   ggplot(d, aes(x=px, y=propFirst, fill=sup)) + 
+                     geom_point(aes(color=sup), size=2) +
+                      geom_col(aes(y=supperc), alpha=0.3, width=1) + 
+#                     geom_ribbon(aes(x=fam, y=median_sup, ymin=min_sup, ymax=max_sup), alpha = 0.3)+
+#                     geom_pointrange(fatten=3, size=10, shape='-', alpha=0.4, aes(x=fam, y=median_sup, ymin=min_sup, ymax=max_sup)) +  
+                     scale_fill_manual(values=dd.col) +  scale_color_manual(values=dd.col) +#ggtitle('TE length')+ 
+                     theme(legend.position="none", axis.title.x=element_blank(), axis.text.x=element_blank(),axis.ticks.x=element_blank()) + 
+                     ylab(ylab)
+  }
  }
 
 
 ### repeat for other figure of te vs flank
 
 
-plotlargest=function(feat, ylab=''){
- ggplot(get_largest_quantile_backgroundbox(feat), aes(x=x, y=median, ymin=min, ymax=max, color=sup, fill=sup)) + 
+plotlargest=function(feat, ylab='', xaxis=FALSE){
+ d = get_largest_quantile_backgroundbox(feat)
+ if(xaxis){
+ ggplot(d, aes(x=factor(x), y=median, ymin=min, ymax=max, color=sup, fill=sup)) + 
+                     geom_pointrange(fatten=4/3, size=1.5) + 
+                     geom_rect(aes(xmin=x, xmax=x1, fill=sup, ymin=min_sup, ymax=max_sup), alpha=0.2, colour=NA) +
+                     geom_point(aes(x=px+0.5, color=sup, y=median_sup), alpha=0.5, shape="-", size=1.5) +
+#                     geom_ribbon(aes(x=fam, y=median_sup, ymin=min_sup, ymax=max_sup), alpha = 0.3)+
+#                     geom_pointrange(fatten=3, size=10, shape='-', alpha=0.4, aes(x=fam, y=median_sup, ymin=min_sup, ymax=max_sup)) +  
+                     scale_fill_manual(values=dd.col) +  scale_color_manual(values=dd.col) + #ggtitle('TE length')+ 
+                     theme(legend.position="none", axis.title.x=element_blank(),axis.ticks.x=element_blank(), axis.text.x=element_text(angle=60), axis.line.x=element_blank()) + 
+                     scale_x_discrete(labels=d$fam, breaks=factor(d$x)) +
+                     ylab(ylab)
+  }else{
+   ggplot(d, aes(x=x, y=median, ymin=min, ymax=max, color=sup, fill=sup)) + 
                      geom_pointrange(fatten=4/3, size=1.5) + 
                      geom_rect(aes(xmin=x, xmax=x1, fill=sup, ymin=min_sup, ymax=max_sup), alpha=0.2, colour=NA) +
                      geom_point(aes(x=px+0.5, color=sup, y=median_sup), alpha=0.5, shape="-", size=1.5) +
@@ -96,29 +122,55 @@ plotlargest=function(feat, ylab=''){
                      scale_fill_manual(values=dd.col) +  scale_color_manual(values=dd.col) + #ggtitle('TE length')+ 
                      theme(legend.position="none", axis.title.x=element_blank(), axis.text.x=element_blank(),axis.ticks.x=element_blank()) +
                      ylab(ylab)
+  }
  }
 
 
 
-
-
-plot_percentagesLTR=function(feat, ylab='', invert=FALSE){
- ggplot(subset(get_largest_percents_backgroundbox(feat, invert), sup%in%c('RLC', 'RLG', 'RLX')), aes(x=px, y=propFirst, fill=sup)) +
+plot_percentagesLTR=function(feat, ylab='', invert=FALSE, xaxis=FALSE){
+d=get_largest_percents_backgroundbox(feat, invert)
+if(xaxis){
+ ggplot(subset(d, sup%in%c('RLC', 'RLG', 'RLX')), aes(x=px, y=propFirst, fill=sup)) +
                      geom_point(aes(color=sup), size=2) +
+                      geom_col(aes(y=supperc), alpha=0.3, width=1) +
+#                     geom_ribbon(aes(x=fam, y=median_sup, ymin=min_sup, ymax=max_sup), alpha = 0.3)+
+#                     geom_pointrange(fatten=3, size=10, shape='-', alpha=0.4, aes(x=fam, y=median_sup, ymin=min_sup, ymax=max_sup)) +
+                     scale_fill_manual(values=dd.col) +  scale_color_manual(values=dd.col) +#ggtitle('TE length')+
+                    theme(legend.position="none", axis.title.x=element_blank(),axis.ticks.x=element_blank(), axis.text.x=element_text(angle=60), axis.line.x=element_blank()) + 
+                     scale_x_discrete(labels=d$fam, breaks=factor(d$x)) +
+                    ylab(ylab)
+}else{
+ ggplot(subset(d, sup%in%c('RLC', 'RLG', 'RLX')), aes(x=px, y=propFirst, fill=sup)) +
+                     geom_point(aes(color=sup), size=2) + 
                       geom_col(aes(y=supperc), alpha=0.3, width=1) +
 #                     geom_ribbon(aes(x=fam, y=median_sup, ymin=min_sup, ymax=max_sup), alpha = 0.3)+
 #                     geom_pointrange(fatten=3, size=10, shape='-', alpha=0.4, aes(x=fam, y=median_sup, ymin=min_sup, ymax=max_sup)) +
                      scale_fill_manual(values=dd.col) +  scale_color_manual(values=dd.col) +#ggtitle('TE length')+
                      theme(legend.position="none", axis.title.x=element_blank(), axis.text.x=element_blank(),axis.ticks.x=element_blank()) +
                      ylab(ylab)
+}
+
  }
 
 
 ### repeat for other figure of te vs flank
 
 
-plotlargestLTR=function(feat, ylab=''){
- ggplot(subset(get_largest_quantile_backgroundbox(feat), sup%in%c('RLC', 'RLG', 'RLX')), aes(x=x, y=median, ymin=min, ymax=max, color=sup, fill=sup)) +
+plotlargestLTR=function(feat, ylab='', xaxis=FALSE){
+d=get_largest_quantile_backgroundbox(feat)
+if(xaxis){
+ ggplot(subset(d, sup%in%c('RLC', 'RLG', 'RLX')), aes(x=x, y=median, ymin=min, ymax=max, color=sup, fill=sup)) +
+                     geom_pointrange(fatten=4/3, size=1.5) +
+                     geom_rect(aes(xmin=x, xmax=x1, fill=sup, ymin=min_sup, ymax=max_sup), alpha=0.2, colour=NA) +
+                     geom_point(aes(x=px+0.5, color=sup, y=median_sup), alpha=0.5, shape="-", size=1.5) +
+#                     geom_ribbon(aes(x=fam, y=median_sup, ymin=min_sup, ymax=max_sup), alpha = 0.3)+
+#                     geom_pointrange(fatten=3, size=10, shape='-', alpha=0.4, aes(x=fam, y=median_sup, ymin=min_sup, ymax=max_sup)) +
+                     scale_fill_manual(values=dd.col) +  scale_color_manual(values=dd.col) + #ggtitle('TE length')+
+                     theme(legend.position="none", axis.title.x=element_blank(),axis.ticks.x=element_blank(), axis.text.x=element_text(angle=60), axis.line.x=element_blank()) + 
+                     scale_x_discrete(labels=d$fam, breaks=factor(d$x)) +
+                     ylab(ylab)
+}else{
+ ggplot(subset(d, sup%in%c('RLC', 'RLG', 'RLX')), aes(x=x, y=median, ymin=min, ymax=max, color=sup, fill=sup)) +
                      geom_pointrange(fatten=4/3, size=1.5) +
                      geom_rect(aes(xmin=x, xmax=x1, fill=sup, ymin=min_sup, ymax=max_sup), alpha=0.2, colour=NA) +
                      geom_point(aes(x=px+0.5, color=sup, y=median_sup), alpha=0.5, shape="-", size=1.5) +
@@ -127,4 +179,6 @@ plotlargestLTR=function(feat, ylab=''){
                      scale_fill_manual(values=dd.col) +  scale_color_manual(values=dd.col) + #ggtitle('TE length')+
                      theme(legend.position="none", axis.title.x=element_blank(), axis.text.x=element_blank(),axis.ticks.x=element_blank()) +
                      ylab(ylab)
+}
+
  }
