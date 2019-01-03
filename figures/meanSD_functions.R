@@ -80,7 +80,7 @@ plot_percentages=function(feat, ylab='', invert=FALSE, xaxis=FALSE, angle=90){
 #                     geom_ribbon(aes(x=fam, y=median_sup, ymin=min_sup, ymax=max_sup), alpha = 0.3)+
 #                     geom_pointrange(fatten=3, size=10, shape='-', alpha=0.4, aes(x=fam, y=median_sup, ymin=min_sup, ymax=max_sup)) +  
                      scale_fill_manual(values=dd.col) +  scale_color_manual(values=dd.col) +#ggtitle('TE length')+ 
-                     theme(legend.position="none", axis.title.x=element_blank(),axis.ticks.x=element_blank(), axis.text.x=element_text(hjust=1, angle=angle), axis.line.x=element_blank()) + 
+                     theme(legend.position="none", axis.title.x=element_blank(),axis.ticks.x=element_blank(), axis.text.x=element_text(hjust=1, angle=angle, size=rel(0.8)), axis.line.x=element_blank()) + 
                      scale_x_discrete(labels=d$fam, breaks=factor(d$px)) +
                      ylab(ylab)
   }else{
@@ -109,7 +109,7 @@ plotlargest=function(feat, ylab='', xaxis=FALSE, angle=90){
 #                     geom_ribbon(aes(x=fam, y=median_sup, ymin=min_sup, ymax=max_sup), alpha = 0.3)+
 #                     geom_pointrange(fatten=3, size=10, shape='-', alpha=0.4, aes(x=fam, y=median_sup, ymin=min_sup, ymax=max_sup)) +  
                      scale_fill_manual(values=dd.col) +  scale_color_manual(values=dd.col) + #ggtitle('TE length')+ 
-                     theme(legend.position="none", axis.title.x=element_blank(),axis.ticks.x=element_blank(), axis.text.x=element_text(angle=angle, hjust=1), axis.line.x=element_blank()) + 
+                     theme(legend.position="none", axis.title.x=element_blank(),axis.ticks.x=element_blank(), axis.text.x=element_text(angle=angle, hjust=1, size=rel(0.8)), axis.line.x=element_blank()) + 
                      scale_x_discrete(labels=d$fam, breaks=factor(d$x)) +
                      ylab(ylab)
   }else{
@@ -136,7 +136,7 @@ if(xaxis){
 #                     geom_ribbon(aes(x=fam, y=median_sup, ymin=min_sup, ymax=max_sup), alpha = 0.3)+
 #                     geom_pointrange(fatten=3, size=10, shape='-', alpha=0.4, aes(x=fam, y=median_sup, ymin=min_sup, ymax=max_sup)) +
                      scale_fill_manual(values=dd.col) +  scale_color_manual(values=dd.col) +#ggtitle('TE length')+
-                    theme(legend.position="none", axis.title.x=element_blank(),axis.ticks.x=element_blank(), axis.text.x=element_text(angle=angle, hjust=1), axis.line.x=element_blank()) + 
+                    theme(legend.position="none", axis.title.x=element_blank(),axis.ticks.x=element_blank(), axis.text.x=element_text(angle=angle, hjust=1, size=rel(0.8)), axis.line.x=element_blank()) + 
                      scale_x_discrete(labels=d$fam, breaks=factor(d$x)) +
                     ylab(ylab)
 }else{
@@ -166,7 +166,7 @@ if(xaxis){
 #                     geom_ribbon(aes(x=fam, y=median_sup, ymin=min_sup, ymax=max_sup), alpha = 0.3)+
 #                     geom_pointrange(fatten=3, size=10, shape='-', alpha=0.4, aes(x=fam, y=median_sup, ymin=min_sup, ymax=max_sup)) +
                      scale_fill_manual(values=dd.col) +  scale_color_manual(values=dd.col) + #ggtitle('TE length')+
-                     theme(legend.position="none", axis.title.x=element_blank(),axis.ticks.x=element_blank(), axis.text.x=element_text(angle=angle, hjust=1), axis.line.x=element_blank()) + 
+                     theme(legend.position="none", axis.title.x=element_blank(),axis.ticks.x=element_blank(), axis.text.x=element_text(angle=angle, hjust=1, size=rel(0.8)), axis.line.x=element_blank()) + 
                      scale_x_discrete(labels=d$fam, breaks=factor(d$x)) +
                      ylab(ylab)
 }else{
