@@ -4,6 +4,7 @@ library(cowplot)
 library(data.table)
 library(plyr)
 library(dplyr)
+library(scales)
 
 source('../GenomeInfo.R')
 source('color_palette.R')
@@ -51,9 +52,10 @@ supChrFun5=function(superfam){
 }
                               
 supChrFun5multsups=function(superfam){
-    ggplot(te[te$chr==1 & te$largest5 & te$sup%in%superfam,], aes(x=start, fill=sup, group=fam)) + geom_histogram(binwidth=1e6) + facet_wrap(~fam, ncol=1, drop=T, strip.position='right')+ 
+    ggplot(te[te$chr==1 & te$largest5 & te$sup%in%superfam,], aes(x=start, fill=sup, group=fam)) + geom_histogram(binwidth=1e6) + facet_wrap(~fam, ncol=1, drop=T, strip.position='right', scales='free_y')+ 
            theme(strip.background = element_blank(),strip.text.x = element_blank(), strip.text.y = element_text(angle = 360), axis.text=element_text(size=10)) + scale_fill_manual(values=dd.col) +
-           ylab('') + scale_x_continuous(name='Position (Mb)', breaks=c(0,1e8,2e8, 3e8), labels=c(0,100,200,300))
+           ylab('') + scale_x_continuous(name='Position (Mb)', breaks=c(0,1e8,2e8, 3e8), labels=c(0,100,200,300)) + 
+          scale_y_continuous(breaks=scales::pretty_breaks(2), limits=c(0,NA))
 
 }                              
 
