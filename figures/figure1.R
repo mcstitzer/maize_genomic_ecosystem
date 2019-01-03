@@ -157,7 +157,7 @@ legend <- get_legend( ggplot(get_largest_quantile_backgroundbox('tebp'), aes(x=x
 #plots <- plot_grid(tel, age, cl, ingene, disr ,  labels = c('B', 'C', 'D', 'E', 'F'), ncol = 1, align = 'v')
 plots <- plot_grid(tel, age, cl, ingene, disrX ,  labels = c('C', 'D', 'E', 'F', 'G'), rel_heights=c(0.8,0.8,0.8,0.8,1), ncol = 1, align = 'v')
 supplots <- plot_grid(tempfamplot, famplotbp, labels=c('A', 'B'), ncol=2, align='v', scale=0.96)
-plot_grid(supplots, plots,legend, ncol = 3, align = 'v', labels=c('','', ''), scale=c(0.96,1,1), rel_widths = c(0.8, 1, .1))                              
+plot_grid(supplots, plots,legend, ncol = 3, align = 'v', labels=c('','', ''), scale=c(0.96,1,1), rel_widths = c(0.7, 1, .1))                              
 dev.off()                             
 
 ##### no longer needed
