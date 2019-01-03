@@ -97,3 +97,34 @@ plotlargest=function(feat, ylab=''){
                      theme(legend.position="none", axis.title.x=element_blank(), axis.text.x=element_blank(),axis.ticks.x=element_blank()) +
                      ylab(ylab)
  }
+
+
+
+
+
+plot_percentagesLTR=function(feat, ylab='', invert=FALSE){
+ ggplot(subset(get_largest_percents_backgroundbox(feat, invert), sup%in%c('RLC', 'RLG', 'RLX')), aes(x=px, y=propFirst, fill=sup)) +
+                     geom_point(aes(color=sup), size=2) +
+                      geom_col(aes(y=supperc), alpha=0.3, width=1) +
+#                     geom_ribbon(aes(x=fam, y=median_sup, ymin=min_sup, ymax=max_sup), alpha = 0.3)+
+#                     geom_pointrange(fatten=3, size=10, shape='-', alpha=0.4, aes(x=fam, y=median_sup, ymin=min_sup, ymax=max_sup)) +
+                     scale_fill_manual(values=dd.col) +  scale_color_manual(values=dd.col) +#ggtitle('TE length')+
+                     theme(legend.position="none", axis.title.x=element_blank(), axis.text.x=element_blank(),axis.ticks.x=element_blank()) +
+                     ylab(ylab)
+ }
+
+
+### repeat for other figure of te vs flank
+
+
+plotlargestLTR=function(feat, ylab=''){
+ ggplot(subset(get_largest_quantile_backgroundbox(feat), sup%in%c('RLC', 'RLG', 'RLX')), aes(x=x, y=median, ymin=min, ymax=max, color=sup, fill=sup)) +
+                     geom_pointrange(fatten=4/3, size=1.5) +
+                     geom_rect(aes(xmin=x, xmax=x1, fill=sup, ymin=min_sup, ymax=max_sup), alpha=0.2, colour=NA) +
+                     geom_point(aes(x=px+0.5, color=sup, y=median_sup), alpha=0.5, shape="-", size=1.5) +
+#                     geom_ribbon(aes(x=fam, y=median_sup, ymin=min_sup, ymax=max_sup), alpha = 0.3)+
+#                     geom_pointrange(fatten=3, size=10, shape='-', alpha=0.4, aes(x=fam, y=median_sup, ymin=min_sup, ymax=max_sup)) +
+                     scale_fill_manual(values=dd.col) +  scale_color_manual(values=dd.col) + #ggtitle('TE length')+
+                     theme(legend.position="none", axis.title.x=element_blank(), axis.text.x=element_blank(),axis.ticks.x=element_blank()) +
+                     ylab(ylab)
+ }
