@@ -84,7 +84,7 @@ plot_percentages=function(feat, ylab='', invert=FALSE, xaxis=FALSE){
                      scale_x_discrete(labels=d$fam, breaks=factor(d$px)) +
                      ylab(ylab)
   }else{
-   ggplot(d, aes(x=px, y=propFirst, fill=sup)) + 
+   ggplot(d, aes(x=factor(px), y=propFirst, fill=sup)) + 
                      geom_point(aes(color=sup), size=2) +
                       geom_col(aes(y=supperc), alpha=0.3, width=1) + 
 #                     geom_ribbon(aes(x=fam, y=median_sup, ymin=min_sup, ymax=max_sup), alpha = 0.3)+
@@ -113,7 +113,7 @@ plotlargest=function(feat, ylab='', xaxis=FALSE){
                      scale_x_discrete(labels=d$fam, breaks=factor(d$x)) +
                      ylab(ylab)
   }else{
-   ggplot(d, aes(x=x, y=median, ymin=min, ymax=max, color=sup, fill=sup)) + 
+   ggplot(d, aes(x=factor(x), y=median, ymin=min, ymax=max, color=sup, fill=sup)) + 
                      geom_pointrange(fatten=4/3, size=1.5) + 
                      geom_rect(aes(xmin=x, xmax=x1, fill=sup, ymin=min_sup, ymax=max_sup), alpha=0.2, colour=NA) +
                      geom_point(aes(x=px+0.5, color=sup, y=median_sup), alpha=0.5, shape="-", size=1.5) +
@@ -130,7 +130,7 @@ plotlargest=function(feat, ylab='', xaxis=FALSE){
 plot_percentagesLTR=function(feat, ylab='', invert=FALSE, xaxis=FALSE){
 d=get_largest_percents_backgroundbox(feat, invert)
 if(xaxis){
- ggplot(subset(d, sup%in%c('RLC', 'RLG', 'RLX')), aes(x=px, y=propFirst, fill=sup)) +
+ ggplot(subset(d, sup%in%c('RLC', 'RLG', 'RLX')), aes(x=factor(px), y=propFirst, fill=sup)) +
                      geom_point(aes(color=sup), size=2) +
                       geom_col(aes(y=supperc), alpha=0.3, width=1) +
 #                     geom_ribbon(aes(x=fam, y=median_sup, ymin=min_sup, ymax=max_sup), alpha = 0.3)+
@@ -140,7 +140,7 @@ if(xaxis){
                      scale_x_discrete(labels=d$fam, breaks=factor(d$x)) +
                     ylab(ylab)
 }else{
- ggplot(subset(d, sup%in%c('RLC', 'RLG', 'RLX')), aes(x=px, y=propFirst, fill=sup)) +
+ ggplot(subset(d, sup%in%c('RLC', 'RLG', 'RLX')), aes(x=factor(px), y=propFirst, fill=sup)) +
                      geom_point(aes(color=sup), size=2) + 
                       geom_col(aes(y=supperc), alpha=0.3, width=1) +
 #                     geom_ribbon(aes(x=fam, y=median_sup, ymin=min_sup, ymax=max_sup), alpha = 0.3)+
@@ -159,7 +159,7 @@ if(xaxis){
 plotlargestLTR=function(feat, ylab='', xaxis=FALSE){
 d=get_largest_quantile_backgroundbox(feat)
 if(xaxis){
- ggplot(subset(d, sup%in%c('RLC', 'RLG', 'RLX')), aes(x=x, y=median, ymin=min, ymax=max, color=sup, fill=sup)) +
+ ggplot(subset(d, sup%in%c('RLC', 'RLG', 'RLX')), aes(x=factor(x), y=median, ymin=min, ymax=max, color=sup, fill=sup)) +
                      geom_pointrange(fatten=4/3, size=1.5) +
                      geom_rect(aes(xmin=x, xmax=x1, fill=sup, ymin=min_sup, ymax=max_sup), alpha=0.2, colour=NA) +
                      geom_point(aes(x=px+0.5, color=sup, y=median_sup), alpha=0.5, shape="-", size=1.5) +
@@ -170,7 +170,7 @@ if(xaxis){
                      scale_x_discrete(labels=d$fam, breaks=factor(d$x)) +
                      ylab(ylab)
 }else{
- ggplot(subset(d, sup%in%c('RLC', 'RLG', 'RLX')), aes(x=x, y=median, ymin=min, ymax=max, color=sup, fill=sup)) +
+ ggplot(subset(d, sup%in%c('RLC', 'RLG', 'RLX')), aes(x=factor(x), y=median, ymin=min, ymax=max, color=sup, fill=sup)) +
                      geom_pointrange(fatten=4/3, size=1.5) +
                      geom_rect(aes(xmin=x, xmax=x1, fill=sup, ymin=min_sup, ymax=max_sup), alpha=0.2, colour=NA) +
                      geom_point(aes(x=px+0.5, color=sup, y=median_sup), alpha=0.5, shape="-", size=1.5) +
