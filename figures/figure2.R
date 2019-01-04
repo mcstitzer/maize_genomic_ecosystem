@@ -45,7 +45,7 @@ supChrFun=function(superfam){
 
 }
 supChrFun5=function(superfam){
-    ggplot(te[te$chr==1 & te$largest5 & te$sup==superfam,], aes(x=start, fill=sup, group=fam)) + geom_histogram(binwidth=1e6) + facet_wrap(~fam, ncol=1, drop=T, strip.position='right')+ 
+    ggplot(te[te$chr==1 & te$largest5 & te$sup==superfam,], aes(x=start, fill=sup, group=fam)) + geom_histogram(binwidth=1e6) + facet_wrap(~fam, ncol=1, scales='free_y', drop=T, strip.position='right')+ 
            theme(strip.background = element_blank(),strip.text.x = element_blank(), strip.text.y = element_text(angle = 360), axis.text=element_text(size=10)) + scale_fill_manual(values=dd.col) +
            ylab('') + scale_x_continuous(name='Position (Mb)', breaks=c(0,1e8,2e8, 3e8), labels=c(0,100,200,300)) +
           scale_y_continuous(breaks=scales::pretty_breaks(2), limits=c(0,NA))
