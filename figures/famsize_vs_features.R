@@ -77,19 +77,27 @@ ggplot(ind.fam, aes(x=age, y=segsites.bp, color=sup, alpha=log10(famsize))) + sc
 
 dev.off()
                                                     
-pdf('age_vs_segsites.pdf')
-ggplot(ind, aes(x=age, y=flank_segsites.bp, color=sup)) + scale_color_manual(values=dd.col) + geom_point(alpha=0.4)
-ggplot(ind, aes(x=age, y=flank_segsites.bp, color=sup)) + scale_color_manual(values=dd.col) + geom_point(alpha=0.4) + facet_wrap(~sup)
-ggplot(ind, aes(x=age, y=segsites.bp, color=sup)) + scale_color_manual(values=dd.col) + geom_point(alpha=0.4)
-ggplot(ind, aes(x=age, y=segsites.bp, color=sup)) + scale_color_manual(values=dd.col) + geom_point(alpha=0.4) + facet_wrap(~sup)
-
-ggplot(ind, aes(x=age, y=flank_segsites.bp, color=sup)) + scale_color_manual(values=dd.col) + geom_point(alpha=0.4) + xlim(0,2)
-ggplot(ind, aes(x=age, y=flank_segsites.bp, color=sup)) + scale_color_manual(values=dd.col) + geom_point(alpha=0.4) + facet_wrap(~sup)+ xlim(0,2)
-ggplot(ind, aes(x=age, y=segsites.bp, color=sup)) + scale_color_manual(values=dd.col) + geom_point(alpha=0.4)+ xlim(0,2)
-ggplot(ind, aes(x=age, y=segsites.bp, color=sup)) + scale_color_manual(values=dd.col) + geom_point(alpha=0.4) + facet_wrap(~sup)+ xlim(0,2)
-
                                                     
+                                                    
+ind$mya=ind$age/2/3.3e-8/1e6                                          
+pdf('age_vs_segsites.pdf')
+ggplot(ind, aes(x=mya, y=flank_segsites.bp, color=sup)) + scale_color_manual(values=dd.col) + geom_point(alpha=0.4)
+ggplot(ind, aes(x=mya, y=flank_segsites.bp, color=sup)) + scale_color_manual(values=dd.col) + geom_point(alpha=0.4) + facet_wrap(~sup)
+ggplot(ind, aes(x=mya, y=segsites.bp, color=sup)) + scale_color_manual(values=dd.col) + geom_point(alpha=0.4)
+ggplot(ind, aes(x=mya, y=segsites.bp, color=sup)) + scale_color_manual(values=dd.col) + geom_point(alpha=0.4) + facet_wrap(~sup)
+
+ggplot(ind, aes(x=mya, y=flank_segsites.bp, color=sup)) + scale_color_manual(values=dd.col) + geom_point(alpha=0.4) + xlim(0,2)
+ggplot(ind, aes(x=mya, y=flank_segsites.bp, color=sup)) + scale_color_manual(values=dd.col) + geom_point(alpha=0.4) + facet_wrap(~sup)+ xlim(0,2)
+ggplot(ind, aes(x=mya, y=segsites.bp, color=sup)) + scale_color_manual(values=dd.col) + geom_point(alpha=0.4)+ xlim(0,2)
+ggplot(ind, aes(x=mya, y=segsites.bp, color=sup)) + scale_color_manual(values=dd.col) + geom_point(alpha=0.4) + facet_wrap(~sup)+ xlim(0,2)
 dev.off()
+pdf('age_vs_segsites.fam.pdf', 20,20)
+## largest10 families
+ggplot(ind[ind$largest10,], aes(x=mya, y=flank_segsites.bp, color=sup)) + scale_color_manual(values=dd.col) + geom_point(alpha=0.4) + facet_wrap(~fam) + stat_cor(aes(color = sup), label.x = 1, method = "pearson") + xlim(0,2)
+ggplot(ind[ind$largest10,], aes(x=mya, y=segsites.bp, color=sup)) + scale_color_manual(values=dd.col) + geom_point(alpha=0.4) + facet_wrap(~fam) + stat_cor(aes(color = sup), label.x = 1, method = "pearson") + xlim(0,2)
+                                                   
+dev.off()
+                                                    
 
 pdf('famsize_vs_everything.pdf')
 
