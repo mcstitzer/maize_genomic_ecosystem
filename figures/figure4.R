@@ -124,5 +124,20 @@ plot_grid(ltronly, legend, ncol=2, align='v', labels='', rel_widths=c(1,0.1))
 sides=plot_grid(helprot, helprotfam, tirprot, tirprotfam, rveprot, rveprotfam, gag, gagfam, pol, polfam, auton, autonfam, labels='AUTO', ncol=2, align='v')
 plot_grid(sides, legend, ncol=2, align='v', labels='', rel_widths=c(1,0.1))     
 
+                               
+                               
+## pdf('boxplots_of_coding.pdf')
+ggplot(ind, aes(x=autonfam, y=te_tau, fill=sup, group=interaction(sup, autonfam))) + geom_boxplot() + scale_fill_manual(values=dd.col)+ facet_wrap(~sup)
+ggplot(ind, aes(x=autonfam, y=mya, fill=sup, group=interaction(sup, autonfam))) + geom_boxplot() + ylim(0,2)+ scale_fill_manual(values=dd.col)+ facet_wrap(~sup)
+ggplot(ind, aes(x=auton, y=te_tau, fill=sup, group=interaction(sup, auton))) + geom_boxplot() + scale_fill_manual(values=dd.col) + facet_wrap(~sup)
+ggplot(ind, aes(x=auton, y=mya, fill=sup, group=interaction(sup, auton))) + geom_boxplot() + ylim(0,2)+ scale_fill_manual(values=dd.col)+ facet_wrap(~sup)
+ggplot(ind, aes(x=autonfam, y=mya, fill=sup, group=interaction(sup, autonfam))) + geom_boxplot() + ylim(0,1)+ scale_fill_manual(values=dd.col)+ facet_wrap(~sup)
+ggplot(ind, aes(x=auton, y=mya, fill=sup, group=interaction(sup, auton))) + geom_boxplot() + ylim(0,1)+ scale_fill_manual(values=dd.col)+ facet_wrap(~sup)
+ggplot(ind, aes(x=autonfam, y=mya, fill=sup, group=interaction(sup, autonfam))) + geom_boxplot() + ylim(0,.1)+ scale_fill_manual(values=dd.col)+ facet_wrap(~sup)
+ggplot(ind, aes(x=auton, y=mya, fill=sup, group=interaction(sup, auton))) + geom_boxplot() + ylim(0,.1)+ scale_fill_manual(values=dd.col)+ facet_wrap(~sup)
+
+                               
+                               
+                               
 
 dev.off()
