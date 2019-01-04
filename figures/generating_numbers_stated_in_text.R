@@ -115,4 +115,10 @@ data.frame(ind) %>% group_by(sup, fam)%>%  dplyr::summarize(anyhalfmil=any(mya<=
 
 
 
+### coding - make sure you've fixed the protein file so that the autonomous ones are in the age_model produced ind!!!
+
+fp=ind %>% group_by(sup, fam) %>% dplyr::summarize(sum(auton)/n())
+ind %>% group_by(sup, fam) %>% group_by(substr(sup,1,2))%>% dplyr::summarize(sum(auton)/n())
+ind %>% group_by(sup, fam) %>% group_by(substr(sup,1,2)%in% c('RI', 'RS'))%>% dplyr::summarize(sum(auton)/n())
+
 
