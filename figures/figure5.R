@@ -3,37 +3,14 @@ library(cowplot)
 library(data.table)
 library(plyr)
 library(dplyr)
+library(stringr)
 
 source('../GenomeInfo.R')
 source('color_palette.R')
+source('meanSD_functions.R')
 
-## note that this expects there to be an ind data frame
-
-## could make these use GENOME to get the file name
-basecomp=fread('../base_composition/B73_TE_methylatable.txt')
-basecomp.flank=fread('../base_composition/B73_TE_methylatable.flank.txt')
-colnames(basecomp.flank)[4:7]=paste0(colnames(basecomp.flank)[4:7], '_1kbflank')
-mnase=fread('../mnase/B73_TEandFlank_mnase.2018-10-23.txt')
-
-diversity=fread('../diversity/B73.segregatingsites.TEandFlank.2018-10-23.txt')
-
-## always bring this one in!!!
-allte=fread('../te_characteristics/B73_TE_individual_copies.2018-09-19.txt')
-ind=merge(basecomp, basecomp.flank, all=T)
-ind=merge(ind, diversity, all=T)
-ind=merge(ind, mnase, all=T)
-ind=merge(ind, allte, all=T)
-ind=ind[ind$tebp>=50,] ## after disjoining, some TEs are too short to be real :( - be sure to add this to all figures!!!
-
-nrow(ind)
-nrow(basecomp)
-nrow(basecomp.flank)
-
-genomewide=fread('../base_composition/B73.basecomp_genomewide.txt')
-genomewide.ss=fread('../diversity/genomewide_segsites.txt')
-colnames(genomewide.ss)[1]='genomewide_bp_segsites'
-genomewide.mnase=read.table(paste0('../mnase/', GENOME, '.genomewide.mnase.txt'))
-colnames(genomewide.mnase)=c('n_root_hs_genomewide', 'V2', 'root_bp_genomewide', 'n_shoot_hs_genomewide', 'V5', 'shoot_bp_genomewide')
+## note that this expects there to be an ind data frame - and can use the one generated for model building!!!
+ind=fread('../age_model/B73.LTRAGE.allDescriptors.2018-12-06.txt')
 
 largest10=unlist(unique(sapply(unique(ind$sup), function(x) rev(tail(sort(table(ind$fam[ind$sup==x & !duplicated(ind$TEID)])),10)))))
 
@@ -46,100 +23,74 @@ largest5=unlist(unique(sapply(unique(ind$sup), function(x) rev(tail(sort(table(i
 largest5
 ind$largest5=ind$fam %in% names(largest5)                               
 
+### get genomewide info
+genomewide=fread('../base_composition/B73.basecomp_genomewide.txt')
+genomewide.ss=fread('../diversity/genomewide_segsites.txt')
+colnames(genomewide.ss)[1]='genomewide_bp_segsites'
+genomewide.mnase=read.table(paste0('../mnase/', GENOME, '.genomewide.mnase.txt'))
+colnames(genomewide.mnase)=c('n_root_hs_genomewide', 'V2', 'root_bp_genomewide', 'n_shoot_hs_genomewide', 'V5', 'shoot_bp_genomewide')
+
 
 te=ind
 
+##### prepare for decay of methylation plots
+anthers=colnames(ind)[which(grepl('anther', colnames(ind)))]
+SAMs=colnames(ind)[which(grepl('SAM', colnames(ind)))]
+earshoots=colnames(ind)[which(grepl('earshoot', colnames(ind)))]
+seedlingleafs=colnames(ind)[which(grepl('all3', colnames(ind)))]
+flagleafs=colnames(ind)[which(grepl('flagleaf', colnames(ind)))]
+h3k9s=colnames(ind)[which(grepl('h3k9', colnames(ind)))]
 
-get_largest_quantile_backgroundbox=function(feat){
- library(plyr)
- sub2=cbind(ind[ind$largest10 & !duplicated(ind$TEID),] %>% select_(feat) , ind[ind$largest10 & !duplicated(ind$TEID),] %>% select(fam))
- sub3=sub2 %>% group_by(fam) %>% summarize_all(funs(median(., na.rm=TRUE), min=quantile(., na.rm=TRUE, 0.25), max=quantile(.,na.rm=TRUE, 0.75)))
- sub3$sup=substr(sub3$fam,1,3)
- sub3$value=NA
- sub3$plt='point'
- sub1=cbind(ind %>% select_(feat) , ind %>% select(sup))
- af=sub1 %>% group_by(sup) %>% summarize_all(funs(median(., na.rm=TRUE), min=quantile(., na.rm=TRUE, 0.25), max=quantile(.,na.rm=TRUE, 0.75)))
- af$fam=af$sup
- af$value=NA
- af$plt='suppoint'
- colnames(af)[1]='fam'
- colnames(af)[5]='sup'
- colnames(af)[2:4]=paste0(colnames(af)[2:4], '_sup')
- sub3$median_sup=as.numeric(as.character(mapvalues(sub3$sup, from=af$sup, to=af$median_sup)))
- sub3$min_sup=as.numeric(as.character(mapvalues(sub3$sup, from=af$sup, to=af$max_sup)))
- sub3$max_sup=as.numeric(as.character(mapvalues(sub3$sup, from=af$sup, to=af$min_sup)))
- sub3=sub3[match(names(largest10), sub3$fam),]
- sub3$x=1:nrow(sub3)
- sub3$px=sub3$x
- sub3$x1=sub3$x+1
- sub3$px1=sub3$x1
- sub3$x[!duplicated(sub3$sup)]=sub3$x1[!duplicated(sub3$sup)]-0.75
- sub3$x1[which(!duplicated(sub3$sup))[-1]-1]=sub3$x1[which(!duplicated(sub3$sup))[-1]-1]-0.75
+tissuecols=list(anthers, SAMs, earshoots, seedlingleafs, flagleafs, h3k9s)
+names(tissuecols)=c('anther', 'SAM', 'earshoot', 'all3', 'flagleaf', 'h3k9')
+tissueplots=vector("list", 6)
+names(tissueplots)=names(tissuecols)
+for (tissue in names(tissuecols)){
+d.l=melt(data.frame(ind)[ind$fam %in% names(largest10), c(tissuecols[[tissue]], 'fam', 'sup')], id.vars=c('fam', 'sup'))
+d.l$distance=as.numeric(gsub("\\D", "", d.l$variable))
+d.l$distance[is.na(d.l$distance)]=0
+d.l$context=str_split_fixed(as.character(d.l$variable), '_', 4)[,3]
+#d.l$distance[d.l$context=='h3k9me2']=as.numeric(sapply(d.l$distance[d.l$context=='h3k9me2'], function(x) substring(as.character(x), 4, nchar(as.character(x)))))
+d.m=melt(data.frame(ind)[ind$famsize>=10, c(tissuecols[[tissue]], 'fam', 'sup', 'famsize')], id.vars=c('sup', 'fam', 'famsize'))
+d.m$distance=as.numeric(gsub("\\D", "", d.m$variable))
+d.m$distance[is.na(d.m$distance)]=0
+d.m$context=str_split_fixed(d.m$variable, '_', 4)[,3]
+#d.m$famsize=mapvalues(d.m$fam, from=d$fam, to=d$famsize, warn_missing=F)
+#d.m$famsize=as.numeric(d.m$famsize)
+#d.m$distance[d.m$context=='h3k9me2']=as.numeric(sapply(d.m$distance[d.m$context=='h3k9me2'], function(x) substring(as.character(x), 4, nchar(as.character(x)))))
+d.l$sup=substr(d.l$fam,1,3)
+d.m$sup=substr(d.m$fam,1,3)                               
+                               
+d.lg=d.l %>% group_by(sup, fam, variable, distance, context) %>% dplyr::summarize(value=mean(value, na.rm=T))
+d.mg=d.m%>% group_by(sup, fam, variable, distance, context, famsize) %>% dplyr::summarize(value=mean(value, na.rm=T))
 
-# sub4=merge(sub3, af, all=T)
- return(sub3)
+tissueplots[[tissue]]=d.mg
+#print(ggplot(d.mg, aes(x=distance, y=value, col=factor(sup, levels=TESUPFACTORLEVELS), group=paste(fam, context), linetype=context, alpha=log10(famsize)/4)) + geom_line() + scale_color_manual(values=dd.col, name='superfamily') + facet_wrap(context~sup, nrow=3) +
+#                               theme(strip.background = element_blank(), strip.text.y = element_blank(), strip.text.x=element_blank()) + ylab('mC proportion') + scale_alpha(guide = 'none'))
+                    
 }
+                              
+                              
+                              
+                              
+                              
+##### AND FINALLY, PLOT!                              
 
-## figure out percentages
-get_largest_percents_backgroundbox=function(feat, invert=FALSE){
- library(plyr)
- sub2=cbind(ind[ind$largest10 & !duplicated(ind$TEID),] %>% select_(feat) , ind[ind$largest10 & !duplicated(ind$TEID),] %>% select(fam))
- classes=names(table(sub2[,feat, with=F]))
- if(invert){classes=rev(classes)}
- print(classes)
- if (length(classes)>2){
-  print("warning - make sure the first class here is one you want to compare to all others")
-  }
- sub3=sub2 %>% group_by(fam) %>% dplyr::summarize_all(funs(propFirst=sum(.==classes[1], na.rm=T)/sum(!is.na(.))))
- sub3$sup=substr(sub3$fam,1,3)
- sub3$plot='family'
- sub1=cbind(ind %>% select_(feat) , ind %>% select(sup))
- af=sub1 %>% group_by(sup) %>% dplyr::summarize_all(funs(propFirst=sum(.==classes[1], na.rm=T)/sum(!is.na(.))))
- af$fam=af$sup
- af$plot='superfamily'
- sub3$supperc=as.numeric(mapvalues(sub3$sup, from=af$sup, to=af$propFirst))
- sub3=sub3[match(names(largest10), sub3$fam),]
- sub3$x=1:nrow(sub3)
- sub3$px=sub3$x
- sub3$x1=sub3$x+1
- sub3$px1=sub3$x1
- sub3$x[!duplicated(sub3$sup)]=sub3$x1[!duplicated(sub3$sup)]-0.75
- sub3$x1[which(!duplicated(sub3$sup))[-1]-1]=sub3$x1[which(!duplicated(sub3$sup))[-1]-1]-0.75
-
-# sub4=merge(sub3, af, all=T)
- return(sub3)
-}
-
-
-plot_percentages=function(feat, ylab='', invert=FALSE){
- ggplot(get_largest_percents_backgroundbox(feat, invert), aes(x=px, y=propFirst, fill=sup)) + 
-                     geom_point(aes(color=sup), size=2) +
-                      geom_col(aes(y=supperc), alpha=0.3, width=1) + 
-#                     geom_ribbon(aes(x=fam, y=median_sup, ymin=min_sup, ymax=max_sup), alpha = 0.3)+
-#                     geom_pointrange(fatten=3, size=10, shape='-', alpha=0.4, aes(x=fam, y=median_sup, ymin=min_sup, ymax=max_sup)) +  
-                     scale_fill_manual(values=dd.col) +  scale_color_manual(values=dd.col) +#ggtitle('TE length')+ 
-                     theme(legend.position="none", axis.title.x=element_blank(), axis.text.x=element_blank(),axis.ticks.x=element_blank()) +
-                     ylab(ylab)
- }
-
-
-### repeat for other figure of te vs flank
-
-
-plotlargest=function(feat, ylab='', hline=-1000){
- ggplot(get_largest_quantile_backgroundbox(feat), aes(x=x, y=median, ymin=min, ymax=max, color=sup, fill=sup)) + 
-                     geom_hline(yintercept=hline, linetype='dashed', color='grey') +
-                     geom_pointrange(fatten=4/3, size=1.5) + 
-                     geom_rect(aes(xmin=x, xmax=x1, fill=sup, ymin=min_sup, ymax=max_sup), alpha=0.2, colour=NA) +
-                     geom_point(aes(x=px+0.5, color=sup, y=median_sup), alpha=0.5, shape="-", size=1.5) +
-#                     geom_ribbon(aes(x=fam, y=median_sup, ymin=min_sup, ymax=max_sup), alpha = 0.3)+
-#                     geom_pointrange(fatten=3, size=10, shape='-', alpha=0.4, aes(x=fam, y=median_sup, ymin=min_sup, ymax=max_sup)) +  
-                     scale_fill_manual(values=dd.col) +  scale_color_manual(values=dd.col) + #ggtitle('TE length')+ 
-                     theme(legend.position="none", axis.title.x=element_blank(), axis.text.x=element_blank(),axis.ticks.x=element_blank()) +
-                     ylab(ylab)
- }
-
-pdf(paste0('figure5.', Sys.Date(), '.pdf'), 22,10)
+pdf(paste0('figure5.', Sys.Date(), '.pdf'), 32,20)
+cgte=plotlargest('all3_avg_cg', 'mCG, Seedling Leaf')
+chgte=plotlargest('all3_avg_chg', 'mCHG, Seedling Leaf')
+chhte=plotlargest('all3_avg_chh', 'mCHH, Seeding Leaf')
+## these are fams with >10, colored by alpha of family size
+cgflank=ggplot(tissueplots[['anther']][tissueplots[['anther']]$context=='cg',], aes(x=distance, y=value, col=factor(sup, levels=TESUPFACTORLEVELS), group=paste(fam, context), linetype=context, alpha=log10(famsize)/4)) + geom_line() + scale_color_manual(values=dd.col, name='superfamily') + facet_wrap(~factor(sup, levels=TESUPFACTORLEVELS), nrow=1) +
+                               theme(strip.background = element_blank(), strip.text.y = element_blank(), strip.text.x=element_blank(), legend.position="none") + 
+                              ylab('mCG proportion') + scale_alpha(guide = 'none')
+chgflank=ggplot(tissueplots[['anther']][tissueplots[['anther']]$context=='chg',], aes(x=distance, y=value, col=factor(sup, levels=TESUPFACTORLEVELS), group=paste(fam, context), linetype=context, alpha=log10(famsize)/4)) + geom_line() + scale_color_manual(values=dd.col, name='superfamily') + facet_wrap(~factor(sup, levels=TESUPFACTORLEVELS), nrow=1) +
+                               theme(strip.background = element_blank(), strip.text.y = element_blank(), strip.text.x=element_blank(), legend.position="none") + 
+                              ylab('mCHG proportion') + scale_alpha(guide = 'none')
+chhflank=ggplot(tissueplots[['anther']][tissueplots[['anther']]$context=='chh',], aes(x=distance, y=value, col=factor(sup, levels=TESUPFACTORLEVELS), group=paste(fam, context), linetype=context, alpha=log10(famsize)/4)) + geom_line() + scale_color_manual(values=dd.col, name='superfamily') + facet_wrap(~factor(sup, levels=TESUPFACTORLEVELS), nrow=1) +
+                               theme(strip.background = element_blank(), strip.text.y = element_blank(), strip.text.x=element_blank(), legend.position="none") + 
+                              ylab('mCHH proportion') + scale_alpha(guide = 'none')
+                              
 gc=plotlargest('percGC', '% GC', hline=genomewide$percGC)
 cg=plotlargest('nCG', 'Proportion\nCG methylatable', hline=genomewide$nCG)
 mnase=plotlargest('shoot_prop', 'Proportion Mnase\nhypersensitive (shoot)', hline=genomewide.mnase$shoot_bp_genomewide/genomewide$seqlen)
@@ -150,9 +101,12 @@ cg.flank=plotlargest('nCG_1kbflank', 'Flanking proportion\nCG methylatable', hli
 mnase.flank=plotlargest('flank_shoot_prop', 'Flanking proportion Mnase\nhypersensitive (shoot)', hline=genomewide.mnase$shoot_bp_genomewide/genomewide$seqlen)
 diversity.flank=plotlargest('flank_segsites.bp', 'Flanking proportion\nsegregating sites', hline=genomewide.ss$genomewide_bp_segsites/genomewide$seqlen)
 
-plot_grid(gc + ylim(0,0.8), gc.flank+ ylim(0,0.8),  
+plot_grid(cgte+ ylim(0,1), cgflank,
+          chgte+ ylim(0,1), chgflank,
+          chhte+ ylim(0,0.4), chhflank,          
+          gc + ylim(0,0.8), gc.flank+ ylim(0,0.8),  
           cg+ ylim(0,0.15),cg.flank+ ylim(0,0.15), 
-          mnase+ ylim(0,0.4), mnase.flank+ ylim(0,0.4),
+#          mnase+ ylim(0,0.4), mnase.flank+ ylim(0,0.4),
           diversity+ ylim(0,0.15), diversity.flank+ ylim(0,0.15),
           labels = "AUTO", ncol = 2, align = 'v')
 
@@ -190,4 +144,33 @@ plot_grid(gc + ylim(0,0.8), gc.flank+ ylim(0,0.8),
 #plots <- plot_grid(tel, cl, ingene, disr ,  labels = "AUTO", ncol = 1, align = 'v')
 #plots <- plot_grid(tel, age, cl, ingene, disr ,  labels = "AUTO", ncol = 1, align = 'v')
 #plot_grid(plots,legend, ncol = 2, align = 'v',  rel_widths = c(1, .1))                              
+dev.off()
+                              
+                              
+### supplemental methylation
+pdf(paste0('supplemental_methylation.', Sys.Date(), '.pdf'), 22,14)
+for (tissue in names(tissuecols)){
+cgte=plot_largest(paste0(tissue, '_avg_cg'), 'mCG')
+chgte=plot_largest(paste0(tissue, '_avg_chg'), 'mCHG')
+chhte=plot_largest(paste0(tissue, '_avg_chh'), 'mCHH')
+
+title=ggdraw() + draw_label(tissue, fontface='bold')
+cgflank=ggplot(tissueplots[['all3']][tissueplots[['all3']]$context=='cg',], aes(x=distance, y=value, col=factor(sup, levels=TESUPFACTORLEVELS), group=paste(fam, context), linetype=context, alpha=log10(famsize)/4)) + geom_line() + scale_color_manual(values=dd.col, name='superfamily') + facet_wrap(~sup) +
+                               theme(strip.background = element_blank(), strip.text.y = element_blank(), strip.text.x=element_blank()) + 
+                              ylab('mCG proportion') + scale_alpha(guide = 'none')
+chgflank=ggplot(tissueplots[['all3']][tissueplots[['all3']]$context=='chg',], aes(x=distance, y=value, col=factor(sup, levels=TESUPFACTORLEVELS), group=paste(fam, context), linetype=context, alpha=log10(famsize)/4)) + geom_line() + scale_color_manual(values=dd.col, name='superfamily') + facet_wrap(~sup) +
+                               theme(strip.background = element_blank(), strip.text.y = element_blank(), strip.text.x=element_blank()) + 
+                              ylab('mCHG proportion') + scale_alpha(guide = 'none')
+chhflank=ggplot(tissueplots[['all3']][tissueplots[['all3']]$context=='chh',], aes(x=distance, y=value, col=factor(sup, levels=TESUPFACTORLEVELS), group=paste(fam, context), linetype=context, alpha=log10(famsize)/4)) + geom_line() + scale_color_manual(values=dd.col, name='superfamily') + facet_wrap(~sup) +
+                               theme(strip.background = element_blank(), strip.text.y = element_blank(), strip.text.x=element_blank()) + 
+                              ylab('mCHH proportion') + scale_alpha(guide = 'none')
+plot_grid(title, 
+          plot_grid(cgte, cgflank,
+                    chgte, chgflank,
+                    chhte, chhflank,          
+                    labels = "AUTO", ncol = 2, align = 'v'), 
+   rel_heights=c(0.1,1))
+
+
+}
 dev.off()
