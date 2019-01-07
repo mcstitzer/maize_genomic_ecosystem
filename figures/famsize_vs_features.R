@@ -95,9 +95,16 @@ pdf('age_vs_segsites.fam.pdf', 20,20)
 ## largest10 families
 ggplot(ind[ind$largest10,], aes(x=mya, y=flank_segsites.bp, color=sup)) + scale_color_manual(values=dd.col) + geom_point(alpha=0.4) + facet_wrap(~fam) + stat_cor(aes(color = sup), label.x = 1, method = "pearson") + xlim(0,2)
 ggplot(ind[ind$largest10,], aes(x=mya, y=segsites.bp, color=sup)) + scale_color_manual(values=dd.col) + geom_point(alpha=0.4) + facet_wrap(~fam) + stat_cor(aes(color = sup), label.x = 1, method = "pearson") + xlim(0,2)
-                                                   
+
 dev.off()
                                                     
+pdf('age_vs_flankmethyl.pdf', 20,20)
+ggplot(ind, aes(x=mya, y=all3_avg_cg - all3_flank_cg_500, color=sup)) + scale_color_manual(values=dd.col) + geom_point(alpha=0.4) + facet_wrap(~sup) + stat_cor(aes(color = sup), label.x = 1, method = "pearson") + xlim(0,2)
+ggplot(ind, aes(x=flank_segsites.bp, y=all3_avg_cg - all3_flank_cg_500, color=sup)) + scale_color_manual(values=dd.col) + geom_point(alpha=0.4) + facet_wrap(~sup) + stat_cor(aes(color = sup), label.x = 0.2, method = "pearson")
+ggplot(ind[ind$largest10,], aes(x=mya, y=all3_avg_cg - all3_flank_cg_500, color=sup)) + scale_color_manual(values=dd.col) + geom_point(alpha=0.4) + facet_wrap(~fam) + stat_cor(aes(color = sup), label.x = 1, method = "pearson") + xlim(0,2)
+ggplot(ind[ind$largest10,], aes(x=flank_segsites.bp, y=all3_avg_cg - all3_flank_cg_500, color=sup)) + scale_color_manual(values=dd.col) + geom_point(alpha=0.4) + facet_wrap(~fam) + stat_cor(aes(color = sup), label.x = 0.2, method = "pearson")
+
+dev.off()
 
 pdf('famsize_vs_everything.pdf')
 
