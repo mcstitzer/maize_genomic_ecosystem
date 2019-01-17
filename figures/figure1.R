@@ -146,7 +146,7 @@ disr=plot_percentages('disruptor', 'Proportion in \nanother TE')
 cl=plotlargest('closest', 'Distance from \ngene (bp)')
 ingene=plot_percentages('ingene', 'Proportion in \ntranscript', invert=TRUE)
 disrX=plot_percentages('disruptor', 'Proportion in \nanother TE', xaxis=TRUE)
-
+autonX=plot_percentages('auton', 'Proportion copies\nautonomous', xaxis=TRUE)
                                
                                
 #plot_grid(tel, age, cl, ingene, disr ,  labels = "AUTO", ncol = 1, align = 'v')
@@ -155,7 +155,7 @@ disrX=plot_percentages('disruptor', 'Proportion in \nanother TE', xaxis=TRUE)
 legend <- get_legend( ggplot(get_largest_quantile_backgroundbox('tebp'), aes(x=x, y=median, ymin=min, ymax=max, color=factor(sup, levels=TESUPFACTORLEVELS)))+ geom_pointrange(size=1)+ 
                      theme(legend.title=element_blank())+ scale_color_manual(values=dd.col))
 #plots <- plot_grid(tel, age, cl, ingene, disr ,  labels = c('B', 'C', 'D', 'E', 'F'), ncol = 1, align = 'v')
-plots <- plot_grid(tel, age, cl, ingene, disrX ,  labels = c('C', 'D', 'E', 'F', 'G'), rel_heights=c(0.8,0.8,0.8,0.8,1), ncol = 1, align = 'v')
+plots <- plot_grid(tel, age, cl, ingene, disr, autonX ,  labels = c('C', 'D', 'E', 'F', 'G'), rel_heights=c(0.8,0.8,0.8,0.8,1), ncol = 1, align = 'v')
 supplots <- plot_grid(tempfamplot, famplotbp, labels=c('A', 'B'), ncol=2, align='v', scale=0.96)
 plot_grid(supplots, plots,legend, ncol = 3, align = 'v', labels=c('','', ''), scale=c(0.96,1,1), rel_widths = c(0.7, 1, .1))                              
 dev.off()                             
@@ -195,7 +195,7 @@ pdf(paste0('supp_TE_descriptors.', Sys.Date(), '.pdf'), 16,8)
 #tel=plotlargest('seqlen', 'TE Length (bp)')
 #age=plotlargest('mya', 'Age \n(million years)') + coord_cartesian(ylim=c(0,3))
 piece=plot_percentages('pieces', 'Proportion intact')
-#disr=plot_percentages('disruptor', 'Proportion in \nanother TE')
+disr=plot_percentages('disruptor', 'Proportion in \nanother TE')
 #cl=plotlargest('closest', 'Distance from \ngene (bp)')
 #ingene=plot_percentages('ingene', 'Proportion in \ntranscript', invert=TRUE)
 span=plotlargest('tespan', 'TE Span (bp)')
@@ -203,7 +203,7 @@ span=plotlargest('tespan', 'TE Span (bp)')
 ## version with a legend.
 legend <- get_legend( ggplot(get_largest_quantile_backgroundbox('tebp'), aes(x=x, y=median, ymin=min, ymax=max, color=factor(sup, levels=c('DHH', 'DTA', 'DTC', 'DTH', 'DTM', 'DTT', 'DTX', 'RLC', 'RLG', 'RLX', 'RIL', 'RIT', 'RST')), fill=sup))+ geom_pointrange(size=1)+ 
                      theme(legend.title=element_blank())+ scale_color_manual(values=dd.col))
-plots <- plot_grid(piece, span, labels = 'AUTO', ncol = 1, align = 'v')
+plots <- plot_grid(piece, disr, span, labels = 'AUTO', ncol = 1, align = 'v')
 plot_grid(plots,legend, ncol = 2, align = 'v', labels='', rel_widths = c(1, .1))                              
 dev.off() 
                                
