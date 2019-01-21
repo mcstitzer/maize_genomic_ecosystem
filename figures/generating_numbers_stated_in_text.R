@@ -20,6 +20,8 @@ ind=ind[ind$tebp>=50,] ## after disjoining, some TEs are too short to be real :(
 
 
 data.frame(ind %>% group_by(substr(sup,1,2)) %>% dplyr::summarize(bp=sum(tebp), meanbp=mean(tebp), medianbp=median(tebp), disrupted=sum(pieces!=1)/n(), disruptor=sum(disruptor>1)/n()))
+data.frame(ind %>% group_by(substr(sup,1,2)%in% c('RI', 'RS')) %>% dplyr::summarize(bp=sum(tebp), meanbp=mean(tebp), medianbp=median(tebp), disrupted=sum(pieces!=1)/n(), disruptor=sum(disruptor>1)/n()))
+
 
 ## nonuniform chr, results paragraph 2
 data.frame(ind %>% group_by(substr(sup,1,2)) %>% dplyr::summarize(meangenedist=mean(closest, na.rm=T), mediangenedist=median(closest, na.rm=T)))
@@ -40,6 +42,25 @@ data.frame(tgem %>% group_by(substr(sup,1,2) %in% c('RI', 'RS')) %>% dplyr::summ
 data.frame(tgem[tgem$closest<2000,] %>% group_by(substr(sup,1,2)) %>% dplyr::summarize(mean=mean(gene_median, na.rm=T), median=median(gene_median, na.rm=T)))
 # for nonLTR as a whole!
 data.frame(tgem[tgem$closest<2000,] %>% group_by(substr(sup,1,2) %in% c('RI', 'RS')) %>% dplyr::summarize(mean=mean(gene_median, na.rm=T), median=median(gene_median, na.rm=T)))
+## gene rpkm, genes within 1kb of TE
+data.frame(tgem[tgem$closest<1000,] %>% group_by(substr(sup,1,2)) %>% dplyr::summarize(mean=mean(gene_median, na.rm=T), median=median(gene_median, na.rm=T)))
+# for nonLTR as a whole!
+data.frame(tgem[tgem$closest<1000,] %>% group_by(substr(sup,1,2) %in% c('RI', 'RS')) %>% dplyr::summarize(mean=mean(gene_median, na.rm=T), median=median(gene_median, na.rm=T)))
+
+
+## and TE expression from sarah
+ind$exprMedian=apply(ind[,386:408],1,median, na.rm=T)
+ind$exprMedianPerCopy=ind$exprMedian/ind$famsize
+ind$exprMedianPerBp=ind$exprMedianPerCopy/ind$te_bp
+# and tau
+tau=function(x){
+    t=sum(1-x/max(x))/(length(x)-1)
+  }
+ind$te_tau=apply(ind[,386:408], 1, tau)
+## te rpkm
+data.frame(ind %>% group_by(substr(sup,1,2)) %>% dplyr::summarize(mean=mean(exprMedianPerCopy, na.rm=T), median=median(exprMedianPerCopy, na.rm=T)))
+# for nonLTR as a whole!
+data.frame(ind %>% group_by(substr(sup,1,2) %in% c('RI', 'RS')) %>% dplyr::summarize(mean=mean(exprMedianPerCopy, na.rm=T), median=median(exprMedianPerCopy, na.rm=T)))
 
 
 
@@ -117,8 +138,54 @@ data.frame(ind) %>% group_by(sup, fam)%>%  dplyr::summarize(anyhalfmil=any(mya<=
 
 ### coding - make sure you've fixed the protein file so that the autonomous ones are in the age_model produced ind!!!
 
-fp=ind %>% group_by(sup, fam) %>% dplyr::summarize(sum(auton)/n())
+ind$auton[ind$sup=='DHH']=ind$helprot[ind$sup=='DHH'] ## make sure autonomous means what I want it to!
+ind$auton[substr(ind$sup,1,2)=='DT']=ind$tpaseprot[substr(ind$sup,1,2)=='DT']
+ind$auton[ind$sup %in% c('RIT', 'RIL', 'RST')]=ind$rveprot[ind$sup %in% c('RIT', 'RIL', 'RST')]
+
+ind=merge(ind, ind%>%group_by(fam) %>% dplyr::summarize(GAGfam=sum(GAG)>0), by='fam')
+
+ind=merge(ind, ind%>%group_by(fam) %>% dplyr::summarize(APfam=sum(AP)>0), by='fam')
+ind=merge(ind, ind%>%group_by(fam) %>% dplyr::summarize(INTfam=sum(INT)>0), by='fam')
+ind=merge(ind, ind%>%group_by(fam) %>% dplyr::summarize(RTfam=sum(RT)>0), by='fam')
+ind=merge(ind, ind%>%group_by(fam) %>% dplyr::summarize(RNaseHfam=sum(RNaseH)>0), by='fam')
+ind=merge(ind, ind%>%group_by(fam) %>% dplyr::summarize(ENVfam=sum(ENV)>0), by='fam')
+ind=merge(ind, ind%>%group_by(fam) %>% dplyr::summarize(CHRfam=sum(CHR)>0), by='fam')
+ind=merge(ind, ind%>%group_by(fam) %>% dplyr::summarize(polfam=sum(pol)>0), by='fam')
+ind=merge(ind, ind%>%group_by(fam) %>% dplyr::summarize(autonfam=sum(auton)>0), by='fam')
+
+
+ind=merge(ind, ind%>%group_by(fam) %>% dplyr::summarize(helprotfam=sum(helprot)>0), by='fam')
+ind=merge(ind, ind%>%group_by(fam) %>% dplyr::summarize(rveprotfam=sum(rveprot)>0), by='fam')
+ind=merge(ind, ind%>%group_by(fam) %>% dplyr::summarize(tpaseprotfam=sum(tpaseprot)>0), by='fam')
+
+
+
+fp=ind %>% group_by(sup, fam) %>% dplyr::summarize(propAuton=sum(auton)/n(), famsize=n())
 ind %>% group_by(sup, fam) %>% group_by(substr(sup,1,2))%>% dplyr::summarize(sum(auton)/n())
 ind %>% group_by(sup, fam) %>% group_by(substr(sup,1,2)%in% c('RI', 'RS'))%>% dplyr::summarize(sum(auton)/n())
+
+fpltr=ind %>% filter(sup %in% c('RLC', 'RLG', 'RLX')) %>% group_by(sup, fam) %>% dplyr::summarize(propGAG=sum(GAG)/n(), propPol=sum(pol)/n(), propAuton=sum(auton)/n(), famsize=n())
+
+#### max and min base composition
+max(ind.fam[ind.fam$famsize>10,]$percGC)
+which.max(ind.fam[ind.fam$famsize>10,]$percGC)
+ind.fam[ind.fam$famsize>10,][439,]
+median(ind.fam[ind.fam$famsize>10,]$percGC)
+min(ind.fam[ind.fam$famsize>10,]$percGC)
+which.min(ind.fam[ind.fam$famsize>10,]$percGC)
+ind.fam[ind.fam$famsize>10,][639,]
+min(ind.fam[ind.fam$famsize>10,]$nCG)
+which.min(ind.fam[ind.fam$famsize>10,]$nCG)
+which.max(ind.fam[ind.fam$famsize>10,]$nCG)
+max(ind.fam[ind.fam$famsize>10,]$nCG)
+ind.fam[ind.fam$famsize>10,]$fam[213]
+ind.fam[ind.fam$famsize>10,]$fam[642]
+min(ind.fam[ind.fam$famsize>10,]$nCHG)
+which.min(ind.fam[ind.fam$famsize>10,]$nCHG)
+ind.fam[ind.fam$famsize>10,]$fam[215]
+which.min(ind.fam[ind.fam$famsize>20,]$nCHG)
+
+
+
 
 
