@@ -107,6 +107,10 @@ imp$category[grepl("avg_chg", imp$feat)]='te_chg_methylation'
 imp$category[grepl("avg_chh", imp$feat)]='te_chh_methylation'
 impsort=imp %>% group_by(category) %>% dplyr::summarize(sum=sum(X.IncMSE), meanscaled=mean(scaled)) %>% arrange(desc(sum))
 
+write.table(imp, paste0('importance_each_variable.', Sys.Date(), '.txt'), col.names=T, row.names=F, quote=F)
+write.table(impsort, paste0('importance_combo_variable.', Sys.Date(), '.txt'), col.names=T, row.names=F, quote=F)
+
+
 pdf('variable_importance_plot.pdf')
 vip(subset_rf, bar=F, horizontal=F, size=1)
 randomForest::varImpPlot(subset_rf)
