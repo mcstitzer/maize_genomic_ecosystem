@@ -48,6 +48,8 @@ ind$tblmya=ind$tbl/3.3e-8/2/1e6
 #ind[,c('helprot', 'rveprot', 'tpaseprot', 'GAG', 'AP', 'INT', 'RT', 'RNaseH', 'ENV', 'CHR', 'pol', 'auton')][is.na(ind[,c('helprot', 'rveprot', 'tpaseprot', 'GAG', 'AP', 'INT', 'RT', 'RNaseH', 'ENV', 'CHR', 'pol', 'auton')])]=F
 
 tegenes=fread('../te_genes/B73.2019-01-29.te_proteins.txt')
+tegenes=merge(ind[,1:3], tegenes, all=T) ## because the only things in tegenes are tes with a protein!
+tegenes[is.na(tegenes)]=F
 ind=merge(ind, tegenes, all.x=T, by=c('TEID', 'fam', 'sup'))
 
 
