@@ -47,7 +47,7 @@ ind$tblmya=ind$tbl/3.3e-8/2/1e6
 #ind=merge(ind, ltrgenes, all.x=T, by=c('TEID'))
 #ind[,c('helprot', 'rveprot', 'tpaseprot', 'GAG', 'AP', 'INT', 'RT', 'RNaseH', 'ENV', 'CHR', 'pol', 'auton')][is.na(ind[,c('helprot', 'rveprot', 'tpaseprot', 'GAG', 'AP', 'INT', 'RT', 'RNaseH', 'ENV', 'CHR', 'pol', 'auton')])]=F
 
-tegenes=fread('../te_genes/B73.te_proteins.txt')
+tegenes=fread('../te_genes/B73.2019-01-29.te_proteins.txt')
 ind=merge(ind, tegenes, all.x=T, by=c('TEID', 'fam', 'sup'))
 
 
@@ -60,7 +60,7 @@ ind=merge(ind, basecomp, all.x=T, by=c('TEID', 'fam', 'sup'))
 ind=merge(ind, basecomp.flank, all.x=T, by=c('TEID', 'fam', 'sup'))
 ind=merge(ind, mnase, all.x=T, by=c('TEID', 'fam', 'sup'))
 
-##################### diversity ********* need to fix some duplicate columns here!
+##################### diversity ********* need to fix some duplicate columns here! (as in both number and bp?)
 diversity=fread('../diversity/B73.segregatingsites.TEandFlank.2018-10-23.txt')
 ind=merge(ind, diversity, all.x=T, by=c('TEID', 'fam', 'sup'))
 ind$segsites=NULL ## this has a per bp column, don't need both
