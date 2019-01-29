@@ -2,6 +2,7 @@ library(data.table)
 library(stringr)
 library(dplyr)
 library(reshape2)
+library(plyr)
 
 e=fread('Walley_expresslion_18Jan19.txt')
 source('../figures/color_palette.R')
@@ -12,8 +13,27 @@ me=melt(e, id='fam')
 me$tissue=substr(me$variable, 1, nchar(as.character(me$variable))-7)
 
 ## summarized by mean expression in each tissue
-ee=dcast(me %>% group_by(fam, tissue) %>% summarize(mean(value)), fam~tissue)
+ee=dcast(me %>% group_by(fam, tissue) %>% dplyr::summarize(mean(value)), fam~tissue)
 #cast(me, fam~value, mean)
+
+colnames(ee)[2:ncol(ee)]=paste0('TEfam_', colnames(ee)[2:ncol(ee)])
+
+## calculate TE tau, family median, per copy median
+# get info about family sizes and lengths
+techar=fread('../te_characteristics/B73_TE_individual_copies.2018-09-19.txt')
+techar=techar[techar$tebp>=50,] ## after disjoining, some TEs are too short to be real :( - be sure to add this to all figures!!!
+techar$famsize=as.numeric(table(techar$fam)[techar$fam])
+techarfam=techar %>% group_by(fam) %>% dplyr::summarize(famsize=n(), mean_tebp=mean(tebp), sum_tebp=sum(tebp))
+
+ee$TEfamMedian=apply(ee[,2:ncol(ee)],1,median, na.rm=T) ## note this is median across means!!!!
+ee$TEfamMedianPerCopy=ee$TEfamMedian/as.numeric(mapvalues(ee$fam, from=techarfam$fam, to=techarfam$famsize, warn_missing=F))
+ee$TEfamMedianPerBp=ee$TEfamMedianPerCopy/as.numeric(mapvalues(ee$fam, from=techarfam$fam, to=techarfam$mean_tebp, warn_missing=F))
+# and tau
+tau=function(x){
+    t=sum(1-x/max(x))/(length(x)-1)
+  }
+ee$TEfam_tau=apply(ee[,2:24], 1, tau)
+
 
 write.table(ee, paste0('walley_mean_expr.', Sys.Date(), '.txt'), col.names=T, row.names=F, quote=F, sep='\t')
 
