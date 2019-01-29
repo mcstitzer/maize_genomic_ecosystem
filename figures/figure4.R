@@ -11,7 +11,7 @@ source('meanSD_functions.R')
 
 ## note that this expects there to be an ind data frame
 
-ind=fread('../age_model/B73.LTRAGE.allDescriptors.2018-12-06.txt')
+ind=fread('../age_model/B73.LTRAGE.allDescriptors.2019-01-28.txt')
 
 ############
 ### THE MOST DIFFICULT PLOT EVER - set up functions
@@ -24,39 +24,9 @@ ind$largest10=ind$fam %in% names(largest10)
 largest10=largest10[c(1:70,83:112,71:82,113:122)] ## super hard coded to get the nonLTR together!                     
 
 
-### check for TEs where a family member has the protein!
-
-ind$auton[ind$sup=='DHH']=ind$helprot[ind$sup=='DHH'] ## make sure autonomous means what I want it to!
-ind$auton[substr(ind$sup,1,2)=='DT']=ind$tpaseprot[substr(ind$sup,1,2)=='DT']
-ind$auton[ind$sup %in% c('RIT', 'RIL', 'RST')]=ind$rveprot[ind$sup %in% c('RIT', 'RIL', 'RST')]
-
-ind=merge(ind, ind%>%group_by(fam) %>% dplyr::summarize(GAGfam=sum(GAG)>0), by='fam')
-
-ind=merge(ind, ind%>%group_by(fam) %>% dplyr::summarize(APfam=sum(AP)>0), by='fam')
-ind=merge(ind, ind%>%group_by(fam) %>% dplyr::summarize(INTfam=sum(INT)>0), by='fam')
-ind=merge(ind, ind%>%group_by(fam) %>% dplyr::summarize(RTfam=sum(RT)>0), by='fam')
-ind=merge(ind, ind%>%group_by(fam) %>% dplyr::summarize(RNaseHfam=sum(RNaseH)>0), by='fam')
-ind=merge(ind, ind%>%group_by(fam) %>% dplyr::summarize(ENVfam=sum(ENV)>0), by='fam')
-ind=merge(ind, ind%>%group_by(fam) %>% dplyr::summarize(CHRfam=sum(CHR)>0), by='fam')
-ind=merge(ind, ind%>%group_by(fam) %>% dplyr::summarize(polfam=sum(pol)>0), by='fam')
-ind=merge(ind, ind%>%group_by(fam) %>% dplyr::summarize(autonfam=sum(auton)>0), by='fam')
-
-
-ind=merge(ind, ind%>%group_by(fam) %>% dplyr::summarize(helprotfam=sum(helprot)>0), by='fam')
-ind=merge(ind, ind%>%group_by(fam) %>% dplyr::summarize(rveprotfam=sum(rveprot)>0), by='fam')
-ind=merge(ind, ind%>%group_by(fam) %>% dplyr::summarize(tpaseprotfam=sum(tpaseprot)>0), by='fam')
-
+## all genes and stuff now in ind!
 ################### 
-## get median TE expression across tissues
-################### 
-ind$exprMedian=apply(ind[,386:408],1,median, na.rm=T)
-ind$exprMedianPerCopy=ind$exprMedian/ind$famsize
-ind$exprMedianPerBp=ind$exprMedianPerCopy/ind$te_bp
-# and tau
-tau=function(x){
-    t=sum(1-x/max(x))/(length(x)-1)
-  }
-ind$te_tau=apply(ind[,386:408], 1, tau)
+
 
 ################### 
 ### actual plotting starts!
