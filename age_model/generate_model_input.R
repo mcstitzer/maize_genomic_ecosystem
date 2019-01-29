@@ -85,40 +85,9 @@ ind=merge(ind, tgem, all.x=T, by=c('TEID', 'fam', 'sup', 'closest', 'closestgene
 
 
 ################# te expression
-#************************************* THIS WILL BE UPDATED!!!!!! *********************************
-fe=read.table('~/projects/b73_ecology/RawData/expression/family_rpm_devatlas_27Feb.txt', header=T)
-s=fe
-## combine expression values
-fe[,'endo_12d_combo']=rowSums(s[,1:12], na.rm=T)
-fe[,'peri_aleurone_combo']=rowSums(s[,13:24], na.rm=T)
-fe[,'endocrown_combo']=rowSums(s[,25:36], na.rm=T)
-fe[,'symdivz_combo']=rowSums(s[,37:48], na.rm=T)
-fe[,'stodivz_combo']=rowSums(s[,49:60], na.rm=T)
-fe[,'groz_combo']=rowSums(s[,61:72], na.rm=T)
-fe[,'emb_20d_combo']=rowSums(s[,73:84], na.rm=T)
-fe[,'embryo_combo']=rowSums(s[,85:96], na.rm=T)
-fe[,'germk_combo']=rowSums(s[,97:108], na.rm=T) ## okay i am already tired of typing this - bad idea!
-fe[,'leaf_8_combo']=rowSums(s[,109:120], na.rm=T)
-fe[,'earp_6m_combo']=rowSums(s[,121:132], na.rm=T)
-fe[,'earp_2m_combo']=rowSums(s[,133:144], na.rm=T)
-fe[,'root_m_combo']=rowSums(s[,145:156], na.rm=T)
-fe[,'root_e_combo']=rowSums(s[,157:168], na.rm=T)
-fe[,'root_c_combo']=rowSums(s[,169:180], na.rm=T)
-fe[,'p_root_combo']=rowSums(s[,181:192], na.rm=T)
-fe[,'s_root_combo']=rowSums(s[,193:204], na.rm=T)
-fe[,'pollen_combo']=rowSums(s[,205:216], na.rm=T)
-fe[,'silk_combo']=rowSums(s[,217:228], na.rm=T)
-fe[,'f_spike_combo']=rowSums(s[,229:240], na.rm=T)
-fe[,'inode_6_combo']=rowSums(s[,241:252], na.rm=T)
-fe[,'inode_7_combo']=rowSums(s[,253:264], na.rm=T)
-fe[,'meristem_combo']=rowSums(s[,265:272], na.rm=T) ## there are only two here - did I do something wrong? - Nope, there are only two in the publication
-fe=fe[,-c(1:272)]
-fe$sup=substr(rownames(fe), 1,3)
-fe$fam=rownames(fe)
+fe=read.table('../te_expression/walley_mean_expr.2019-01-28.txt', header=T)
 
-colnames(fe)[1:23]=paste0('te_', colnames(fe)[1:23])
-
-ind=merge(ind, fe, all.x=T, by=c('fam', 'sup'))
+ind=merge(ind, fe, all.x=T, by=c('fam'))
 
 
 ################# recombination
