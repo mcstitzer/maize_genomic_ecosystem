@@ -40,12 +40,16 @@ ind$tblmya=ind$tbl/3.3e-8/2/1e6
 
 ##################### te proteins
 ## add in te proteins
-tegenes=fread('../te_genes/proteins/B73.hmmprotein.txt')
-ltrgenes=fread('../te_genes/ltr_protein_domains/B73v4_ltr_proteins.txt')
-ltrgenes$TEID=gsub('B73v4', 'Zm00001d', ltrgenes$TEID)
+#tegenes=fread('../te_genes/proteins/B73.hmmprotein.txt')
+#ltrgenes=fread('../te_genes/ltr_protein_domains/B73v4_ltr_proteins.txt')
+#ltrgenes$TEID=gsub('B73v4', 'Zm00001d', ltrgenes$TEID)
+#ind=merge(ind, tegenes, all.x=T, by=c('TEID', 'fam', 'sup'))
+#ind=merge(ind, ltrgenes, all.x=T, by=c('TEID'))
+#ind[,c('helprot', 'rveprot', 'tpaseprot', 'GAG', 'AP', 'INT', 'RT', 'RNaseH', 'ENV', 'CHR', 'pol', 'auton')][is.na(ind[,c('helprot', 'rveprot', 'tpaseprot', 'GAG', 'AP', 'INT', 'RT', 'RNaseH', 'ENV', 'CHR', 'pol', 'auton')])]=F
+
+tegenes=fread('../te_genes/B73.te_proteins.txt')
 ind=merge(ind, tegenes, all.x=T, by=c('TEID', 'fam', 'sup'))
-ind=merge(ind, ltrgenes, all.x=T, by=c('TEID'))
-ind[,c('helprot', 'rveprot', 'tpaseprot', 'GAG', 'AP', 'INT', 'RT', 'RNaseH', 'ENV', 'CHR', 'pol', 'auton')][is.na(ind[,c('helprot', 'rveprot', 'tpaseprot', 'GAG', 'AP', 'INT', 'RT', 'RNaseH', 'ENV', 'CHR', 'pol', 'auton')])]=F
+
 
 ##################### base composition
 basecomp=fread('../base_composition/B73_TE_methylatable.txt')
