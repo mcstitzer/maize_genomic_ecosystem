@@ -4,6 +4,10 @@ library(cowplot)
 library(data.table)
 library(plyr)
 library(dplyr)
+library(pheatmap)
+library(viridis)
+library(gridGraphics)
+library(ggimage)
 
 source('../GenomeInfo.R')
 source('color_palette.R')
@@ -11,7 +15,7 @@ source('meanSD_functions.R')
 
 ## note that this expects there to be an ind data frame
 
-ind=fread('../age_model/B73.LTRAGE.allDescriptors.2019-01-28.txt')
+ind=fread('../age_model/B73.LTRAGE.allDescriptors.2019-01-29.txt')
 
 ############
 ### THE MOST DIFFICULT PLOT EVER - set up functions
@@ -23,6 +27,10 @@ largest10
 ind$largest10=ind$fam %in% names(largest10)                               
 largest10=largest10[c(1:70,83:112,71:82,113:122)] ## super hard coded to get the nonLTR together!                     
 
+ind$mya=ind$age/3.3e-8/2/1e6                               
+                               
+### read in te family expression, instead of mapped to individual copies as done here:
+ee=read.table('../te_expression/walley_mean_expr.2019-01-28.txt', header=T)
 
 ## all genes and stuff now in ind!
 ################### 
@@ -68,17 +76,40 @@ polfam=plot_percentages('polfam', 'Family member with\nPolyprotein', invert=T)
 ltrautonfam=plot_percentagesLTR('autonfam', 'Family member with\nAll five LTR domains', invert=T)
 autonfam=plot_percentages('autonfam', 'Family member with\nAll proteins', invert=T)
 
-medianexpr=plotlargest('exprMedian', 'log10(Median TE \nexpression, famRPM)') + scale_y_log10()
-exprpercopy=plotlargest('exprMedianPerCopy', 'log10(Median TE \nexpression copyRPM)') + scale_y_log10()
-exprperbp=plotlargest('exprMedianPerBp', 'Median TE \nexpression copyRPKM') 
-tetau=plotlargest('te_tau', 'TE tau')
+medianexpr=plotlargest('TEfamMedian', 'log10(Median TE \nexpression, famRPM)') + scale_y_log10()
+exprpercopy=plotlargest('TEfamMedianPerCopy', 'log10(Median TE \nexpression copyRPM)') + scale_y_log10()
+exprperbp=plotlargest('TEfamMedianPerBp', 'Median TE \nexpression copyRPKM') 
+tetau=plotlargest('TEfam_tau', 'TE tau') + ylim(0,1)
 
-
-
+eer2=log2(ee[,-c(1,25:28)]+1)
+rownames(eer2)=ee$fam
+ar=data.frame(sup=substr(rownames(eer2),1,3), ar$fam=rownames(eer2))
+rownames(ar)=rownames(eer2)
+#hm = as.ggplot(~pheatmap(eer2, color=c('#000000', rev(viridis(100))), scale='none', show_rownames=F, annotation_row=ar))
+#hm10 = as.ggplot(~pheatmap(eer2[rownames(eer2) %in% largest10,], color=c('#000000', rev(viridis(100))), scale='none', show_rownames=F, annotation_row=ar[rownames(ar) %in% largest10,]))
+#hm.func = function() pheatmap(eer2, color=c('#000000', rev(viridis(100))), scale='none', show_rownames=F, annotation_row=ar)[[4]] ## need to index the fourth!! this is where plot is stored??
+#hm10.func = function() pheatmap(eer2[rownames(eer2) %in% names(largest10),], cluster_rows=F, color=c('#000000', rev(viridis(100))), scale='none', show_rownames=F, annotation_row=ar[rownames(ar) %in% names(largest10),])[[4]]
+#
+#hm.func()
+#hm10.func()
+## ex. function for plotting as 
+#plotfunc <- function() image(volcano) # define the function
+#plotfunc() # call the function to make the plot
+   
+hm10 = grid.grabExpr(pheatmap(eer2[rownames(eer2) %in% names(largest10),], color=c('#000000', rev(viridis(100))), scale='none', show_rownames=F, labels_col=gsub('TEfam_', '', colnames(eer2)), annotation_row=ar[rownames(ar) %in% names(largest10),1, drop=F])[[4]])
+hm = grid.grabExpr(pheatmap(eer2, color=c('#000000', rev(viridis(100))), scale='none', show_rownames=F, labels_col=gsub('TEfam_', '', colnames(eer2)), annotation_row=ar[,1, drop=F])[[4]])
+                               
+#hm10 = grid.grabExpr(pheatmap(eer2[rownames(eer2) %in% names(largest10),], color=c('#000000', rev(viridis(100))), scale='none', show_rownames=F, annotation_row=ar[rownames(ar) %in% names(largest10),])[[4]])
+is.grob(hm10)                               
+                               
 gagautpol=plot_grid(ltrgag, ltrauton, ltrpol, ncol=3)
 fig4 = plot_grid(auton, autonfam, gagautpol, medianexpr, tetau, labels='AUTO', ncol=1, align='v')
 
+fig4hm=plot_grid(fig4, as.ggplot(hm), labels=c('', 'F'), ncol=2, rel_widths=c(1, 0.6), align='v')
+fig4hm10=plot_grid(fig4, as.ggplot(hm10), labels=c('', 'F'), ncol=2, rel_widths=c(1, 0.6), align='v')
 fig4 ## this will have the heatmap of tissue specificity added to the right side of it
+fig4hm
+fig4hm10
 plot_grid(auton, autonfam, gagautpol, exprpercopy, tetau, labels='AUTO', ncol=1, align='v')
 plot_grid(auton, autonfam, gagautpol, exprperbp, tetau, labels='AUTO', ncol=1, align='v')
 
