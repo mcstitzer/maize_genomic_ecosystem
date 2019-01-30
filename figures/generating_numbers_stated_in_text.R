@@ -245,4 +245,23 @@ meds=med %>% group_by(sup,fam, famsize) %>% dplyr::summarize(avg_cg=(SAM_avg_cg 
                                                 avg_chh=(SAM_avg_chh + all3_avg_chh + flagleaf_avg_chh + earshoot_avg_chh + anther_avg_chh)/5)
 
                          
+### recombination
+data.frame(ind %>% group_by(substr(sup,1,2)) %>% dplyr::summarize(median_cmmb=median(cmmb, na.rm=T)))
+data.frame(ind %>% group_by(substr(sup,1,2)%in% c('RI', 'RS')) %>% dplyr::summarize(median_cmmb=median(cmmb, na.rm=T)))
+
+                         
+                         
+#### subgenome
+table(ind$subgenome)/sum(table(ind$subgenome))
+subg=ind %>% group_by(sup, fam, famsize) %>% dplyr::summarize(propA=sum(subgenome=='A', na.rm=T)/n(), propB=sum(subgenome=='B', na.rm=T)/n(), propUndefined=sum(is.na(subgenome))/n())
+                         
+stargazer(rbind(subg[subg$propB==0 & subg$famsize>=10 & subg$propUndefined!=1,], subg[subg$propA==0 & subg$famsize>=10 & subg$propUndefined!=1,]), summary=F, rownames=F, align=T) ## this makes supp table methylation
+
+                         
+                         
+                         
+                         
+                         
+                         
+                         
                          
