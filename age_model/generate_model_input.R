@@ -53,6 +53,11 @@ tegenes[is.na(tegenes)]=F
 ind=merge(ind, tegenes, all.x=T, by=c('TEID', 'fam', 'sup'))
 
 
+###################### te orfs
+orfs=fread('../te_genes/orfs/B73v4_allTE_orf.txt')
+ind=merge(ind, orfs, all.x=T, by=c('TEID'))
+
+
 ##################### base composition
 basecomp=fread('../base_composition/B73_TE_methylatable.txt')
 basecomp.flank=fread('../base_composition/B73_TE_methylatable.flank.txt')
