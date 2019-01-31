@@ -11,7 +11,7 @@ library(RColorBrewer)
 
 source('../figures/color_palette.R')
 
-ind=fread('B73.LTRAGE.allDescriptors.2018-12-06.txt')
+ind=fread('B73.LTRAGE.allDescriptors.2019-01-30.txt')
 ind$sup=as.factor(ind$sup)
 samplerow=sample.int(n=nrow(ind), size=floor(0.5*nrow(ind)), replace=F)
 
@@ -29,27 +29,32 @@ samplerow=sample.int(n=nrow(ind), size=floor(0.5*nrow(ind)), replace=F)
 ind$famlev=factor(ind$fam, levels=c(names(tail(sort(table(ind$fam)), 30)), 'smaller'))
 ind$famlev[is.na(ind$famlev)]='smaller'
 
+ind$subgenome[ind$subgenome=='A']=1
+ind$subgenome[ind$subgenome=='B']=2
+ind$subgenome[is.na(ind$subgenome)]=0
+ind$subgenome=as.numeric(ind$subgenome)
 ## full corr matrix for interactive plot!
-allcorr=melt(round(cor(ind[,c(1,5:(ncol(ind)-1))]*1, use='na.or.complete'),2))
+#allcorr=melt(round(cor(ind[,c(1,5:(ncol(ind)-1))]*1, use='na.or.complete'),2))
+allcorr=melt(round(cor(data.frame(ind)[,c(1, 5:(ncol(ind)-1))]*1, use='na.or.complete'),2))
 ### corr matrix by sup
 suplist=vector("list", 13)
 names(suplist)=names(table(ind$sup))
-for(sup in names(table(ind$sup))){a=melt(round(cor(data.frame(ind)[ind$sup==sup,c(1,5:(ncol(ind)-1))]*1, use='na.or.complete'),2))
+for(sup in names(table(ind$sup))){a=melt(round(cor(data.frame(ind)[ind$sup==sup,c(1, 5:(ncol(ind)-1))]*1, use='na.or.complete'),2))
                                  suplist[[sup]]=a}
 ### corr matrix by fam
 famlist=vector("list", 107) ## this gets you families >500
 names(famlist)=head(names(rev(sort(table(ind$fam)))),107)
-for(fam in head(names(rev(sort(table(ind$fam)))),107)){a=melt(round(cor(data.frame(ind)[ind$fam==fam,c(1,5:(ncol(ind)-1))]*1, use='na.or.complete'),2))
+for(fam in head(names(rev(sort(table(ind$fam)))),107)){a=melt(round(cor(data.frame(ind)[ind$fam==fam,c(1, 5:(ncol(ind)-1))]*1, use='na.or.complete'),2))
                                  famlist[[fam]]=a}
 ## output these so shiny can play!
 for(sup in names(table(ind$sup))){allcorr[,sup]=suplist[[sup]]$value}
 for(fam in head(names(rev(sort(table(ind$fam)))),107)){allcorr[,fam]=famlist[[fam]]$value}
-write.table(allcorr, 'correlations_by_sup_fam.txt', row.names=F, col.names=T, sep='\t', quote=F)
+write.table(allcorr, paste0('correlations_by_sup_fam.', Sys.Date(), '.txt'), row.names=F, col.names=T, sep='\t', quote=F)
 
 
 ## quick corr heatmap
 
-pdf('correlation_all.pdf', 50,50)
+pdf(paste0('correlation_all.', Sys.Date(), '.pdf'), 50,50)
 ggplot(data=melt(round(cor(ind[,5:(ncol(ind)-1)]*1, use='na.or.complete'),2)), aes(x=Var1, y=Var2, fill=value)) + geom_tile(color = "white")+
  scale_fill_gradient2(low = "blue", high = "red", mid = "white", 
    midpoint = 0, limit = c(-1,1), space = "Lab", 
@@ -84,6 +89,11 @@ minitest$famlev=NULL
 set.seed(1234)
 subset_rf=randomForest(age~., data=minitest[,-c(2)], importance=T, keep.inbag=T, replace=F, do.trace=10, ntree=1000) ## too many factor levels for TEID
 ## could use strata=sup to get equal sampling by superfamily in building the tree!
+
+
+## try gbm
+#library(gbm)
+#subset_gbrf=gbm(age~., data=minitest[,-c(2)], n.trees=10000, interaction.depth=4, shrinkage=0.01)
 
 minitest2=ind[sample.int(n=nrow(ind), size=500, replace=F),]
 minitest2[is.na(minitest2)]=-1 ## na in 
