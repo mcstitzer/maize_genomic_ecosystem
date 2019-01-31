@@ -26,8 +26,11 @@ table(a$subgenome)
 
 
 s=data.frame(TEID=a$TEID, sup=substr(a$TEID,1,3), fam=substr(a$TEID,1,8), subgenome=a$subgenome)
+s=s %>%group_by(TEID) %>% slice(which.max(table(subgenome)))
 
 table(s$sup, s$subgenome)/rowSums(table(s$sup, s$subgenome))
+
+
 
 write.table(s, paste0(GENOME, "_TE_subgenome.", Sys.Date(), ".txt"), quote=F, sep='\t', col.names=T, row.names=F)
 
