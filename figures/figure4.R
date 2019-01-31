@@ -79,11 +79,13 @@ autonfam=plot_percentages('autonfam', 'Family member with\nAll proteins', invert
 medianexpr=plotlargest('TEfamMedian', 'log10(Median TE \nexpression, famRPM)') + scale_y_log10()
 exprpercopy=plotlargest('TEfamMedianPerCopy', 'log10(Median TE \nexpression copyRPM)') + scale_y_log10()
 exprperbp=plotlargest('TEfamMedianPerBp', 'Median TE \nexpression copyRPKM') 
-tetau=plotlargest('TEfam_tau', 'TE tau') + ylim(0,1)
+tetau=plotlargest('TEfam_tau', 'TE tau') + ylim(0.25,1)
 
 eer2=log2(ee[,-c(1,25:28)]+1)
+eer2percopy=log2(ee[,-c(1,25:28)]/as.numeric(mapvalues(as.character(ee$fam), from=ind$fam, to=ind$famsize, warn_missing=F))+1)
 rownames(eer2)=ee$fam
-ar=data.frame(sup=substr(rownames(eer2),1,3), ar$fam=rownames(eer2))
+rownames(eer2percopy)=ee$fam
+ar=data.frame(sup=substr(rownames(eer2),1,3), fam=rownames(eer2))
 rownames(ar)=rownames(eer2)
 #hm = as.ggplot(~pheatmap(eer2, color=c('#000000', rev(viridis(100))), scale='none', show_rownames=F, annotation_row=ar))
 #hm10 = as.ggplot(~pheatmap(eer2[rownames(eer2) %in% largest10,], color=c('#000000', rev(viridis(100))), scale='none', show_rownames=F, annotation_row=ar[rownames(ar) %in% largest10,]))
@@ -95,18 +97,31 @@ rownames(ar)=rownames(eer2)
 ## ex. function for plotting as 
 #plotfunc <- function() image(volcano) # define the function
 #plotfunc() # call the function to make the plot
-   
-hm10 = grid.grabExpr(pheatmap(eer2[rownames(eer2) %in% names(largest10),], color=c('#000000', rev(viridis(100))), scale='none', show_rownames=F, labels_col=gsub('TEfam_', '', colnames(eer2)), annotation_row=ar[rownames(ar) %in% names(largest10),1, drop=F])[[4]])
-hm = grid.grabExpr(pheatmap(eer2, color=c('#000000', rev(viridis(100))), scale='none', show_rownames=F, labels_col=gsub('TEfam_', '', colnames(eer2)), annotation_row=ar[,1, drop=F])[[4]])
-                               
+
+hm10 = grid.grabExpr(pheatmap(eer2percopy[rownames(eer2percopy) %in% names(largest10),], treeheight_row = 0, cluster_rows=F, color=c('#000000', rev(viridis(100))), scale='none', show_rownames=F, labels_col=gsub('TEfam_', '', colnames(eer2)), annotation_row=ar[rownames(ar) %in% names(largest10),1, drop=F], annotation_colors=list(sup=dd.col), annotation_legend=F)[[4]])
+hm = grid.grabExpr(pheatmap(eer2percopy[complete.cases(eer2percopy),], color=c('#000000', rev(viridis(100))), treeheight_row = 1, scale='none', show_rownames=F, labels_col=gsub('TEfam_', '', colnames(eer2)), annotation_row=ar[,1, drop=F], annotation_colors=list(sup=dd.col), annotation_legend=F)[[4]])
+
 #hm10 = grid.grabExpr(pheatmap(eer2[rownames(eer2) %in% names(largest10),], color=c('#000000', rev(viridis(100))), scale='none', show_rownames=F, annotation_row=ar[rownames(ar) %in% names(largest10),])[[4]])
 is.grob(hm10)                               
+
+quantile_breaks <- function(xs, n = 100) {
+  breaks <- quantile(xs, probs = seq(0, 1, length.out = n), na.rm=T)
+  breaks[!duplicated(breaks)]
+}
+
+mat_breaks <- quantile_breaks(eer2percopy, n = 10)                               
+hm10b = grid.grabExpr(pheatmap(eer2percopy[rownames(eer2percopy) %in% names(largest10),], breaks=mat_breaks, treeheight_row = 0, cluster_rows=F, color=c('#000000', rev(viridis(10))), scale='none', show_rownames=F, labels_col=gsub('TEfam_', '', colnames(eer2)), annotation_row=ar[rownames(ar) %in% names(largest10),1, drop=F], annotation_colors=list(sup=dd.col), annotation_legend=F)[[4]])
+hmb = grid.grabExpr(pheatmap(eer2percopy[complete.cases(eer2percopy),], color=c('#000000', rev(viridis(10))), breaks=mat_breaks, treeheight_row = 1, scale='none', show_rownames=F, labels_col=gsub('TEfam_', '', colnames(eer2)), annotation_row=ar[,1, drop=F], annotation_colors=list(sup=dd.col), annotation_legend=F)[[4]])
+                               
                                
 gagautpol=plot_grid(ltrgag, ltrauton, ltrpol, ncol=3)
-fig4 = plot_grid(auton, autonfam, gagautpol, medianexpr, tetau, labels='AUTO', ncol=1, align='v')
+#fig4 = plot_grid(auton, autonfam, gagautpol, medianexpr, tetau, labels='AUTO', ncol=1, align='v')
+fig4 = plot_grid(auton, gagautpol, exprpercopy, tetau, labels='AUTO', ncol=1, align='v')
 
-fig4hm=plot_grid(fig4, as.ggplot(hm), labels=c('', 'F'), ncol=2, rel_widths=c(1, 0.6), align='v')
-fig4hm10=plot_grid(fig4, as.ggplot(hm10), labels=c('', 'F'), ncol=2, rel_widths=c(1, 0.6), align='v')
+
+
+fig4hm=plot_grid(fig4, as.ggplot(hm) + scale_color_manual(values=dd.col), labels=c('', 'E'), ncol=2, rel_widths=c(1, 0.6), align='v')
+fig4hm10=plot_grid(fig4, as.ggplot(hm10)+ scale_color_manual(values=dd.col), labels=c('', 'E'), ncol=2, rel_widths=c(1, 0.6), align='v')
 fig4 ## this will have the heatmap of tissue specificity added to the right side of it
 fig4hm
 fig4hm10
