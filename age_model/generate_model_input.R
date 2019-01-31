@@ -110,7 +110,8 @@ ind$bp=NULL
 
 
 ################## subgenome
-sg=fread('../subgenomes/B73_TE_subgenome.2018-09-20.txt') ## get assigned to A, B, or NA
+sg=fread('../subgenomes/B73_TE_subgenome.2019-01-30.txt') ## get assigned to A, B, or NA
+
 ind=merge(ind, sg, all.x=T, by=c('TEID', 'fam', 'sup'))
 
 
