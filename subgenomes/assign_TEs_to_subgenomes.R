@@ -26,8 +26,9 @@ table(a$subgenome)
 
 
 s=data.frame(TEID=a$TEID, sup=substr(a$TEID,1,3), fam=substr(a$TEID,1,8), subgenome=a$subgenome)
-s=s %>%group_by(TEID) %>% slice(which.max(table(subgenome)))
-
+#s=s %>%group_by(TEID) %>% slice(which.max(table(subgenome)))
+s=s %>%group_by(TEID, sup, fam) %>% count(subgenome) %>% top_n(1)
+s$n=NULL
 table(s$sup, s$subgenome)/rowSums(table(s$sup, s$subgenome))
 
 
