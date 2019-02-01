@@ -1,8 +1,15 @@
 library(dplyr)
 library(cowplot)
+library(data.table)
 
-imp=fread('../age_model/importance_each_variable.2019-01-09.txt')
-impsort=fread('../age_model/importance_combo_variable.2019-01-09.txt')
+source('color_palette.R')
+
+ind=fread('../age_model/B73.LTRAGE.allDescriptors.2019-01-31.txt')
+ind$sup=as.factor(ind$sup)
+ind$mya=ind$age/2/3.3e-8/1e6
+
+imp=fread('../age_model/importance_each_variable.2019-01-31.txt')
+impsort=fread('../age_model/importance_combo_variable.2019-01-31.txt')
 
 ## make a color scale for importance plots!
 myColors <- brewer.pal(12,"Paired")
@@ -17,14 +24,14 @@ categories=data.frame(feature=imp$feat)
 categories$category=NA
 categories$category[categories$feature %in% c('fam', 'sup')]='TE_taxonomy'
 categories$category[categories$feature %in% c('famsize', 'pieces', 'chr', 'helLCV3p', 'helLCV5p', 'TIRlen', 'avg_ltr_length','te_bp', 'tebp', 'tespan' )]='TE_features'
-categories$category[grepl('avg_', categories$feature) | categories$feature %in% c('shoot_prop', 'shoot_bp','root_bp', 'root_prop', 'n_shoot_hs', 'n_root_hs') ]='TE_methylation_mnase'
+categories$category[grepl('_avg_c', categories$feature) | categories$feature %in% c('shoot_prop', 'shoot_bp','root_bp', 'root_prop', 'n_shoot_hs', 'n_root_hs') ]='TE_methylation_mnase'
 categories$category[categories$feature %in% c('nCG', 'nCHG', 'nCHH',  'percGC') ]='TE_base_composition'
-categories$category[categories$feature %in% c('GAG', 'AP', 'RT', 'RNaseH', 'INT', 'ENV', 'CHR', 'auton', 'pol', 'orfAA', 'helprot', 'tirprot', 'rveprot', 'tpaseprot')]='TE_genes'
+categories$category[categories$feature %in% c('GAG', 'AP', 'RT', 'RNaseH', 'INT', 'ENV', 'CHR', 'auton', 'pol', 'orfAA', 'helprot', 'tirprot', 'rveprot', 'tpaseprot', 'GAGfam', 'APfam', 'INTfam', 'RTfam', 'RNaseHfam', 'ENVfam', 'CHRfam', 'polfam', 'autonfam', 'helprotfam', 'rveprotfam', 'tpaseprotfam')]='TE_genes'
 categories$category[grepl('_[[:digit:]]+', categories$feature) | grepl('h3k9me2_[[:digit:]]+', categories$feature) | categories$feature %in% c('flank_h3k9me2', 'flank_cg', 'flank_chg', 'flank_chh')  | (grepl('_flank', categories$feature) &  grepl('oot', categories$feature))]='flank_methylation_mnase'
-#categories$category[grepl('avg_c', categories$feature)]='flank_base_composition'
+categories$category[grepl('^avg_c', categories$feature)]='flank_base_composition'
 categories$category[grepl('cm', categories$feature) | grepl('segsites', categories$feature) | categories$feature %in% c('closest', 'ingene', 'subgenome', 'disruptor')]='flank_selection'
 categories$category[grepl('^gene_', categories$feature) ]='flank_closest_gene_expression'
-categories$category[grepl('_combo', categories$feature) | grepl('unique', categories$feature)]='TE_expression'
+categories$category[grepl('^TEfam', categories$feature) | grepl('unique', categories$feature)]='TE_expression'
 
 ## new ways to get at this - quick fix :(
 categories$category[categories$feature %in% c('percGC_1kbflank','nCG_1kbflank','nCHG_1kbflank','nCHH_1kbflank','flank_bp')]='flank_base_composition'
@@ -32,10 +39,18 @@ categories$category[categories$feature %in% c('flank_n_root_hs','flank_root_bp',
 categories$category[categories$feature %in% c('segsites.bp', 'disruptor')]='TE_features'
 categories[is.na(categories$category),]
 
+                                 
+library(stargazer)
+stargazer(categories, summary=F, rownames=F, align=T)                                 
+
 imp$category=mapvalues(imp$feat, from=categories$feature, to=categories$category)
-meltimp=melt(imp[rev(order(abs(imp$X.IncMSE))),][1:30,]) ## keep this managable!
-meltimpsum=melt(imp %>% group_by(category) %>% summarize_if(.predicate="is.numeric", .funs="abs") %>% summarize_if(.predicate="is.numeric", .funs="sum") %>% arrange(desc(X.IncMSE))) #sum=sum(X.IncMSE), meanscaled=mean(scaled)) %>% arrange(desc(sum))
-meltimpall=melt(imp[rev(order(abs(imp$X.IncMSE))),]) ## keep this managable!
+#meltimp=melt(imp[rev(order(abs(imp$X.IncMSE))),][1:30,]) ## keep this managable!
+#meltimpsum=melt(imp %>% group_by(category) %>% summarize_if(.predicate="is.numeric", .funs="abs") %>% summarize_if(.predicate="is.numeric", .funs="sum") %>% arrange(desc(X.IncMSE))) #sum=sum(X.IncMSE), meanscaled=mean(scaled)) %>% arrange(desc(sum))
+#meltimpall=melt(imp[rev(order(abs(imp$X.IncMSE))),]) ## keep this managable!
+meltimp=melt(imp[rev(order(abs(imp$scaled))),-'X.IncMSE'][1:30,]) ## keep this managable!
+meltimpsum=melt(imp %>% group_by(category) %>% summarize_if(.predicate="is.numeric", .funs="sum") %>% arrange(desc(scaled))) #sum=sum(X.IncMSE), meanscaled=mean(scaled)) %>% arrange(desc(sum))
+meltimpall=melt(imp[rev(order(abs(imp$scaled))),]) ## keep this managable!
+meltimpmean=melt(imp %>% group_by(category) %>% summarize_if(.predicate="is.numeric", .funs="mean") %>% arrange(desc(scaled))) #sum=sum(X.IncMSE), meanscaled=mean(scaled)) %>% arrange(desc(sum))
 
 
 ############ start plotting
@@ -75,6 +90,13 @@ susc=ggplot(meltimpsum[meltimpsum$variable=='scaled',], aes(x=category, y=abs(va
        coord_flip() + #scale_fill_brewer(palette='Set3') #+ colScale
        scale_fill_manual(values=myColors)
 
+musc=ggplot(meltimpmean[meltimpmean$variable=='scaled',], aes(x=category, y=abs(value), fill=category)) + geom_bar(position="dodge",stat="identity") + 
+#       geom_errorbar(aes(ymin=weight-std/2, ymax=weight+std/2), size=.3, width=.2, position=position_dodge(.9)) +
+       scale_x_discrete(limits=meltimpmean$category[order(abs(meltimpmean[meltimpmean$variable=='scaled','value']))]) +  
+       coord_flip() + #scale_fill_brewer(palette='Set3') #+ colScale
+       scale_fill_manual(values=myColors)
+
+
 ispbysupsc=ggplot(meltimpall[meltimpall$variable=='scaled',][order(abs(meltimpall[meltimpall$variable=='scaled','value'])),], 
       aes(x=feat, y=abs(value), fill=category)) + geom_bar(position="dodge",stat="identity") + 
 #       geom_errorbar(aes(ymin=weight-std/2, ymax=weight+std/2), size=.3, width=.2, position=position_dodge(.9)) +
@@ -83,11 +105,44 @@ ispbysupsc=ggplot(meltimpall[meltimpall$variable=='scaled',][order(abs(meltimpal
        scale_fill_manual(values=myColors) + facet_wrap(~category, scales='free')
 
 
+ispbysupscx=ggplot(meltimpall[meltimpall$variable=='scaled',][order(abs(meltimpall[meltimpall$variable=='scaled','value'])),], 
+      aes(x=feat, y=abs(value), fill=category)) + geom_bar(position="dodge",stat="identity") + 
+#       geom_errorbar(aes(ymin=weight-std/2, ymax=weight+std/2), size=.3, width=.2, position=position_dodge(.9)) +
+#       scale_x_discrete(limits=meltimpall$feat[order(abs(meltimpall[meltimpall$variable=='scaled','value']))]) +  
+       coord_flip() + #scale_fill_brewer(palette='Set3') #+ colScale
+       scale_fill_manual(values=myColors) + facet_wrap(~category, scales='free_y')
+ispbysupscxM=ggplot(meltimpall[meltimpall$variable=='scaled' & meltimpall$category=='flank_methylation_mnase',][order(abs(meltimpall[meltimpall$variable=='scaled','value'])),], 
+      aes(x=feat, y=abs(value), fill=category)) + geom_bar(position="dodge",stat="identity") + 
+#       geom_errorbar(aes(ymin=weight-std/2, ymax=weight+std/2), size=.3, width=.2, position=position_dodge(.9)) +
+#       scale_x_discrete(limits=meltimpall$feat[order(abs(meltimpall[meltimpall$variable=='scaled','value']))]) +  
+       coord_flip() + #scale_fill_brewer(palette='Set3') #+ colScale
+       scale_fill_manual(values=myColors) + facet_wrap(~category, scales='free_y')
+ispbysupscxN=ggplot(meltimpall[meltimpall$variable=='scaled' & meltimpall$category!='flank_methylation_mnase',][order(abs(meltimpall[meltimpall$variable=='scaled','value'])),], 
+      aes(x=feat, y=abs(value), fill=category)) + geom_bar(position="dodge",stat="identity") + 
+#       geom_errorbar(aes(ymin=weight-std/2, ymax=weight+std/2), size=.3, width=.2, position=position_dodge(.9)) +
+#       scale_x_discrete(limits=meltimpall$feat[order(abs(meltimpall[meltimpall$variable=='scaled','value']))]) +  
+       coord_flip() + #scale_fill_brewer(palette='Set3') #+ colScale
+       scale_fill_manual(values=myColors) + facet_wrap(~category, scales='free_y')
+
 
 plot_grid(su + theme(legend.position='none'), isp + theme(legend.position='none'), ispbysup + theme(legend.position='none'), labels = "AUTO", ncol = 3, align = 'v', rel_widths=c(1,1,2))
 
 plot_grid(susc + theme(legend.position='none'), ispsc + theme(legend.position='none'), ispbysupsc + theme(legend.position='none'), labels = "AUTO", ncol = 3, align = 'v', rel_widths=c(1,1,2))
 
+
+
+## plot the raw correlations
+rSS=ggplot(ind, aes(x=segsites.bp, y=mya, color=sup)) + geom_point(size=0.1, alpha=0.1) + stat_smooth() + ylim(0,1) + theme(legend.position='none') + scale_color_manual(values=dd.col) + xlim(0,0.05)
+rD=ggplot(ind, aes(group=disruptor, y=mya, color=sup)) + geom_boxplot() + ylim(0,1) + theme(legend.position='none')+ scale_color_manual(values=dd.col)
+rAnth=ggplot(ind, aes(x=anther_avg_chh, y=mya, color=sup)) + geom_point(size=0.1, alpha=0.1) + stat_smooth() + ylim(0,1) + theme(legend.position='none')+ scale_color_manual(values=dd.col)+ xlim(0,0.05)
+rP=ggplot(ind, aes(x=TEfam_pollen_mature, y=mya, color=sup)) + geom_point(size=0.1, alpha=0.1) + stat_smooth() + ylim(0,1) + theme(legend.position='none')+ scale_color_manual(values=dd.col) + xlim(0,2000)
+
+r=plot_grid(rSS, rD, rAnth, rP, ncol=2, align='v')
+
+plot_grid(musc + theme(legend.position='none'), ispsc + theme(legend.position='none'), r, ncol = 3, align = 'v', rel_widths=c(1,1,1.5))
+          
+## supp
+plot_grid(ispbysupscxM+ theme(legend.position='none'), ispbysupscxN+ theme(legend.position='none'), labels = "AUTO", ncol = 2, align = 'v', rel_widths=c(0.3,1))
 
 dev.off()
 
