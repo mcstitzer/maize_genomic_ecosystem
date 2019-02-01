@@ -8,6 +8,8 @@ library(pheatmap)
 library(viridis)
 library(gridGraphics)
 library(ggimage)
+library(ggplotify)
+
 
 source('../GenomeInfo.R')
 source('color_palette.R')
@@ -15,7 +17,7 @@ source('meanSD_functions.R')
 
 ## note that this expects there to be an ind data frame
 
-ind=fread('../age_model/B73.LTRAGE.allDescriptors.2019-01-29.txt')
+ind=fread('../age_model/B73.LTRAGE.allDescriptors.2019-01-31.txt')
 
 ############
 ### THE MOST DIFFICULT PLOT EVER - set up functions
@@ -81,6 +83,12 @@ exprpercopy=plotlargest('TEfamMedianPerCopy', 'log10(Median TE \nexpression copy
 exprperbp=plotlargest('TEfamMedianPerBp', 'Median TE \nexpression copyRPKM') 
 tetau=plotlargest('TEfam_tau', 'TE tau') + ylim(0.25,1)
 
+                               
+                               
+geneexpr=plotlargest('gene_median', 'log10(Median expression\nclosest gene (FPKM))') + scale_y_log10()
+genetau=plotlargest('gene_tau', 'Tau of closest gene') + ylim(0.25,1)
+orfAA=plotlargest('orfAA', 'Longest ORF (AA)') + ylim(0,1500)
+                               
 eer2=log2(ee[,-c(1,25:28)]+1)
 eer2percopy=log2(ee[,-c(1,25:28)]/as.numeric(mapvalues(as.character(ee$fam), from=ind$fam, to=ind$famsize, warn_missing=F))+1)
 rownames(eer2)=ee$fam
@@ -101,9 +109,30 @@ rownames(ar)=rownames(eer2)
 hm10 = grid.grabExpr(pheatmap(eer2percopy[rownames(eer2percopy) %in% names(largest10),], treeheight_row = 0, cluster_rows=F, color=c('#000000', rev(viridis(100))), scale='none', show_rownames=F, labels_col=gsub('TEfam_', '', colnames(eer2)), annotation_row=ar[rownames(ar) %in% names(largest10),1, drop=F], annotation_colors=list(sup=dd.col), annotation_legend=F)[[4]])
 hm = grid.grabExpr(pheatmap(eer2percopy[complete.cases(eer2percopy),], color=c('#000000', rev(viridis(100))), treeheight_row = 1, scale='none', show_rownames=F, labels_col=gsub('TEfam_', '', colnames(eer2)), annotation_row=ar[,1, drop=F], annotation_colors=list(sup=dd.col), annotation_legend=F)[[4]])
 
+ge=data.frame(ind %>% group_by(fam) %>% dplyr::summarize_at(which(grepl('gene_', colnames(ind))), funs(mean(., na.rm = TRUE))))
+rownames(ge)=ge$fam
+                       
+ge10kb=data.frame(ind[ind$closest<=10000,] %>% group_by(fam) %>% dplyr::summarize_at(which(grepl('gene_', colnames(ind))), funs(mean(., na.rm = TRUE))))
+rownames(ge10kb)=ge10kb$fam
+ 
+arg=data.frame(sup=substr(rownames(ge),1,3), fam=rownames(ge))
+rownames(arg)=rownames(ge)
+arg10kb=data.frame(sup=substr(rownames(ge10kb),1,3), fam=rownames(ge10kb))
+rownames(arg10kb)=rownames(ge10kb)
+
+ghm10 = grid.grabExpr(pheatmap(log2(ge[rownames(ge) %in% names(largest10),2:(ncol(ge)-3)]+1), color=c('#000000', rev(viridis(100))), treeheight_row = 0, cluster_rows=F, scale='none', show_rownames=F, labels_col=gsub('gene_', '', colnames(ge)[2:(ncol(ge)-3)]), annotation_row=arg[,1, drop=F], annotation_colors=list(sup=dd.col), annotation_legend=F)[[4]])
+ghm = grid.grabExpr(pheatmap(log2(ge[complete.cases(ge),2:(ncol(ge)-3)]+1), color=c('#000000', rev(viridis(100))), treeheight_row = 1, scale='none', show_rownames=F, labels_col=gsub('gene_', '', colnames(ge)[2:(ncol(ge)-3)]), annotation_row=arg[,1, drop=F], annotation_colors=list(sup=dd.col), annotation_legend=F)[[4]])
 #hm10 = grid.grabExpr(pheatmap(eer2[rownames(eer2) %in% names(largest10),], color=c('#000000', rev(viridis(100))), scale='none', show_rownames=F, annotation_row=ar[rownames(ar) %in% names(largest10),])[[4]])
 is.grob(hm10)                               
 
+                               
+                               
+## only genes within 10 kb of the TE                               
+ghm1010kb = grid.grabExpr(pheatmap(log2(ge10kb[rownames(ge10kb) %in% names(largest10),2:(ncol(ge10kb)-3)]+1), color=c('#000000', rev(viridis(100))), treeheight_row = 0, cluster_rows=F, scale='none', show_rownames=F, labels_col=gsub('gene_', '', colnames(ge10kb)[2:(ncol(ge)-3)]), annotation_row=arg10kb[,1, drop=F], annotation_colors=list(sup=dd.col), annotation_legend=F)[[4]])
+ghm10kb = grid.grabExpr(pheatmap(log2(ge10kb[complete.cases(ge10kb),2:(ncol(ge10kb)-3)]+1), color=c('#000000', rev(viridis(100))), treeheight_row = 1, scale='none', show_rownames=F, labels_col=gsub('gene_', '', colnames(ge10kb)[2:(ncol(ge)-3)]), annotation_row=arg10kb[,1, drop=F], annotation_colors=list(sup=dd.col), annotation_legend=F)[[4]])
+
+                               
+                               
 quantile_breaks <- function(xs, n = 100) {
   breaks <- quantile(xs, probs = seq(0, 1, length.out = n), na.rm=T)
   breaks[!duplicated(breaks)]
@@ -116,15 +145,33 @@ hmb = grid.grabExpr(pheatmap(eer2percopy[complete.cases(eer2percopy),], color=c(
                                
 gagautpol=plot_grid(ltrgag, ltrauton, ltrpol, ncol=3)
 #fig4 = plot_grid(auton, autonfam, gagautpol, medianexpr, tetau, labels='AUTO', ncol=1, align='v')
-fig4 = plot_grid(auton, gagautpol, exprpercopy, tetau, labels='AUTO', ncol=1, align='v')
+fig4 = plot_grid(auton, orfAA, gagautpol, exprpercopy, tetau, labels='AUTO', ncol=1, align='v')
 
+hms=plot_grid(as.ggplot(hm), as.ggplot(ghm), labels='AUTO', ncol=2, align='v')
+hms10=plot_grid(as.ggplot(hm10), as.ggplot(ghm10), labels='AUTO', ncol=2, align='v')
+hms10kb=plot_grid(as.ggplot(hm), as.ggplot(ghm10kb), labels='AUTO', ncol=2, align='v')
+hms1010kb=plot_grid(as.ggplot(hm10), as.ggplot(ghm1010kb), labels='AUTO', ncol=2, align='v')
 
-
-fig4hm=plot_grid(fig4, as.ggplot(hm) + scale_color_manual(values=dd.col), labels=c('', 'E'), ncol=2, rel_widths=c(1, 0.6), align='v')
-fig4hm10=plot_grid(fig4, as.ggplot(hm10)+ scale_color_manual(values=dd.col), labels=c('', 'E'), ncol=2, rel_widths=c(1, 0.6), align='v')
+fig4hm=plot_grid(fig4, as.ggplot(hm) + scale_color_manual(values=dd.col), labels=c('', 'G'), ncol=2, rel_widths=c(1, 0.6), align='v')
+fig4hm10=plot_grid(fig4, as.ggplot(hm10)+ scale_color_manual(values=dd.col), labels=c('', 'G'), ncol=2, rel_widths=c(1, 0.6), align='v')
 fig4 ## this will have the heatmap of tissue specificity added to the right side of it
 fig4hm
 fig4hm10
+                               
+hms
+hms10
+hms10kb
+hms1010kb
+
+                               
+                               
+##match genic supplement!
+supp4 = plot_grid(geneexpr, genetau, labels='AUTO', ncol=1, align='v')
+supp4hm=plot_grid(fig4, as.ggplot(ghm) + scale_color_manual(values=dd.col), labels=c('', 'C'), ncol=2, rel_widths=c(1, 0.6), align='v')
+supp4hm10kb=plot_grid(fig4, as.ggplot(ghm10kb) + scale_color_manual(values=dd.col), labels=c('', 'C'), ncol=2, rel_widths=c(1, 0.6), align='v')
+
+                               
+                               
 plot_grid(auton, autonfam, gagautpol, exprpercopy, tetau, labels='AUTO', ncol=1, align='v')
 plot_grid(auton, autonfam, gagautpol, exprperbp, tetau, labels='AUTO', ncol=1, align='v')
 
@@ -157,3 +204,6 @@ ggplot(ind, aes(x=auton, y=mya, fill=sup, group=interaction(sup, auton))) + geom
                                
 
 dev.off()
+                               
+                               
+
