@@ -250,8 +250,8 @@ dev.off()
 ## ice plots
 pred.ice <- function(object, newdata) predict(object, newdata)
 
-generateICE=function(variable, model, centeredval=0){
-rm.ice <- partial(model, pred.var = variable, pred.fun = pred.ice, pred.data=minitest2)
+generateICE=function(variable, model, centeredval=0, grid=NULL){
+rm.ice <- partial(model, pred.var = variable, pred.fun = pred.ice, pred.data=minitest2, pred.grid=data.frame(V1=grid))
 rm.ice <- rm.ice %>%
   group_by(yhat.id) %>% # perform next operation within each yhat.id
   mutate(yhat.centered = yhat - first(yhat)) # so each curve starts at yhat = 0
@@ -264,13 +264,15 @@ return(rm.ice)
 
 
 pdf(paste0('ice_dependences.', Sys.Date(), '.pdf'))
-rm.ice=generateICE('segsites.bp', subset_rf)
+rm.ice=generateICE('segsites.bp', subset_rf, grid=data.frame(segsites.bp=seq(0,quantile(ind$segsites.bp, 0.95, na.rm=T), length.out=50)))
+write.table(rm.ice, paste0('segsites.bp.', Sys.Date(), '.txt'), quote=F, sep='\t', row.names=F, col.names=T)
 ggplot(rm.ice, aes(segsites.bp, yhat/2/3.3e-8, color=sup)) + geom_line(aes(group = yhat.id), alpha = 0.2) + stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  scale_color_manual(values=dd.col) + xlim(0,0.05) + ylim(0,1)
 ggplot(rm.ice, aes(segsites.bp, yhat.centered/2/3.3e-8, color=sup)) + geom_line(aes(group = yhat.id), alpha = 0.2) + stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  scale_color_manual(values=dd.col) + xlim(0,0.05) + ylim(0,1)
 ggplot(rm.ice, aes(segsites.bp, yhat/2/3.3e-8, color=sup)) + geom_line(aes(group = yhat.id), alpha = 0.2) + stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  scale_color_manual(values=dd.col) +facet_wrap(~sup)+ xlim(0,0.05) + ylim(0,1)
 ggplot(rm.ice, aes(segsites.bp, yhat.centered/2/3.3e-8, color=sup)) + geom_line(aes(group = yhat.id), alpha = 0.2) + stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  scale_color_manual(values=dd.col) +facet_wrap(~sup)+ xlim(0,0.05) + ylim(0,1)
 
-rm.ice=generateICE('anther_avg_chh', subset_rf)
+rm.ice=generateICE('anther_avg_chh', subset_rf, gridresolution=data.frame(anther_avg_chh=seq(0,quantile(ind$anther_avg_chh, 0.95, na.rm=T), length.out=50)))
+write.table(rm.ice, paste0('anther_avg_chh.', Sys.Date(), '.txt'), quote=F, sep='\t', row.names=F, col.names=T)
 ggplot(rm.ice, aes(anther_avg_chh, yhat/2/3.3e-8/1e6, color=sup)) + geom_line(aes(group = yhat.id), alpha = 0.2) + stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  scale_color_manual(values=dd.col) + xlim(0,0.05) + ylim(0,1)
 ggplot(rm.ice, aes(anther_avg_chh, yhat.centered/2/3.3e-8/1e6, color=sup)) + geom_line(aes(group = yhat.id), alpha = 0.2) + stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  scale_color_manual(values=dd.col)  + xlim(0,0.05) + ylim(0,1)
 ggplot(rm.ice, aes(anther_avg_chh, yhat/2/3.3e-8/1e6, color=sup)) + geom_line(aes(group = yhat.id), alpha = 0.2) + stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  scale_color_manual(values=dd.col) +facet_wrap(~sup) + xlim(0,0.05) + ylim(0,1)
@@ -279,6 +281,7 @@ ggplot(rm.ice, aes(anther_avg_chh, yhat.centered/2/3.3e-8/1e6, color=sup)) + geo
                                  
                                  
 rm.ice=generateICE('closest', subset_rf)
+
 ggplot(rm.ice, aes(closest, yhat/2/3.3e-8, color=sup)) + geom_line(aes(group = yhat.id), alpha = 0.2) + stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  scale_color_manual(values=dd.col) 
 ggplot(rm.ice, aes(closest, yhat.centered/2/3.3e-8, color=sup)) + geom_line(aes(group = yhat.id), alpha = 0.2) + stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  scale_color_manual(values=dd.col) 
 ggplot(rm.ice, aes(closest, yhat/2/3.3e-8, color=sup)) + geom_line(aes(group = yhat.id), alpha = 0.2) + stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  scale_color_manual(values=dd.col) +facet_wrap(~sup)
