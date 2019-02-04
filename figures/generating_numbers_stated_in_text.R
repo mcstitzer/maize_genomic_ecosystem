@@ -259,8 +259,11 @@ stargazer(rbind(subg[subg$propB==0 & subg$famsize>=10 & subg$propUndefined!=1,],
 
                          
                          
-                         
-                         
+## flank seg sites    
+##tir vs everybody else
+data.frame(ind %>% group_by(substr(sup,1,2)=='DT') %>% dplyr::summarize(flank_segsites=mean(flank_segsites.bp), segsites=mean(segsites.bp)))
+## dtt alone - Tc1Mariners and Stowaways don't leave a mark!
+data.frame(ind %>% group_by(substr(sup,1,2)=='DT', sup) %>% dplyr::summarize(flank_segsites=mean(flank_segsites.bp), segsites=mean(segsites.bp)))                       
                          
                          
                          
