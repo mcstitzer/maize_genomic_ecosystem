@@ -128,3 +128,14 @@ sups10=ggplot(te[te$chr==10,], aes(x=start, fill=sup)) + geom_histogram(binwidth
 plot_grid(sups1, sups2, sups3, sups4, sups5, sups6, sups7, sups8, sups9, sups10, ncol=10, align='h', rel_widths=c(1,1,1,1,1,1,1,1,1,1.5))
 dev.off()
                               
+                              
+pdf(paste0('supp_chromsFam.', Sys.Date(), '.pdf'), 10,10)
+plot_grid(DHH5+ theme(legend.position="none"), DTA5+ theme(legend.position="none"),DTC5+ theme(legend.position="none"),DTH5+ theme(legend.position="none"),DTM5+ theme(legend.position="none"),DTT5+ theme(legend.position="none"),DTX5+ theme(legend.position="none"),RLC5+ theme(legend.position="none"),RLG5+ theme(legend.position="none"),RLX5+ theme(legend.position="none"),RIL5+ theme(legend.position="none"),RIT5+ theme(legend.position="none"),RST5+ theme(legend.position="none"), labels='AUTO', ncol=4, align='h')
+                              
+dev.off()                              
+                              
+                              
+                              
+                              
+                              
+                              
