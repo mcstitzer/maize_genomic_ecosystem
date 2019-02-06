@@ -44,8 +44,8 @@ supChrFun=function(superfam){
            ylab('') + scale_x_continuous(name='Position (Mb)', breaks=c(0,1e8,2e8, 3e8), labels=c(0,100,200,300))
 
 }
-supChrFun5=function(superfam){
-    ggplot(te[te$chr==1 & te$largest5 & te$sup==superfam,], aes(x=start, fill=sup, group=fam)) + geom_histogram(binwidth=1e6) + facet_wrap(~fam, ncol=1, scales='free_y', drop=T, strip.position='right')+ 
+supChrFun5=function(superfam, chrom=1){
+    ggplot(te[te$chr==chrom & te$largest5 & te$sup==superfam,], aes(x=start, fill=sup, group=fam)) + geom_histogram(binwidth=1e6) + facet_wrap(~fam, ncol=1, scales='free_y', drop=T, strip.position='right')+ 
            theme(strip.background = element_blank(),strip.text.x = element_blank(), strip.text.y = element_text(angle = 360), axis.text=element_text(size=10)) + scale_fill_manual(values=dd.col) +
            ylab('') + scale_x_continuous(name='Position (Mb)', breaks=c(0,1e8,2e8, 3e8), labels=c(0,100,200,300)) +
           scale_y_continuous(breaks=scales::pretty_breaks(2), limits=c(0,NA))
@@ -131,10 +131,30 @@ dev.off()
                               
 pdf(paste0('supp_chromsFam.', Sys.Date(), '.pdf'), 10,10)
 plot_grid(DHH5+ theme(legend.position="none"), DTA5+ theme(legend.position="none"),DTC5+ theme(legend.position="none"),DTH5+ theme(legend.position="none"),DTM5+ theme(legend.position="none"),DTT5+ theme(legend.position="none"),DTX5+ theme(legend.position="none"),RLC5+ theme(legend.position="none"),RLG5+ theme(legend.position="none"),RLX5+ theme(legend.position="none"),RIL5+ theme(legend.position="none"),RIT5+ theme(legend.position="none"),RST5+ theme(legend.position="none"), labels='AUTO', ncol=4, align='h')
+
                               
+## weird, some DNA tes not on a chromosome?!?!?
+                              
+for(chrom in 2:10){
+          DHH5 = supChrFun5('DHH', chrom=chrom)
+          DTA5 = supChrFun5('DTA', chrom=chrom)
+          DTC5 = supChrFun5('DTC', chrom=chrom)
+          DTH5 = supChrFun5('DTH', chrom=chrom)
+          DTM5 = supChrFun5('DTM', chrom=chrom)                              
+          DTT5 = supChrFun5('DTT', chrom=chrom)                              
+          DTX5 = supChrFun5('DTX', chrom=chrom)
+          RLC5 = supChrFun5('RLC', chrom=chrom)                             
+          RLG5 = supChrFun5('RLG', chrom=chrom)                             
+          RLX5 = supChrFun5('RLX', chrom=chrom)                                                          
+          RST5 = supChrFun5('RST', chrom=chrom)                              
+          RIL5 = supChrFun5('RIL', chrom=chrom)                              
+          RIT5 = supChrFun5('RIT', chrom=chrom)                              
+          print(plot_grid(DHH5+ theme(legend.position="none"), DTA5+ theme(legend.position="none"),DTC5+ theme(legend.position="none"),DTH5+ theme(legend.position="none"),DTM5+ theme(legend.position="none"),DTT5+ theme(legend.position="none"),DTX5+ theme(legend.position="none"),RLC5+ theme(legend.position="none"),RLG5+ theme(legend.position="none"),RLX5+ theme(legend.position="none"),RIL5+ theme(legend.position="none"),RIT5+ theme(legend.position="none"),RST5+ theme(legend.position="none"), labels='AUTO', ncol=4, align='h'))
+}         
 dev.off()                              
                               
-                              
+## see chr dist here!
+sapply(names(largest5), function(x) table(ind$chr[ind$fam==x]))
                               
                               
                               
