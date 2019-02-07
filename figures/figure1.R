@@ -12,40 +12,14 @@ source('meanSD_functions.R')
 ## note that this expects there to be an ind data frame
 
 ## could make these use GENOME to get the file name
-techar=fread('../te_characteristics/B73_TE_individual_copies.2018-09-19.txt')
-gene=fread('../genes/B73_closest_gene.2018-09-20.txt')
-colnames(gene)[3]='TEID'
-tbl=fread('../te_age/tbl_age/B73_terminalbranchlength2018-10-27.txt')
-ltr=fread('../te_age/B73v4_recovered_ages.txt')
-ltr$TEID=gsub('B73v4', 'Zm00001d', ltr$tename)
-ltr$tename=NULL
-
-
-
-ind=merge(techar, gene, all=T)
-ind$ingene=ind$closest==0
-ind=merge(ind, ltr, all.x=T, by='TEID')
-ind=merge(ind, tbl, all.x=T, by=c('TEID', 'fam', 'sup'))
-
-ind=ind[ind$tebp>=50,] ## after disjoining, some TEs are too short to be real :( - be sure to add this to all figures!!!
-
-ind$age=ind$tbl
-ind$age[!is.na(ind$k2p)]=ind$k2p[!is.na(ind$k2p)]
+ind=fread('../age_model/B73.LTRAGE.allDescriptors.2019-01-31.txt')
 ind$mya=ind$age/3.3e-8/2/1e6
 ind$ya=ind$age/3.3e-8/2
-ind$tblmya=ind$tbl/3.3e-8/2/1e6
+indt=fread('../age_model/B73.TBLAGE.allDescriptors.2019-01-31.txt')
+ind$tblmya=indt$tbl/3.3e-8/2/1e6
+indt=NULL
+gc()
 
-## add in te proteins
-tegenes=fread('../te_genes/proteins/B73.hmmprotein.txt')
-ltrgenes=fread('../te_genes/ltr_protein_domains/B73v4_ltr_proteins.txt')
-ltrgenes$TEID=gsub('B73v4', 'Zm00001d', ltrgenes$TEID)
-ind=merge(ind, tegenes, all.x=T, by=c('TEID', 'fam', 'sup'))
-ind=merge(ind, ltrgenes, all.x=T, by=c('TEID'))
-ind[,c('helprot', 'rveprot', 'tpaseprot', 'GAG', 'AP', 'INT', 'RT', 'RNaseH', 'ENV', 'CHR', 'pol', 'auton')][is.na(ind[,c('helprot', 'rveprot', 'tpaseprot', 'GAG', 'AP', 'INT', 'RT', 'RNaseH', 'ENV', 'CHR', 'pol', 'auton')])]=F
-
-nrow(ind)
-nrow(techar)
-nrow(gene)
 
 ############
 ### THE MOST DIFFICULT PLOT EVER - set up functions
@@ -66,27 +40,27 @@ largest10=largest10[c(1:70,83:112,71:82,113:122)] ## super hard coded to get the
 ### actual plotting starts!
 ###################
 
-pdf(paste0('pointrange_fams_quantileWideBox_selfTE.', Sys.Date(), '.pdf'), 16,8)
-tel=plotlargest('tebp', 'TE Length (bp)')
-age=plotlargest('mya', 'Age \n(million years)') + coord_cartesian(ylim=c(0,3))
-#piece=plot_percentages('pieces', 'Proportion intact')
-disr=plot_percentages('disruptor', 'Proportion in \nanother TE')
-cl=plotlargest('closest', 'Distance from \ngene (bp)')
-ingene=plot_percentages('ingene', 'Proportion in \ntranscript', invert=TRUE)
-
-disrX=plot_percentages('disruptor', 'Proportion in \nanother TE', xaxis=TRUE)
-
-                               
-plot_grid(tel, cl, ingene, disrX ,  labels = "AUTO", ncol = 1, align = 'v')
-#plot_grid(tel, age, cl, ingene, disr ,  labels = "AUTO", ncol = 1, align = 'v')
-#plot_grid(tel, cl, ingene, piece, disr + scale_x_discrete(labels=substr(names(largest10),1,3)[!duplicated(substr(names(largest10),1,3))]),  labels = "AUTO", ncol = 1, align = 'v')
-## version with a legend.
-legend <- get_legend( ggplot(get_largest_quantile_backgroundbox('tebp'), aes(x=x, y=median, ymin=min, ymax=max, color=sup, fill=sup))+ geom_pointrange(size=1)+ 
-                     theme(legend.title=element_blank())+ scale_color_manual(values=dd.col))
-plots <- plot_grid(tel, cl, ingene, disrX ,  labels = "AUTO", ncol = 1, align = 'v')
-#plots <- plot_grid(tel, age, cl, ingene, disr ,  labels = "AUTO", ncol = 1, align = 'v')
-plot_grid(plots,legend, ncol = 2, align = 'v',  rel_widths = c(1, .1))                              
-dev.off()
+#pdf(paste0('pointrange_fams_quantileWideBox_selfTE.', Sys.Date(), '.pdf'), 16,8)
+#tel=plotlargest('tebp', 'TE Length (bp)')
+#age=plotlargest('mya', 'Age \n(million years)') + coord_cartesian(ylim=c(0,3))
+##piece=plot_percentages('pieces', 'Proportion intact')
+#disr=plot_percentages('disruptor', 'Proportion in \nanother TE')
+#cl=plotlargest('closest', 'Distance from \ngene (bp)')
+#ingene=plot_percentages('ingene', 'Proportion in \ntranscript', invert=TRUE)
+#
+#disrX=plot_percentages('disruptor', 'Proportion in \nanother TE', xaxis=TRUE)
+#
+#                               
+#plot_grid(tel, cl, ingene, disrX ,  labels = "AUTO", ncol = 1, align = 'v')
+##plot_grid(tel, age, cl, ingene, disr ,  labels = "AUTO", ncol = 1, align = 'v')
+##plot_grid(tel, cl, ingene, piece, disr + scale_x_discrete(labels=substr(names(largest10),1,3)[!duplicated(substr(names(largest10),1,3))]),  labels = "AUTO", ncol = 1, align = 'v')
+### version with a legend.
+#legend <- get_legend( ggplot(get_largest_quantile_backgroundbox('tebp'), aes(x=x, y=median, ymin=min, ymax=max, color=sup, fill=sup))+ geom_pointrange(size=1)+ 
+#                     theme(legend.title=element_blank())+ scale_color_manual(values=dd.col))
+#plots <- plot_grid(tel, cl, ingene, disrX ,  labels = "AUTO", ncol = 1, align = 'v')
+##plots <- plot_grid(tel, age, cl, ingene, disr ,  labels = "AUTO", ncol = 1, align = 'v')
+#plot_grid(plots,legend, ncol = 2, align = 'v',  rel_widths = c(1, .1))                              
+#dev.off()
 
 
 ##### add tremapify to this figure to get real figure 1
@@ -147,7 +121,8 @@ cl=plotlargest('closest', 'Distance from \ngene (bp)')
 ingene=plot_percentages('ingene', 'Proportion in \ntranscript', invert=TRUE)
 disrX=plot_percentages('disruptor', 'Proportion in \nanother TE', xaxis=TRUE)
 autonX=plot_percentages('auton', 'Proportion copies\nautonomous', xaxis=TRUE)
-                               
+ageX=plotlargest('mya', 'Age \n(million years)', xaxis=TRUE) + coord_cartesian(ylim=c(0,3))
+                            
                                
 #plot_grid(tel, age, cl, ingene, disr ,  labels = "AUTO", ncol = 1, align = 'v')
 #plot_grid(tel, cl, ingene, piece, disr + scale_x_discrete(labels=substr(names(largest10),1,3)[!duplicated(substr(names(largest10),1,3))]),  labels = "AUTO", ncol = 1, align = 'v')
@@ -155,7 +130,7 @@ autonX=plot_percentages('auton', 'Proportion copies\nautonomous', xaxis=TRUE)
 legend <- get_legend( ggplot(get_largest_quantile_backgroundbox('tebp'), aes(x=x, y=median, ymin=min, ymax=max, color=factor(sup, levels=TESUPFACTORLEVELS)))+ geom_pointrange(size=1)+ 
                      theme(legend.title=element_blank())+ scale_color_manual(values=dd.col))
 #plots <- plot_grid(tel, age, cl, ingene, disr ,  labels = c('B', 'C', 'D', 'E', 'F'), ncol = 1, align = 'v')
-plots <- plot_grid(tel, age, cl, ingene, disr, autonX ,  labels = c('C', 'D', 'E', 'F', 'G'), rel_heights=c(0.8,0.8,0.8,0.8,1), ncol = 1, align = 'v')
+plots <- plot_grid(tel, cl, disr, ageX ,  labels = c('C', 'D', 'E', 'F'), rel_heights=c(0.8,0.8,0.8,0.8,1), ncol = 1, align = 'v')
 supplots <- plot_grid(tempfamplot, famplotbp, labels=c('A', 'B'), ncol=2, align='v', scale=0.96)
 plot_grid(supplots, plots,legend, ncol = 3, align = 'v', labels=c('','', ''), scale=c(0.96,1,1), rel_widths = c(0.7, 1, .1))                              
 dev.off()                             
@@ -197,13 +172,14 @@ pdf(paste0('supp_TE_descriptors.', Sys.Date(), '.pdf'), 16,8)
 piece=plot_percentages('pieces', 'Proportion intact')
 disr=plot_percentages('disruptor', 'Proportion in \nanother TE')
 #cl=plotlargest('closest', 'Distance from \ngene (bp)')
-#ingene=plot_percentages('ingene', 'Proportion in \ntranscript', invert=TRUE)
+ingene=plot_percentages('ingene', 'Proportion in \ntranscript', invert=TRUE)
 span=plotlargest('tespan', 'TE Span (bp)')
+
 
 ## version with a legend.
 legend <- get_legend( ggplot(get_largest_quantile_backgroundbox('tebp'), aes(x=x, y=median, ymin=min, ymax=max, color=factor(sup, levels=c('DHH', 'DTA', 'DTC', 'DTH', 'DTM', 'DTT', 'DTX', 'RLC', 'RLG', 'RLX', 'RIL', 'RIT', 'RST')), fill=sup))+ geom_pointrange(size=1)+ 
                      theme(legend.title=element_blank())+ scale_color_manual(values=dd.col))
-plots <- plot_grid(piece, disr, span, labels = 'AUTO', ncol = 1, align = 'v')
+plots <- plot_grid(ingene, span, piece, labels = 'AUTO', ncol = 1, align = 'v')
 plot_grid(plots,legend, ncol = 2, align = 'v', labels='', rel_widths = c(1, .1))                              
 dev.off() 
                                
