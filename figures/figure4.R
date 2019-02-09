@@ -43,37 +43,12 @@ ee=read.table('../te_expression/walley_mean_expr.2019-01-28.txt', header=T)
 ###################
 
 pdf(paste0('figure4.', Sys.Date(), '.pdf'), 16,8)
-helprot=plot_percentages('helprot', 'Helitron proteins', invert=T)      
-tirprot=plot_percentages('tpaseprot', 'Transposase proteins', invert=T)
-rveprot=plot_percentages('rveprot', 'Integrase proteins', invert=T)
-anyprot=plot_percentages('anyprot', 'Protein coding', invert=T)
+
 ltrgag=plot_percentagesLTR('GAG', 'GAG', invert=T)
-gag=plot_percentages('GAG', 'GAG', invert=T)
-ltrap=plot_percentagesLTR('AP', 'Aspartic Proteinase', invert=T)
-ltrint=plot_percentagesLTR('INT', 'Integrase', invert=T)
-ltrrt=plot_percentagesLTR('RT', 'Reverse Transcriptase', invert=T)
-ltrrnaseh=plot_percentagesLTR('RNaseH', 'RNase H', invert=T)
-ltrenv=plot_percentagesLTR('ENV', 'Envelope', invert=T)
-ltrchr=plot_percentagesLTR('CHR', 'Chromodomain', invert=T)
 ltrpol=plot_percentagesLTR('pol', 'Polyprotein', invert=T)
-pol=plot_percentages('pol', 'Polyprotein', invert=T)
-ltrauton=plot_percentagesLTR('auton', 'All five LTR domains', invert=T)
 auton=plot_percentages('auton', 'All proteins', invert=T)
-                               
-                               
-helprotfam=plot_percentages('helprotfam', 'Family member with\nhelitron proteins', invert=T)      
-tirprotfam=plot_percentages('tpaseprotfam', 'Family member with\ntransposase proteins', invert=T)
-rveprotfam=plot_percentages('rveprotfam', 'Family member with\nintegrase proteins', invert=T)
-anyprotfam=plot_percentages('anyprotfam', 'Family member with\nprotein coding', invert=T)
-ltrgagfam=plot_percentagesLTR('GAGfam', 'Family member with\nGAG', invert=T)
+
 gagfam=plot_percentages('GAGfam', 'Family member with\nGAG', invert=T)
-ltrapfam=plot_percentagesLTR('APfam', 'Family member with\nAspartic Proteinase', invert=T)
-ltrintfam=plot_percentagesLTR('INTfam', 'Family member with\nIntegrase', invert=T)
-ltrrtfam=plot_percentagesLTR('RTfam', 'Family member with\nReverse Transcriptase', invert=T)
-ltrrnasehfam=plot_percentagesLTR('RNaseHfam', 'Family member with\nRNase H', invert=T)
-ltrenvfam=plot_percentagesLTR('ENVfam', 'Family member with\nEnvelope', invert=T)
-ltrchrfam=plot_percentagesLTR('CHRfam', 'Family member with\nChromodomain', invert=T)
-ltrpolfam=plot_percentagesLTR('polfam', 'Family member with\nPolyprotein', invert=T)
 polfam=plot_percentages('polfam', 'Family member with\nPolyprotein', invert=T)
 ltrautonfam=plot_percentagesLTR('autonfam', 'Family member with\nAll five LTR domains', invert=T)
 autonfam=plot_percentages('autonfam', 'Family member with\nAll proteins', invert=T)
@@ -83,56 +58,51 @@ exprpercopy=plotlargest('TEfamMedianPerCopy', 'log10(Median TE \nexpression copy
 exprperbp=plotlargest('TEfamMedianPerBp', 'Median TE \nexpression copyRPKM') 
 tetau=plotlargest('TEfam_tau', 'TE tau') + ylim(0.25,1)
 
-                               
-                               
 geneexpr=plotlargest('gene_median', 'log10(Median expression\nclosest gene (FPKM))') + scale_y_log10()
 genetau=plotlargest('gene_tau', 'Tau of closest gene') + ylim(0.25,1)
 orfAA=plotlargest('orfAA', 'Longest ORF (AA)') + ylim(0,1500)
                                
+## this is for the heatmap of TE expression, on a family specific, per copy basis
 eer2=log2(ee[,-c(1,25:28)]+1)
 eer2percopy=log2(ee[,-c(1,25:28)]/as.numeric(mapvalues(as.character(ee$fam), from=ind$fam, to=ind$famsize, warn_missing=F))+1)
 rownames(eer2)=ee$fam
 rownames(eer2percopy)=ee$fam
 ar=data.frame(sup=substr(rownames(eer2),1,3), fam=rownames(eer2))
 rownames(ar)=rownames(eer2)
-#hm = as.ggplot(~pheatmap(eer2, color=c('#000000', rev(viridis(100))), scale='none', show_rownames=F, annotation_row=ar))
-#hm10 = as.ggplot(~pheatmap(eer2[rownames(eer2) %in% largest10,], color=c('#000000', rev(viridis(100))), scale='none', show_rownames=F, annotation_row=ar[rownames(ar) %in% largest10,]))
-#hm.func = function() pheatmap(eer2, color=c('#000000', rev(viridis(100))), scale='none', show_rownames=F, annotation_row=ar)[[4]] ## need to index the fourth!! this is where plot is stored??
-#hm10.func = function() pheatmap(eer2[rownames(eer2) %in% names(largest10),], cluster_rows=F, color=c('#000000', rev(viridis(100))), scale='none', show_rownames=F, annotation_row=ar[rownames(ar) %in% names(largest10),])[[4]]
-#
-#hm.func()
-#hm10.func()
-## ex. function for plotting as 
-#plotfunc <- function() image(volcano) # define the function
-#plotfunc() # call the function to make the plot
-
 hm10 = grid.grabExpr(pheatmap(eer2percopy[rownames(eer2percopy) %in% names(largest10),], treeheight_row = 0, cluster_rows=F, color=c('#000000', rev(viridis(100))), scale='none', show_rownames=F, labels_col=gsub('TEfam_', '', colnames(eer2)), annotation_row=ar[rownames(ar) %in% names(largest10),1, drop=F], annotation_colors=list(sup=dd.col), annotation_legend=F)[[4]])
 hm = grid.grabExpr(pheatmap(eer2percopy[complete.cases(eer2percopy),], color=c('#000000', rev(viridis(100))), treeheight_row = 1, scale='none', show_rownames=F, labels_col=gsub('TEfam_', '', colnames(eer2)), annotation_row=ar[,1, drop=F], annotation_colors=list(sup=dd.col), annotation_legend=F)[[4]])
 
+## this is for the gene heatmap, summarized at the level of TE family
 ge=data.frame(ind %>% group_by(fam) %>% dplyr::summarize_at(which(grepl('gene_', colnames(ind))), funs(mean(., na.rm = TRUE))))
 rownames(ge)=ge$fam
-                       
+## maybe only genes within 10 kb from the te matter?
 ge10kb=data.frame(ind[ind$closest<=10000,] %>% group_by(fam) %>% dplyr::summarize_at(which(grepl('gene_', colnames(ind))), funs(mean(., na.rm = TRUE))))
 rownames(ge10kb)=ge10kb$fam
  
+ge1kb=data.frame(ind[ind$closest<=1000,] %>% group_by(fam) %>% dplyr::summarize_at(which(grepl('gene_', colnames(ind))), funs(mean(., na.rm = TRUE))))
+rownames(ge1kb)=ge1kb$fam
 arg=data.frame(sup=substr(rownames(ge),1,3), fam=rownames(ge))
 rownames(arg)=rownames(ge)
 arg10kb=data.frame(sup=substr(rownames(ge10kb),1,3), fam=rownames(ge10kb))
 rownames(arg10kb)=rownames(ge10kb)
+arg1kb=data.frame(sup=substr(rownames(ge1kb),1,3), fam=rownames(ge1kb))
+rownames(arg1kb)=rownames(ge1kb)
 
+## here the number 10 stands for 10 largest fams per superfam                               
 ghm10 = grid.grabExpr(pheatmap(log2(ge[rownames(ge) %in% names(largest10),2:(ncol(ge)-3)]+1), color=c('#000000', rev(viridis(100))), treeheight_row = 0, cluster_rows=F, scale='none', show_rownames=F, labels_col=gsub('gene_', '', colnames(ge)[2:(ncol(ge)-3)]), annotation_row=arg[,1, drop=F], annotation_colors=list(sup=dd.col), annotation_legend=F)[[4]])
 ghm = grid.grabExpr(pheatmap(log2(ge[complete.cases(ge),2:(ncol(ge)-3)]+1), color=c('#000000', rev(viridis(100))), treeheight_row = 1, scale='none', show_rownames=F, labels_col=gsub('gene_', '', colnames(ge)[2:(ncol(ge)-3)]), annotation_row=arg[,1, drop=F], annotation_colors=list(sup=dd.col), annotation_legend=F)[[4]])
 #hm10 = grid.grabExpr(pheatmap(eer2[rownames(eer2) %in% names(largest10),], color=c('#000000', rev(viridis(100))), scale='none', show_rownames=F, annotation_row=ar[rownames(ar) %in% names(largest10),])[[4]])
 is.grob(hm10)                               
-
-                               
-                               
+                           
 ## only genes within 10 kb of the TE                               
 ghm1010kb = grid.grabExpr(pheatmap(log2(ge10kb[rownames(ge10kb) %in% names(largest10),2:(ncol(ge10kb)-3)]+1), color=c('#000000', rev(viridis(100))), treeheight_row = 0, cluster_rows=F, scale='none', show_rownames=F, labels_col=gsub('gene_', '', colnames(ge10kb)[2:(ncol(ge)-3)]), annotation_row=arg10kb[,1, drop=F], annotation_colors=list(sup=dd.col), annotation_legend=F)[[4]])
 ghm10kb = grid.grabExpr(pheatmap(log2(ge10kb[complete.cases(ge10kb),2:(ncol(ge10kb)-3)]+1), color=c('#000000', rev(viridis(100))), treeheight_row = 1, scale='none', show_rownames=F, labels_col=gsub('gene_', '', colnames(ge10kb)[2:(ncol(ge)-3)]), annotation_row=arg10kb[,1, drop=F], annotation_colors=list(sup=dd.col), annotation_legend=F)[[4]])
 
-                               
-                               
+## only genes within 1 kb of the TE                               
+ghm101kb = grid.grabExpr(pheatmap(log2(ge1kb[rownames(ge10kb) %in% names(largest10),2:(ncol(ge1kb)-3)]+1), color=c('#000000', rev(viridis(100))), treeheight_row = 0, cluster_rows=F, scale='none', show_rownames=F, labels_col=gsub('gene_', '', colnames(ge10kb)[2:(ncol(ge)-3)]), annotation_row=arg10kb[,1, drop=F], annotation_colors=list(sup=dd.col), annotation_legend=F)[[4]])
+ghm1kb = grid.grabExpr(pheatmap(log2(ge1kb[complete.cases(ge1kb),2:(ncol(ge1kb)-3)]+1), color=c('#000000', rev(viridis(100))), treeheight_row = 1, scale='none', show_rownames=F, labels_col=gsub('gene_', '', colnames(ge10kb)[2:(ncol(ge)-3)]), annotation_row=arg10kb[,1, drop=F], annotation_colors=list(sup=dd.col), annotation_legend=F)[[4]])
+                             
+## i can do something to scale the colors in a nicer way that puts highest turnover at right color points                       
 quantile_breaks <- function(xs, n = 100) {
   breaks <- quantile(xs, probs = seq(0, 1, length.out = n), na.rm=T)
   breaks[!duplicated(breaks)]
@@ -146,25 +116,34 @@ hmb = grid.grabExpr(pheatmap(eer2percopy[complete.cases(eer2percopy),], color=c(
 gagautpol=plot_grid(ltrgag, ltrauton, ltrpol, ncol=3)
 #fig4 = plot_grid(auton, autonfam, gagautpol, medianexpr, tetau, labels='AUTO', ncol=1, align='v')
 fig4 = plot_grid(auton, orfAA, gagautpol, exprpercopy, tetau, labels='AUTO', ncol=1, align='v')
+                          
+#hms=plot_grid(as.ggplot(hm), as.ggplot(ghm), labels='AUTO', ncol=2, align='v')
+#hms10=plot_grid(as.ggplot(hm10), as.ggplot(ghm10), labels='AUTO', ncol=2, align='v')
+#hms10kb=plot_grid(as.ggplot(hm), as.ggplot(ghm10kb), labels='AUTO', ncol=2, align='v')
+#hms1010kb=plot_grid(as.ggplot(hm10), as.ggplot(ghm1010kb), labels='AUTO', ncol=2, align='v')
+#hms1kb=plot_grid(as.ggplot(hm), as.ggplot(ghm1kb), labels='AUTO', ncol=2, align='v')
+#hms101kb=plot_grid(as.ggplot(hm10), as.ggplot(ghm101kb), labels='AUTO', ncol=2, align='v')
+hms3=plot_grid(as.ggplot(hm), as.ggplot(ghm), as.ggplot(ghm10kb), as.ggplot(ghm1kb), labels='AUTO', ncol=4, align='v')
+hms103=plot_grid(as.ggplot(hm10), as.ggplot(ghm10), as.ggplot(ghm1010kb), as.ggplot(ghm101kb), labels='AUTO', ncol=4, align='v')
 
-hms=plot_grid(as.ggplot(hm), as.ggplot(ghm), labels='AUTO', ncol=2, align='v')
-hms10=plot_grid(as.ggplot(hm10), as.ggplot(ghm10), labels='AUTO', ncol=2, align='v')
-hms10kb=plot_grid(as.ggplot(hm), as.ggplot(ghm10kb), labels='AUTO', ncol=2, align='v')
-hms1010kb=plot_grid(as.ggplot(hm10), as.ggplot(ghm1010kb), labels='AUTO', ncol=2, align='v')
+legend <- get_legend( ggplot(get_largest_quantile_backgroundbox('tebp'), aes(x=x, y=median, ymin=min, ymax=max, color=factor(sup, levels=c('DHH', 'DTA', 'DTC', 'DTH', 'DTM', 'DTT', 'DTX', 'RLC', 'RLG', 'RLX', 'RIL', 'RIT', 'RST')), fill=sup))+ geom_pointrange(size=1)+ 
+                     theme(legend.title=element_blank())+ scale_color_manual(values=dd.col))
 
-fig4hm=plot_grid(fig4, as.ggplot(hm) + scale_color_manual(values=dd.col), labels=c('', 'G'), ncol=2, rel_widths=c(1, 0.6), align='v')
-fig4hm10=plot_grid(fig4, as.ggplot(hm10)+ scale_color_manual(values=dd.col), labels=c('', 'G'), ncol=2, rel_widths=c(1, 0.6), align='v')
-fig4 ## this will have the heatmap of tissue specificity added to the right side of it
+
+fig4hm=plot_grid(fig4, legend, as.ggplot(hm) + scale_color_manual(values=dd.col), labels=c('', '', 'G'), ncol=3, rel_widths=c(1,0.1, 0.6), align='v')
+fig4hm10=plot_grid(fig4, legend, as.ggplot(hm10)+ scale_color_manual(values=dd.col), labels=c('','', 'G'), ncol=3, rel_widths=c(1,0.1, 0.6), align='v')
+#fig4 ## this will have the heatmap of tissue specificity added to the right side of it
+### sometimes these are weird and plot just the heatmap. I recall the pdf and replot and they're then fine. Weird!
 fig4hm
 fig4hm10
-                               
-hms
-hms10
-hms10kb
-hms1010kb
+             
+hms3
+hms103
+
+dev.off()                               
 
                                
-                               
+pdf(paste0('supp_genes_near_tes.', Sys.Date(), '.pdf'), 12,10)
 ##match genic supplement!
 supp4 = plot_grid(geneexpr, genetau, labels='AUTO', ncol=1, align='v')
 supp4hm=plot_grid(fig4, as.ggplot(ghm) + scale_color_manual(values=dd.col), labels=c('', 'C'), ncol=2, rel_widths=c(1, 0.6), align='v')
@@ -172,9 +151,6 @@ supp4hm10kb=plot_grid(fig4, as.ggplot(ghm10kb) + scale_color_manual(values=dd.co
 
                                
                                
-plot_grid(auton, autonfam, gagautpol, exprpercopy, tetau, labels='AUTO', ncol=1, align='v')
-plot_grid(auton, autonfam, gagautpol, exprperbp, tetau, labels='AUTO', ncol=1, align='v')
-
 ## version with a legend.
 legend <- get_legend( ggplot(get_largest_quantile_backgroundbox('tebp'), aes(x=x, y=median, ymin=min, ymax=max, color=factor(sup, levels=c('DHH', 'DTA', 'DTC', 'DTH', 'DTM', 'DTT', 'DTX', 'RLC', 'RLG', 'RLX', 'RIL', 'RIT', 'RST')), fill=sup))+ geom_pointrange(size=1)+ 
                      theme(legend.title=element_blank())+ scale_color_manual(values=dd.col))
@@ -206,4 +182,40 @@ ggplot(ind, aes(x=auton, y=mya, fill=sup, group=interaction(sup, auton))) + geom
 dev.off()
                                
                                
+pdf(paste0('supp_proteins.', Sys.Date(), '.pdf'), 14,8)
+helprot=plot_percentages('helprot', 'Helitron proteins', invert=T)      
+tirprot=plot_percentages('tpaseprot', 'Transposase proteins', invert=T)
+rveprot=plot_percentages('rveprot', 'Integrase proteins', invert=T)
+anyprot=plot_percentages('anyprot', 'Protein coding', invert=T)
+ltrgag=plot_percentagesLTR('GAG', 'GAG', invert=T)
+gag=plot_percentages('GAG', 'GAG', invert=T)
+ltrap=plot_percentagesLTR('AP', 'Aspartic Proteinase', invert=T)
+ltrint=plot_percentagesLTR('INT', 'Integrase', invert=T)
+ltrrt=plot_percentagesLTR('RT', 'Reverse Transcriptase', invert=T)
+ltrrnaseh=plot_percentagesLTR('RNaseH', 'RNase H', invert=T)
+ltrenv=plot_percentagesLTR('ENV', 'Envelope', invert=T)
+ltrchr=plot_percentagesLTR('CHR', 'Chromodomain', invert=T)
+ltrpol=plot_percentagesLTR('pol', 'Polyprotein', invert=T)
+pol=plot_percentages('pol', 'Polyprotein', invert=T)
+ltrauton=plot_percentagesLTR('auton', 'All five LTR domains', invert=T)
+auton=plot_percentages('auton', 'All proteins', invert=T)
 
+helprotfam=plot_percentages('helprotfam', 'Family member with\nhelitron proteins', invert=T)      
+tirprotfam=plot_percentages('tpaseprotfam', 'Family member with\ntransposase proteins', invert=T)
+rveprotfam=plot_percentages('rveprotfam', 'Family member with\nintegrase proteins', invert=T)
+anyprotfam=plot_percentages('anyprotfam', 'Family member with\nprotein coding', invert=T)
+ltrgagfam=plot_percentagesLTR('GAGfam', 'Family member with\nGAG', invert=T)
+gagfam=plot_percentages('GAGfam', 'Family member with\nGAG', invert=T)
+ltrapfam=plot_percentagesLTR('APfam', 'Family member with\nAspartic Proteinase', invert=T)
+ltrintfam=plot_percentagesLTR('INTfam', 'Family member with\nIntegrase', invert=T)
+ltrrtfam=plot_percentagesLTR('RTfam', 'Family member with\nReverse Transcriptase', invert=T)
+ltrrnasehfam=plot_percentagesLTR('RNaseHfam', 'Family member with\nRNase H', invert=T)
+ltrenvfam=plot_percentagesLTR('ENVfam', 'Family member with\nEnvelope', invert=T)
+ltrchrfam=plot_percentagesLTR('CHRfam', 'Family member with\nChromodomain', invert=T)
+ltrpolfam=plot_percentagesLTR('polfam', 'Family member with\nPolyprotein', invert=T)
+polfam=plot_percentages('polfam', 'Family member with\nPolyprotein', invert=T)
+ltrautonfam=plot_percentagesLTR('autonfam', 'Family member with\nAll five LTR domains', invert=T)
+autonfam=plot_percentages('autonfam', 'Family member with\nAll proteins', invert=T)
+
+                               
+dev.off()
