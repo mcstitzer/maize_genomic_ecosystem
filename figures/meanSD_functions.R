@@ -97,11 +97,11 @@ plot_percentages=function(feat, ylab='', invert=FALSE, xaxis=FALSE, angle=90){
 
 
 ### repeat for other figure of te vs flank
-plotlargest=function(feat, ylab='', xaxis=FALSE, angle=90, hline=NA){
+plotlargest=function(feat, ylab='', xaxis=FALSE, angle=90, hline=0, hlinecolor=NA){
  d = get_largest_quantile_backgroundbox(feat)
  if(xaxis){
  ggplot(d, aes(x=factor(x), y=median, ymin=min, ymax=max, color=sup, fill=sup)) + 
-                     geom_hline(yintercept=hline, linetype='dashed', color='grey') +
+                     geom_hline(yintercept=hline, linetype='dashed', color=hlinecolor) +
                      geom_pointrange(fatten=4/3, size=1.5) + 
                      geom_rect(aes(xmin=x, xmax=x1, fill=sup, ymin=min_sup, ymax=max_sup), alpha=0.2, colour=NA) +
                      geom_point(aes(x=px+0.5, color=sup, y=median_sup), alpha=0.5, shape="-", size=2.5) +
@@ -113,7 +113,7 @@ plotlargest=function(feat, ylab='', xaxis=FALSE, angle=90, hline=NA){
                      ylab(ylab)
   }else{
    ggplot(d, aes(x=factor(x), y=median, ymin=min, ymax=max, color=sup, fill=sup)) + 
-                     geom_hline(yintercept=hline, linetype='dashed', color='grey') +
+                     geom_hline(yintercept=hline, linetype='dashed', color=hlinecolor) +
                      geom_pointrange(fatten=4/3, size=1.5) + 
                      geom_rect(aes(xmin=x, xmax=x1, fill=sup, ymin=min_sup, ymax=max_sup), alpha=0.2, colour=NA) +
                      geom_point(aes(x=px+0.5, color=sup, y=median_sup), alpha=0.5, shape="-", size=2.5) +
@@ -156,11 +156,11 @@ if(xaxis){
 ### repeat for other figure of te vs flank
 
 
-plotlargestLTR=function(feat, ylab='', xaxis=FALSE, angle=90, hline=NA){
+plotlargestLTR=function(feat, ylab='', xaxis=FALSE, angle=90, hline=0, hlinecolor=NA){
 d=get_largest_quantile_backgroundbox(feat)
 if(xaxis){
  ggplot(subset(d, sup%in%c('RLC', 'RLG', 'RLX')), aes(x=factor(x), y=median, ymin=min, ymax=max, color=sup, fill=sup)) +
-                     geom_hline(yintercept=hline, linetype='dashed', color='grey') +
+                     geom_hline(yintercept=hline, linetype='dashed', color=hlinecolor) +
                      geom_pointrange(fatten=4/3, size=1.5) +
                      geom_rect(aes(xmin=x, xmax=x1, fill=sup, ymin=min_sup, ymax=max_sup), alpha=0.2, colour=NA) +
                      geom_point(aes(x=px+0.5, color=sup, y=median_sup), alpha=0.5, shape="-", size=2.5) +
@@ -172,7 +172,7 @@ if(xaxis){
                      ylab(ylab)
 }else{
  ggplot(subset(d, sup%in%c('RLC', 'RLG', 'RLX')), aes(x=factor(x), y=median, ymin=min, ymax=max, color=sup, fill=sup)) +
-                     geom_hline(yintercept=hline, linetype='dashed', color='grey') +
+                     geom_hline(yintercept=hline, linetype='dashed', color=hlinecolor) +
                      geom_pointrange(fatten=4/3, size=1.5) +
                      geom_rect(aes(xmin=x, xmax=x1, fill=sup, ymin=min_sup, ymax=max_sup), alpha=0.2, colour=NA) +
                      geom_point(aes(x=px+0.5, color=sup, y=median_sup), alpha=0.5, shape="-", size=2.5) +
