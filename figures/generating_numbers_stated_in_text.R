@@ -47,14 +47,20 @@ data.frame(tgem %>% group_by(substr(sup,1,2)) %>% dplyr::summarize(mean=mean(gen
 # for nonLTR as a whole!
 data.frame(tgem %>% group_by(substr(sup,1,2) %in% c('RI', 'RS')) %>% dplyr::summarize(mean=mean(gene_median, na.rm=T), median=median(gene_median, na.rm=T)))
 ## gene rpkm, genes within 2kb of TE
-data.frame(tgem[tgem$closest<2000,] %>% group_by(substr(sup,1,2)) %>% dplyr::summarize(mean=mean(gene_median, na.rm=T), median=median(gene_median, na.rm=T)))
+data.frame(tgem[tgem$closest<2000,] %>% group_by(substr(sup,1,2))%>% filter(n()>=10) %>% dplyr::summarize(mean=mean(gene_median, na.rm=T), median=median(gene_median, na.rm=T)))
 # for nonLTR as a whole!
-data.frame(tgem[tgem$closest<2000,] %>% group_by(substr(sup,1,2) %in% c('RI', 'RS')) %>% dplyr::summarize(mean=mean(gene_median, na.rm=T), median=median(gene_median, na.rm=T)))
+data.frame(tgem[tgem$closest<2000,] %>% group_by(substr(sup,1,2) %in% c('RI', 'RS'))%>% filter(n()>=10) %>% dplyr::summarize(mean=mean(gene_median, na.rm=T), median=median(gene_median, na.rm=T)))
 ## gene rpkm, genes within 1kb of TE
-data.frame(tgem[tgem$closest<1000,] %>% group_by(substr(sup,1,2)) %>% dplyr::summarize(mean=mean(gene_median, na.rm=T), median=median(gene_median, na.rm=T)))
+data.frame(tgem[tgem$closest<1000,] %>% group_by(substr(sup,1,2)) %>% filter(n()>=10) %>% dplyr::summarize(mean=mean(gene_median, na.rm=T), median=median(gene_median, na.rm=T)))
 # for nonLTR as a whole!
-data.frame(tgem[tgem$closest<1000,] %>% group_by(substr(sup,1,2) %in% c('RI', 'RS')) %>% dplyr::summarize(mean=mean(gene_median, na.rm=T), median=median(gene_median, na.rm=T)))
+data.frame(tgem[tgem$closest<1000,] %>% group_by(substr(sup,1,2) %in% c('RI', 'RS'))%>% filter(n()>=10) %>% dplyr::summarize(mean=mean(gene_median, na.rm=T), median=median(gene_median, na.rm=T)))
 
+## then ask about fams
+ef=data.frame(tgem %>% group_by(sup, fam) %>% filter(famsize>=10) %>% dplyr::summarize(mean=mean(gene_median, na.rm=T), median=median(gene_median, na.rm=T)))
+ef1000=data.frame(tgem[tgem$closest<1000,] %>% group_by(sup, fam) %>% filter(n()>=10) %>% dplyr::summarize(mean=mean(gene_median, na.rm=T), median=median(gene_median, na.rm=T)))
+
+## correlation between TE tau and gene Tau
+cor.test(ind.fam$TEfam_tau, ind.fam$gene_tau, use='pairwise.complete.obs')
 
 ## and TE expression from sarah
 ind$exprMedian=apply(ind[,386:408],1,median, na.rm=T)
@@ -218,28 +224,34 @@ fe$TEfamMaxPerCopy=apply(fe[,-c(1,25:29)], 1, function(x) max(x, na.rm=T))/fe$fa
 ## ask which fams are tissue specific
 fe[fe$TEfam_tau>0.99 & fe$famsize>10 & !is.na(fe$TEfam_tau) & fe$TEfamMaxPerCopy>1,]
 
+ind.fam=ind %>% group_by(fam, sup) %>% summarize_if(.predicate=function(x) is.numeric(x), .funs=funs(median(., na.rm=T)))
+
+ind.fam=merge(ind %>% group_by(fam) %>% dplyr::summarize(famsize=n()), ind.fam)
 
 #### max and min base composition
-max(ind.fam[ind.fam$famsize>10,]$percGC)
-which.max(ind.fam[ind.fam$famsize>10,]$percGC)
-ind.fam[ind.fam$famsize>10,][439,]
-median(ind.fam[ind.fam$famsize>10,]$percGC)
-min(ind.fam[ind.fam$famsize>10,]$percGC)
-which.min(ind.fam[ind.fam$famsize>10,]$percGC)
-ind.fam[ind.fam$famsize>10,][639,]
-min(ind.fam[ind.fam$famsize>10,]$nCG)
-which.min(ind.fam[ind.fam$famsize>10,]$nCG)
-which.max(ind.fam[ind.fam$famsize>10,]$nCG)
-max(ind.fam[ind.fam$famsize>10,]$nCG)
-ind.fam[ind.fam$famsize>10,]$fam[213]
-ind.fam[ind.fam$famsize>10,]$fam[642]
-min(ind.fam[ind.fam$famsize>10,]$nCHG)
-which.min(ind.fam[ind.fam$famsize>10,]$nCHG)
-ind.fam[ind.fam$famsize>10,]$fam[215]
-which.min(ind.fam[ind.fam$famsize>20,]$nCHG)
+max(ind.fam[ind.fam$famsize>=10,]$percGC)
+which.max(ind.fam[ind.fam$famsize>=10,]$percGC)
+ind.fam[ind.fam$famsize>=10,][439,]
+median(ind.fam[ind.fam$famsize>=10,]$percGC)
+min(ind.fam[ind.fam$famsize>=10,]$percGC)
+which.min(ind.fam[ind.fam$famsize>=10,]$percGC)
+ind.fam[ind.fam$famsize>=10,][639,]
+min(ind.fam[ind.fam$famsize>=10,]$nCG)
+which.min(ind.fam[ind.fam$famsize>=10,]$nCG)
+which.max(ind.fam[ind.fam$famsize>=10,]$nCG)
+max(ind.fam[ind.fam$famsize>=10,]$nCG)
+ind.fam[ind.fam$famsize>=10,]$fam[213]
+ind.fam[ind.fam$famsize>=10,]$fam[642]
+min(ind.fam[ind.fam$famsize>=10,]$nCHG)
+which.min(ind.fam[ind.fam$famsize>=10,]$nCHG)
+ind.fam[ind.fam$famsize>=10,]$fam[215]
+which.min(ind.fam[ind.fam$famsize>=20,]$nCHG)
 
+## make stargazer table for unmethylatable
 
-
+stargazer(ind.fam[(ind.fam$nCG==0 | ind.fam$nCHG==0 | ind.fam$nCHH==0)& ind.fam$famsize>=10,c('sup', 'fam', 'famsize', 'tebp', 'percGC', 'nCG', 'nCHG', 'nCHH')], summary=F, rownames=F, align=T) ## this makes supp table nonautonomous
+                                                    
+                                                    
 ############### methylation
                 
                          
@@ -263,10 +275,18 @@ med=ind %>% group_by(sup,fam, famsize) %>% dplyr::summarize(SAM_avg_cg=median(SA
                                                all3_avg_cg=median(all3_avg_cg, na.rm=T), all3_avg_chg=median(all3_avg_cg, na.rm=T), all3_avg_chh=median(all3_avg_chh, na.rm=T), 
                                                flagleaf_avg_cg=median(flagleaf_avg_cg, na.rm=T), flagleaf_avg_chg=median(flagleaf_avg_chg, na.rm=T), flagleaf_avg_chh=median(flagleaf_avg_chh, na.rm=T),
                                               earshoot_avg_cg=median(earshoot_avg_cg, na.rm=T), earshoot_avg_chg=median(earshoot_avg_chg, na.rm=T), earshoot_avg_chh=median(earshoot_avg_chh, na.rm=T),
-                                              anther_avg_cg=median(anther_avg_cg, na.rm=T), anther_avg_chg=median(anther_avg_chg, na.rm=T), anther_avg_chh=median(anther_avg_chh, na.rm=T))
+                                              anther_avg_cg=median(anther_avg_cg, na.rm=T), anther_avg_chg=median(anther_avg_chg, na.rm=T), anther_avg_chh=median(anther_avg_chh, na.rm=T),
+                                              SAM_flank_cg_500=median(SAM_flank_cg_500, na.rm=T), SAM_flank_chg_500=median(SAM_flank_chg_500, na.rm=T),  SAM_flank_chh_500=median(SAM_flank_chh_500, na.rm=T),
+                                              all3_flank_cg_500=median(all3_flank_cg_500, na.rm=T), all3_flank_chg_500=median(all3_flank_chg_500, na.rm=T),  all3_flank_chh_500=median(all3_flank_chh_500, na.rm=T),
+                                              flagleaf_flank_cg_500=median(flagleaf_flank_cg_500, na.rm=T), flagleaf_flank_chg_500=median(flagleaf_flank_chg_500, na.rm=T),  flagleaf_flank_chh_500=median(flagleaf_flank_chh_500, na.rm=T),
+                                              earshoot_flank_cg_500=median(earshoot_flank_cg_500, na.rm=T), earshoot_flank_chg_500=median(earshoot_flank_chg_500, na.rm=T),  earshoot_flank_chh_500=median(earshoot_flank_chh_500, na.rm=T),
+                                              anther_flank_cg_500=median(anther_flank_cg_500, na.rm=T), anther_flank_chg_500=median(anther_flank_chg_500, na.rm=T),  anther_flank_chh_500=median(anther_flank_chh_500, na.rm=T))
 meds=med %>% group_by(sup,fam, famsize) %>% dplyr::summarize(avg_cg=(SAM_avg_cg + all3_avg_cg + flagleaf_avg_cg + earshoot_avg_cg + anther_avg_cg)/5,
                                                 avg_chg=(SAM_avg_chg + all3_avg_chg + flagleaf_avg_chg + earshoot_avg_chg + anther_avg_chg)/5,
-                                                avg_chh=(SAM_avg_chh + all3_avg_chh + flagleaf_avg_chh + earshoot_avg_chh + anther_avg_chh)/5)
+                                                avg_chh=(SAM_avg_chh + all3_avg_chh + flagleaf_avg_chh + earshoot_avg_chh + anther_avg_chh)/5,
+                                                avg_flank500_cg=(SAM_flank_cg_500 + all3_flank_cg_500 + flagleaf_flank_cg_500 + earshoot_flank_cg_500 + anther_flank_cg_500)/5,
+                                                avg_flank500_chg=(SAM_flank_chg_500 + all3_flank_chg_500 + flagleaf_flank_chg_500 + earshoot_flank_chg_500 + anther_flank_chg_500)/5,
+                                                avg_flank500_chh=(SAM_flank_chh_500 + all3_flank_chh_500 + flagleaf_flank_chh_500 + earshoot_flank_chh_500 + anther_flank_chh_500)/5)
 
                          
 ### recombination
@@ -289,6 +309,6 @@ data.frame(ind %>% group_by(substr(sup,1,2)=='DT') %>% dplyr::summarize(flank_se
 ## dtt alone - Tc1Mariners and Stowaways don't leave a mark!
 data.frame(ind %>% group_by(substr(sup,1,2)=='DT', sup) %>% dplyr::summarize(flank_segsites=mean(flank_segsites.bp), segsites=mean(segsites.bp)))                       
                          
-                         
+ssf=ind %>% group_by(fam) %>% filter(famsize>=10) %>% dplyr::summarize(segsites=median(segsites.bp), flank=median(flank_segsites.bp))                         
                          
                          
