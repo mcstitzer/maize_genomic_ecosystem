@@ -4,6 +4,7 @@ library(cowplot)
 library(data.table)
 library(plyr)
 library(dplyr)
+library(reshape2)
 source('../GenomeInfo.R')
 source('color_palette.R')
 
@@ -184,6 +185,29 @@ library(stargazer)
 stargazer(fp[fp$propAuton==0 & fp$famsize>=10,], summary=F, rownames=F, align=T) ## this makes supp table nonautonomous
 stargazer(fp[fp$propAuton>=0.75 & fp$famsize>=10,], summary=F, rownames=F, align=T) ## this makes supp table autonomous
 
+
+
+
+ac=ind %>% group_by(sup, autonfam) %>% dplyr::summarize(famCage=median(mya, na.rm=T))
+
+## all tes - are they older with coding? family, then self
+ind %>% group_by(autonfam) %>% dplyr::summarize(age=median(mya, na.rm=T))
+ind %>% group_by(auton) %>% dplyr::summarize(age=median(mya, na.rm=T))
+
+## by order
+ind %>% group_by(autonfam, substr(sup,1,2)) %>% dplyr::summarize(age=median(mya, na.rm=T))
+ind %>% group_by(auton, substr(sup,1,2)) %>% dplyr::summarize(age=median(mya, na.rm=T))
+
+## from figure 4 code!
+ind$codingstatus=ifelse(ind$auton, 'coding copy', 'noncoding family')
+ind$codingstatus[ind$codingstatus=='noncoding family' & ind$autonfam]='noncoding copy'
+  
+
+ind %>% group_by(codingstatus) %>% dplyr::summarize(age=median(mya, na.rm=T))
+ind %>% group_by(codingstatus, sup) %>% dplyr::summarize(age=median(mya, na.rm=T))
+ind %>% group_by(codingstatus, substr(sup,1,2)) %>% dplyr::summarize(age=median(mya, na.rm=T))
+ind %>% group_by(codingstatus, substr(sup,1,2)%in%c('RI', 'RS')) %>% dplyr::summarize(age=median(mya, na.rm=T))
+dcast(ind %>% group_by(codingstatus, sup) %>% dplyr::summarize(age=median(mya, na.rm=T)), sup~codingstatus)
 
 ## te expression tables
 fe=read.table('../te_expression/walley_mean_expr.2019-01-28.txt', header=T)
