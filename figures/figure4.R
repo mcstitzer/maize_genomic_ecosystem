@@ -265,3 +265,49 @@ ggplot(data.frame(ind)[ind$fam %in% names(largest10),], aes(x=codingstatus, y=my
                            
                                
 dev.off()
+
+                               
+                               
+                               
+                               
+### supp expression
+                               
+                               
+ind$gene_median_1kb=NA
+ind$gene_median_1kb[ind$closest<=1000 & !is.na(ind$closest)]=ind$gene_median[ind$closest<=1000 & !is.na(ind$closest)]
+                               
+pdf(paste0('supp_expression.', Sys.Date(), '.pdf'), 14,12)
+                             
+rec=plotlargest('cmmb', 'cM/Mb')
+subgenome=plot_percentages('subgenome', 'Subgenome A proportion')
+geneexpr=plotlargest('gene_median', 'log10(Median expression\nclosest gene (FPKM))') + scale_y_log10()
+geneexpr1kb=plotlargest('gene_median_1kb', 'log10(Median expression\nclosest gene within 1kb (FPKM))') + scale_y_log10()
+genetau=plotlargest('gene_tau', 'Tau of closest gene') + ylim(0.25,1)
+                               
+plot_grid(rec, subgenome, geneexpr, geneexpr1kb, genetau, ncol=1, align='v', labels='AUTO')
+dev.off()
+                               
+                               
+pdf(paste0('supp_regulation.', Sys.Date(), '.pdf'), 24,12)
+chg=plotlargest('nCHG', 'nCHG')
+chg.flank=plotlargest('nCHG_1kbflank', 'nCHG 1kb flank')
+chh=plotlargest('nCHH', 'nCHH')
+chh.flank=plotlargest('nCHH_1kbflank', 'nCHH 1kb flank')
+shoot=plotlargest('shoot_prop', 'Proportion shoot MNase')
+shoot.flank=plotlargest('flank_shoot_prop', 'Proportion shoot MNase\nflanking')
+root=plotlargest('root_prop', 'Proportion root MNase')
+root.flank=plotlargest('flank_root_prop', 'Proportion root MNase\nflanking')
+                               
+plot_grid(chg + ylim(0,0.12), chg.flank + ylim(0,0.12), 
+          chh + ylim(0,0.25), chh.flank + ylim(0,0.25), 
+          shoot + ylim(0,0.4), shoot.flank + ylim(0,0.4), 
+          root + ylim(0,0.4), root.flank + ylim(0,0.4), 
+          ncol=2, align='v', labels='AUTO')
+dev.off()                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
