@@ -10,7 +10,7 @@ source('color_palette.R')
 source('meanSD_functions.R')
 
 ## note that this expects there to be an ind data frame - and can use the one generated for model building!!!
-ind=fread('../age_model/B73.LTRAGE.allDescriptors.2018-12-06.txt')
+ind=fread('../age_model/B73.LTRAGE.allDescriptors.2018-1-31.txt')
 
 largest10=unlist(unique(sapply(unique(ind$sup), function(x) rev(tail(sort(table(ind$fam[ind$sup==x & !duplicated(ind$TEID)])),10)))))
 
@@ -77,40 +77,152 @@ tissueplots[[tissue]]=d.mg
 ##### AND FINALLY, PLOT!                              
 
 pdf(paste0('figure5.', Sys.Date(), '.pdf'), 32,20)
-cgte=plotlargest('all3_avg_cg', 'mCG, Seedling Leaf')
-chgte=plotlargest('all3_avg_chg', 'mCHG, Seedling Leaf')
-chhte=plotlargest('all3_avg_chh', 'mCHH, Seeding Leaf')
+cgte.seedlingleaf=plotlargest('all3_avg_cg', 'mCG, Seedling Leaf')
+chgte.seedlingleaf=plotlargest('all3_avg_chg', 'mCHG, Seedling Leaf')
+chhte.seedlingleaf=plotlargest('all3_avg_chh', 'mCHH, Seeding Leaf')
+cgte.anther=plotlargest('anther_avg_cg', 'mCG, Anther')
+chgte.anther=plotlargest('anther_avg_chg', 'mCHG, Anther')
+chhte.anther=plotlargest('anther_avg_chh', 'mCHH, Anther')
+cgte.SAM=plotlargest('SAM_avg_cg', 'mCG, SAM')
+chgte.SAM=plotlargest('SAM_avg_chg', 'mCHG, SAM')
+chhte.SAM=plotlargest('SAM_avg_chh', 'mCHH, SAM')
+cgte.earshoot=plotlargest('earshoot_avg_cg', 'mCG, Earshoot')
+chgte.earshoot=plotlargest('earshoot_avg_chg', 'mCHG, Earshoot')
+chhte.earshoot=plotlargest('earshoot_avg_chh', 'mCHH, Earshoot')
+cgte.flagleaf=plotlargest('flagleaf_avg_cg', 'mCG, Flagleaf')
+chgte.flagleaf=plotlargest('flagleaf_avg_chg', 'mCHG, Flagleaf')
+chhte.flagleaf=plotlargest('flagleaf_avg_chh', 'mCHH, Flagleaf')
 ## these are fams with >10, colored by alpha of family size
-cgflank=ggplot(tissueplots[['anther']][tissueplots[['anther']]$context=='cg',], aes(x=distance, y=value, col=factor(sup, levels=TESUPFACTORLEVELS), group=paste(fam, context), linetype=context, alpha=log10(famsize)/4)) + geom_line() + scale_color_manual(values=dd.col, name='superfamily') + facet_wrap(~factor(sup, levels=TESUPFACTORLEVELS), nrow=1) +
+cgflank.anther=ggplot(tissueplots[['anther']][tissueplots[['anther']]$context=='cg',], aes(x=distance, y=value, col=factor(sup, levels=TESUPFACTORLEVELS), group=paste(fam, context), linetype=context, alpha=log10(famsize)/4)) + geom_line() + scale_color_manual(values=dd.col, name='superfamily') + facet_wrap(~factor(sup, levels=TESUPFACTORLEVELS), nrow=1) +
                                theme(strip.background = element_blank(), strip.text.y = element_blank(), strip.text.x=element_blank(), legend.position="none") + 
-                              ylab('mCG proportion') + scale_alpha(guide = 'none')
-chgflank=ggplot(tissueplots[['anther']][tissueplots[['anther']]$context=='chg',], aes(x=distance, y=value, col=factor(sup, levels=TESUPFACTORLEVELS), group=paste(fam, context), linetype=context, alpha=log10(famsize)/4)) + geom_line() + scale_color_manual(values=dd.col, name='superfamily') + facet_wrap(~factor(sup, levels=TESUPFACTORLEVELS), nrow=1) +
+                              ylab('mCG proportion') + scale_alpha(guide = 'none') +  scale_x_continuous(name='Distance from TE', breaks=c(0,1000, 2000), labels=c(0,1000,2000))
+chgflank.anther=ggplot(tissueplots[['anther']][tissueplots[['anther']]$context=='chg',], aes(x=distance, y=value, col=factor(sup, levels=TESUPFACTORLEVELS), group=paste(fam, context), linetype=context, alpha=log10(famsize)/4)) + geom_line() + scale_color_manual(values=dd.col, name='superfamily') + facet_wrap(~factor(sup, levels=TESUPFACTORLEVELS), nrow=1) +
                                theme(strip.background = element_blank(), strip.text.y = element_blank(), strip.text.x=element_blank(), legend.position="none") + 
-                              ylab('mCHG proportion') + scale_alpha(guide = 'none')
-chhflank=ggplot(tissueplots[['anther']][tissueplots[['anther']]$context=='chh',], aes(x=distance, y=value, col=factor(sup, levels=TESUPFACTORLEVELS), group=paste(fam, context), linetype=context, alpha=log10(famsize)/4)) + geom_line() + scale_color_manual(values=dd.col, name='superfamily') + facet_wrap(~factor(sup, levels=TESUPFACTORLEVELS), nrow=1) +
+                              ylab('mCHG proportion') + scale_alpha(guide = 'none')+  scale_x_continuous(name='Distance from TE', breaks=c(0,1000, 2000), labels=c(0,1000,2000))
+chhflank.anther=ggplot(tissueplots[['anther']][tissueplots[['anther']]$context=='chh',], aes(x=distance, y=value, col=factor(sup, levels=TESUPFACTORLEVELS), group=paste(fam, context), linetype=context, alpha=log10(famsize)/4)) + geom_line() + scale_color_manual(values=dd.col, name='superfamily') + facet_wrap(~factor(sup, levels=TESUPFACTORLEVELS), nrow=1) +
                                theme(strip.background = element_blank(), strip.text.y = element_blank(), strip.text.x=element_blank(), legend.position="none") + 
-                              ylab('mCHH proportion') + scale_alpha(guide = 'none')
+                              ylab('mCHH proportion') + scale_alpha(guide = 'none')+  scale_x_continuous(name='Distance from TE', breaks=c(0,1000, 2000), labels=c(0,1000,2000))
+## these are fams with >10, colored by alpha of family size
+cgflank.seedlingleaf=ggplot(tissueplots[['all3']][tissueplots[['all3']]$context=='cg',], aes(x=distance, y=value, col=factor(sup, levels=TESUPFACTORLEVELS), group=paste(fam, context), linetype=context, alpha=log10(famsize)/4)) + geom_line() + scale_color_manual(values=dd.col, name='superfamily') + facet_wrap(~factor(sup, levels=TESUPFACTORLEVELS), nrow=1) +
+                               theme(strip.background = element_blank(), strip.text.y = element_blank(), strip.text.x=element_blank(), legend.position="none") + 
+                              ylab('mCG proportion') + scale_alpha(guide = 'none')+  scale_x_continuous(name='Distance from TE', breaks=c(0,1000, 2000), labels=c(0,1000,2000))
+chgflank.seedlingleaf=ggplot(tissueplots[['all3']][tissueplots[['all3']]$context=='chg',], aes(x=distance, y=value, col=factor(sup, levels=TESUPFACTORLEVELS), group=paste(fam, context), linetype=context, alpha=log10(famsize)/4)) + geom_line() + scale_color_manual(values=dd.col, name='superfamily') + facet_wrap(~factor(sup, levels=TESUPFACTORLEVELS), nrow=1) +
+                               theme(strip.background = element_blank(), strip.text.y = element_blank(), strip.text.x=element_blank(), legend.position="none") + 
+                              ylab('mCHG proportion') + scale_alpha(guide = 'none')+  scale_x_continuous(name='Distance from TE', breaks=c(0,1000, 2000), labels=c(0,1000,2000))
+chhflank.seedlingleaf=ggplot(tissueplots[['all3']][tissueplots[['all3']]$context=='chh',], aes(x=distance, y=value, col=factor(sup, levels=TESUPFACTORLEVELS), group=paste(fam, context), linetype=context, alpha=log10(famsize)/4)) + geom_line() + scale_color_manual(values=dd.col, name='superfamily') + facet_wrap(~factor(sup, levels=TESUPFACTORLEVELS), nrow=1) +
+                               theme(strip.background = element_blank(), strip.text.y = element_blank(), strip.text.x=element_blank(), legend.position="none") + 
+                              ylab('mCHH proportion') + scale_alpha(guide = 'none')+  scale_x_continuous(name='Distance from TE', breaks=c(0,1000, 2000), labels=c(0,1000,2000))
+## these are fams with >10, colored by alpha of family size
+cgflank.SAM=ggplot(tissueplots[['SAM']][tissueplots[['SAM']]$context=='cg',], aes(x=distance, y=value, col=factor(sup, levels=TESUPFACTORLEVELS), group=paste(fam, context), linetype=context, alpha=log10(famsize)/4)) + geom_line() + scale_color_manual(values=dd.col, name='superfamily') + facet_wrap(~factor(sup, levels=TESUPFACTORLEVELS), nrow=1) +
+                               theme(strip.background = element_blank(), strip.text.y = element_blank(), strip.text.x=element_blank(), legend.position="none") + 
+                              ylab('mCG proportion') + scale_alpha(guide = 'none')+  scale_x_continuous(name='Distance from TE', breaks=c(0,1000, 2000), labels=c(0,1000,2000))
+chgflank.SAM=ggplot(tissueplots[['SAM']][tissueplots[['SAM']]$context=='chg',], aes(x=distance, y=value, col=factor(sup, levels=TESUPFACTORLEVELS), group=paste(fam, context), linetype=context, alpha=log10(famsize)/4)) + geom_line() + scale_color_manual(values=dd.col, name='superfamily') + facet_wrap(~factor(sup, levels=TESUPFACTORLEVELS), nrow=1) +
+                               theme(strip.background = element_blank(), strip.text.y = element_blank(), strip.text.x=element_blank(), legend.position="none") + 
+                              ylab('mCHG proportion') + scale_alpha(guide = 'none')+  scale_x_continuous(name='Distance from TE', breaks=c(0,1000, 2000), labels=c(0,1000,2000))
+chhflank.SAM=ggplot(tissueplots[['SAM']][tissueplots[['SAM']]$context=='chh',], aes(x=distance, y=value, col=factor(sup, levels=TESUPFACTORLEVELS), group=paste(fam, context), linetype=context, alpha=log10(famsize)/4)) + geom_line() + scale_color_manual(values=dd.col, name='superfamily') + facet_wrap(~factor(sup, levels=TESUPFACTORLEVELS), nrow=1) +
+                               theme(strip.background = element_blank(), strip.text.y = element_blank(), strip.text.x=element_blank(), legend.position="none") + 
+                              ylab('mCHH proportion') + scale_alpha(guide = 'none')+  scale_x_continuous(name='Distance from TE', breaks=c(0,1000, 2000), labels=c(0,1000,2000))
+## these are fams with >10, colored by alpha of family size
+cgflank.earshoot=ggplot(tissueplots[['earshoot']][tissueplots[['earshoot']]$context=='cg',], aes(x=distance, y=value, col=factor(sup, levels=TESUPFACTORLEVELS), group=paste(fam, context), linetype=context, alpha=log10(famsize)/4)) + geom_line() + scale_color_manual(values=dd.col, name='superfamily') + facet_wrap(~factor(sup, levels=TESUPFACTORLEVELS), nrow=1) +
+                               theme(strip.background = element_blank(), strip.text.y = element_blank(), strip.text.x=element_blank(), legend.position="none") + 
+                              ylab('mCG proportion') + scale_alpha(guide = 'none')+  scale_x_continuous(name='Distance from TE', breaks=c(0,1000, 2000), labels=c(0,1000,2000))
+chgflank.earshoot=ggplot(tissueplots[['earshoot']][tissueplots[['earshoot']]$context=='chg',], aes(x=distance, y=value, col=factor(sup, levels=TESUPFACTORLEVELS), group=paste(fam, context), linetype=context, alpha=log10(famsize)/4)) + geom_line() + scale_color_manual(values=dd.col, name='superfamily') + facet_wrap(~factor(sup, levels=TESUPFACTORLEVELS), nrow=1) +
+                               theme(strip.background = element_blank(), strip.text.y = element_blank(), strip.text.x=element_blank(), legend.position="none") + 
+                              ylab('mCHG proportion') + scale_alpha(guide = 'none')+  scale_x_continuous(name='Distance from TE', breaks=c(0,1000, 2000), labels=c(0,1000,2000))
+chhflank.earshoot=ggplot(tissueplots[['earshoot']][tissueplots[['earshoot']]$context=='chh',], aes(x=distance, y=value, col=factor(sup, levels=TESUPFACTORLEVELS), group=paste(fam, context), linetype=context, alpha=log10(famsize)/4)) + geom_line() + scale_color_manual(values=dd.col, name='superfamily') + facet_wrap(~factor(sup, levels=TESUPFACTORLEVELS), nrow=1) +
+                               theme(strip.background = element_blank(), strip.text.y = element_blank(), strip.text.x=element_blank(), legend.position="none") + 
+                              ylab('mCHH proportion') + scale_alpha(guide = 'none')+  scale_x_continuous(name='Distance from TE', breaks=c(0,1000, 2000), labels=c(0,1000,2000))
+## these are fams with >10, colored by alpha of family size
+cgflank.flagleaf=ggplot(tissueplots[['flagleaf']][tissueplots[['flagleaf']]$context=='cg',], aes(x=distance, y=value, col=factor(sup, levels=TESUPFACTORLEVELS), group=paste(fam, context), linetype=context, alpha=log10(famsize)/4)) + geom_line() + scale_color_manual(values=dd.col, name='superfamily') + facet_wrap(~factor(sup, levels=TESUPFACTORLEVELS), nrow=1) +
+                               theme(strip.background = element_blank(), strip.text.y = element_blank(), strip.text.x=element_blank(), legend.position="none") + 
+                              ylab('mCG proportion') + scale_alpha(guide = 'none')+  scale_x_continuous(name='Distance from TE', breaks=c(0,1000, 2000), labels=c(0,1000,2000))
+chgflank.flagleaf=ggplot(tissueplots[['flagleaf']][tissueplots[['flagleaf']]$context=='chg',], aes(x=distance, y=value, col=factor(sup, levels=TESUPFACTORLEVELS), group=paste(fam, context), linetype=context, alpha=log10(famsize)/4)) + geom_line() + scale_color_manual(values=dd.col, name='superfamily') + facet_wrap(~factor(sup, levels=TESUPFACTORLEVELS), nrow=1) +
+                               theme(strip.background = element_blank(), strip.text.y = element_blank(), strip.text.x=element_blank(), legend.position="none") + 
+                              ylab('mCHG proportion') + scale_alpha(guide = 'none')+  scale_x_continuous(name='Distance from TE', breaks=c(0,1000, 2000), labels=c(0,1000,2000))
+chhflank.flagleaf=ggplot(tissueplots[['flagleaf']][tissueplots[['flagleaf']]$context=='chh',], aes(x=distance, y=value, col=factor(sup, levels=TESUPFACTORLEVELS), group=paste(fam, context), linetype=context, alpha=log10(famsize)/4)) + geom_line() + scale_color_manual(values=dd.col, name='superfamily') + facet_wrap(~factor(sup, levels=TESUPFACTORLEVELS), nrow=1) +
+                               theme(strip.background = element_blank(), strip.text.y = element_blank(), strip.text.x=element_blank(), legend.position="none") + 
+                              ylab('mCHH proportion') + scale_alpha(guide = 'none')+  scale_x_continuous(name='Distance from TE', breaks=c(0,1000, 2000), labels=c(0,1000,2000))
                               
-gc=plotlargest('percGC', '% GC', hline=genomewide$percGC)
-cg=plotlargest('nCG', 'Proportion\nCG methylatable', hline=genomewide$nCG)
-mnase=plotlargest('shoot_prop', 'Proportion Mnase\nhypersensitive (shoot)', hline=genomewide.mnase$shoot_bp_genomewide/genomewide$seqlen)
-diversity=plotlargest('segsites.bp', 'Proportion\nsegregating sites', hline=genomewide.ss$genomewide_bp_segsites/genomewide$seqlen)
+gc=plotlargest('percGC', '% GC', hline=genomewide$percGC, hlinecolor='black')
+cg=plotlargest('nCG', 'Proportion\nCG methylatable', hline=genomewide$nCG, hlinecolor='black')
+mnase=plotlargest('shoot_prop', 'Proportion Mnase\nhypersensitive (shoot)', hline=genomewide.mnase$shoot_bp_genomewide/genomewide$seqlen, hlinecolor='black')
+diversity=plotlargest('segsites.bp', 'Proportion\nsegregating sites', hline=genomewide.ss$genomewide_bp_segsites/genomewide$seqlen, hlinecolor='black')
                               
-gc.flank=plotlargest('percGC_1kbflank', 'Flanking % GC', hline=genomewide$percGC)
-cg.flank=plotlargest('nCG_1kbflank', 'Flanking proportion\nCG methylatable', hline=genomewide$nCG)
-mnase.flank=plotlargest('flank_shoot_prop', 'Flanking proportion Mnase\nhypersensitive (shoot)', hline=genomewide.mnase$shoot_bp_genomewide/genomewide$seqlen)
-diversity.flank=plotlargest('flank_segsites.bp', 'Flanking proportion\nsegregating sites', hline=genomewide.ss$genomewide_bp_segsites/genomewide$seqlen)
+gc.flank=plotlargest('percGC_1kbflank', 'Flanking % GC', hline=genomewide$percGC, hlinecolor='black')
+cg.flank=plotlargest('nCG_1kbflank', 'Flanking proportion\nCG methylatable', hline=genomewide$nCG, hlinecolor='black')
+mnase.flank=plotlargest('flank_shoot_prop', 'Flanking proportion Mnase\nhypersensitive (shoot)', hline=genomewide.mnase$shoot_bp_genomewide/genomewide$seqlen, hlinecolor='black')
+diversity.flank=plotlargest('flank_segsites.bp', 'Flanking proportion\nsegregating sites', hline=genomewide.ss$genomewide_bp_segsites/genomewide$seqlen, hlinecolor='black')
 
-plot_grid(cgte+ ylim(0,1), cgflank,
-          chgte+ ylim(0,1), chgflank,
-          chhte+ ylim(0,0.4), chhflank,          
+plot_grid(cgte.anther+ ylim(0,1), cgflank.anther+ ylim(0,1),
+          chgte.anther+ ylim(0,1), chgflank.anther+ ylim(0,1),
+          chhte.anther+ ylim(0,0.4), chhflank.anther+ ylim(0,0.4),          
           gc + ylim(0,0.8), gc.flank+ ylim(0,0.8),  
           cg+ ylim(0,0.15),cg.flank+ ylim(0,0.15), 
 #          mnase+ ylim(0,0.4), mnase.flank+ ylim(0,0.4),
           diversity+ ylim(0,0.15), diversity.flank+ ylim(0,0.15),
           labels = "AUTO", ncol = 2, align = 'v')
 
+plot_grid(cgte.SAM+ ylim(0,1), cgflank.SAM+ ylim(0,1),
+          chgte.SAM+ ylim(0,1), chgflank.SAM+ ylim(0,1),
+          chhte.SAM+ ylim(0,0.4), chhflank.SAM+ ylim(0,0.4),          
+          gc + ylim(0,0.8), gc.flank+ ylim(0,0.8),  
+          cg+ ylim(0,0.15),cg.flank+ ylim(0,0.15), 
+#          mnase+ ylim(0,0.4), mnase.flank+ ylim(0,0.4),
+          diversity+ ylim(0,0.15), diversity.flank+ ylim(0,0.15),
+          labels = "AUTO", ncol = 2, align = 'v')                              
+                              
+plot_grid(cgte.earshoot+ ylim(0,1), cgflank.earshoot+ ylim(0,1),
+          chgte.earshoot+ ylim(0,1), chgflank.earshoot+ ylim(0,1),
+          chhte.earshoot+ ylim(0,0.4), chhflank.earshoot+ ylim(0,0.4),          
+          gc + ylim(0,0.8), gc.flank+ ylim(0,0.8),  
+          cg+ ylim(0,0.15),cg.flank+ ylim(0,0.15), 
+#          mnase+ ylim(0,0.4), mnase.flank+ ylim(0,0.4),
+          diversity+ ylim(0,0.15), diversity.flank+ ylim(0,0.15),
+          labels = "AUTO", ncol = 2, align = 'v')   
+                              
+ plot_grid(cgte.flagleaf+ ylim(0,1), cgflank.flagleaf+ ylim(0,1),
+          chgte.flagleaf+ ylim(0,1), chgflank.flagleaf+ ylim(0,1),
+          chhte.flagleaf+ ylim(0,0.4), chhflank.flagleaf+ ylim(0,0.4),          
+          gc + ylim(0,0.8), gc.flank+ ylim(0,0.8),  
+          cg+ ylim(0,0.15),cg.flank+ ylim(0,0.15), 
+#          mnase+ ylim(0,0.4), mnase.flank+ ylim(0,0.4),
+          diversity+ ylim(0,0.15), diversity.flank+ ylim(0,0.15),
+          labels = "AUTO", ncol = 2, align = 'v')        
+                              
+plot_grid(cgte.seedlingleaf+ ylim(0,1), cgflank.seedlingleaf+ ylim(0,1),
+          chgte.seedlingleaf+ ylim(0,1), chgflank.seedlingleaf+ ylim(0,1),
+          chhte.seedlingleaf+ ylim(0,0.4), chhflank.seedlingleaf+ ylim(0,0.4),          
+          gc + ylim(0,0.8), gc.flank+ ylim(0,0.8),  
+          cg+ ylim(0,0.15),cg.flank+ ylim(0,0.15), 
+#          mnase+ ylim(0,0.4), mnase.flank+ ylim(0,0.4),
+          diversity+ ylim(0,0.15), diversity.flank+ ylim(0,0.15),
+          labels = "AUTO", ncol = 2, align = 'v')                                 
+                              
 dev.off()
+                              
+
+### supplemental all tissue methylation and methylation decay!
+pdf(paste0('supplemental_methylation_decay.', Sys.Date(), '.pdf'), 32,40)
+                              
+plot_grid(cgte.anther+ ylim(0,1), cgflank.anther+ ylim(0,1),
+                    cgte.SAM+ ylim(0,1), cgflank.SAM+ ylim(0,1),
+                    cgte.earshoot+ ylim(0,1), cgflank.earshoot+ ylim(0,1),
+                    cgte.flagleaf+ ylim(0,1), cgflank.flagleaf+ ylim(0,1),
+                    cgte.seedlingleaf+ ylim(0,1), cgflank.seedlingleaf+ ylim(0,1),
+          chgte.anther+ ylim(0,1), chgflank.anther+ ylim(0,1),
+                    chgte.SAM+ ylim(0,1), chgflank.SAM+ ylim(0,1),
+                    chgte.earshoot+ ylim(0,1), chgflank.earshoot+ ylim(0,1),
+                    chgte.flagleaf+ ylim(0,1), chgflank.flagleaf+ ylim(0,1),
+                    chgte.seedlingleaf+ ylim(0,1), chgflank.seedlingleaf+ ylim(0,1),
+          chhte.anther+ ylim(0,0.4), chhflank.anther+ ylim(0,0.4),   
+          chhte.SAM+ ylim(0,0.4), chhflank.SAM+ ylim(0,0.4),  
+          chhte.earshoot+ ylim(0,0.4), chhflank.earshoot+ ylim(0,0.4), 
+          chhte.flagleaf+ ylim(0,0.4), chhflank.flagleaf+ ylim(0,0.4),
+          chhte.seedlingleaf+ ylim(0,0.4), chhflank.seedlingleaf+ ylim(0,0.4),          
+          labels = "AUTO", ncol = 2, align = 'v')                               
+                              
+dev.off()
+                              
                               
                               
 ## supplemental base composition
