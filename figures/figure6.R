@@ -64,6 +64,19 @@ melt(imp %>% group_by(str_split_fixed(category, '_', 2)[,1]) %>% summarize_if(.p
 melt(imp %>% group_by(str_split_fixed(category, '_', 2)[,1]) %>% summarize_if(.predicate="is.numeric", .funs="sum", na.rm=TRUE) %>% arrange(desc(scaled))) #sum=sum(X.IncMSE), meanscaled=mean(scaled)) %>% arrange(desc(sum))
 
 
+## calc correlation with age for the 10 largest families in each sup??
+feat30=data.frame(feat=as.character(imp$feat[rev(order(abs(imp$scaled)))[1:30]]))
+### corr matrix by fam
+for(fam in names(largest10)){
+  feat30[,fam]<-NA
+  for(feat in feat30$feat[-c(2,6)]){ ## have to get rid of sup and fam because they're not numeric
+  feat30[feat30$feat==feat,fam]<-cor(ind$mya[ind$fam==fam], data.frame(ind)[,feat][ind$fam==fam]*1, use='na.or.complete')
+    }
+#  a=melt(round(cor(data.frame(ind)[ind$fam==fam, c('mya', feat30$feat)]*1, use='na.or.complete'),2))
+#  
+  }
+
+
 ## real plot
 pdf(paste0('figure6.modeloutput.', Sys.Date(), '.pdf'), 30,12)
 
@@ -72,6 +85,9 @@ ispsc=ggplot(meltimp[meltimp$variable=='rmseMya',], aes(x=feat, y=abs(value), fi
        scale_x_discrete(limits=meltimp$feat[order(meltimp[meltimp$variable=='rmseMya','value'])]) +  
        coord_flip() + #scale_fill_brewer(palette='Set3') #+ colScale
        scale_fill_manual(values=myColors)
+
+## make a correlation plot for alongside this one!!!! use feat30 i make above
+#ispscCOR=ggplot( ###
 
 musc=ggplot(meltimpmean[meltimpmean$variable=='rmseMya',], aes(x=category, y=abs(value), fill=category)) + geom_bar(position="dodge",stat="identity") + 
 #       geom_errorbar(aes(ymin=weight-std/2, ymax=weight+std/2), size=.3, width=.2, position=position_dodge(.9)) +
