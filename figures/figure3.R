@@ -58,6 +58,28 @@ supAgeFuntbl=function(superfam){
            ylab('') + scale_x_continuous(name='Age (million years)', breaks=c(0,1e6,2e6), labels=c(0,1,2), limits=c(0,2.1e6))
 
 }
+                              
+supAgeFun1my=function(superfam){
+    ggplot(data.frame(te)[te$largest10 & te$sup==superfam & !is.na(te$sup),], aes(x=mya*1e6, fill=sup, group=fam)) + geom_histogram(binwidth=1e4) + facet_wrap(~fam, ncol=1, scales='free_y', drop=T, strip.position='right')+ 
+           theme(strip.background = element_blank(),strip.text.x = element_blank(), strip.text.y = element_text(angle = 360), axis.text=element_text(size=10), axis.text.y = element_blank(), axis.ticks.y = element_blank()) + scale_fill_manual(values=dd.col) +
+           ylab('') + scale_x_continuous(name='Age (million years)', breaks=c(0,5e5,1e6), labels=c(0,0.5,1), limits=c(0,1.1))
+
+}
+supAgeFun51my=function(superfam){
+    ggplot(data.frame(te)[ te$largest5 & te$sup==superfam & !is.na(te$sup),], aes(x=mya*1e6, fill=sup, group=fam)) + geom_histogram(binwidth=1e4) + facet_wrap(~fam, ncol=1, scales='free_y', drop=T, strip.position='right')+ 
+           theme(strip.background = element_blank(),strip.text.x = element_blank(), strip.text.y = element_text(angle = 360), axis.text=element_text(size=10)) + scale_fill_manual(values=dd.col) +
+           ylab('') + scale_x_continuous(name='Age (million years)', breaks=c(0,5e5,1e6), labels=c(0,0.5,1), limits=c(0,1.1)) +
+           scale_y_continuous(breaks=scales::pretty_breaks(2), limits=c(0,NA))
+
+}
+supAgeFuntbl1my=function(superfam){
+    ggplot(data.frame(te)[te$largest10 & te$sup==superfam & !is.na(te$sup),], aes(x=tblmya*1e6, fill=sup, group=fam)) + geom_histogram(binwidth=1e4) + facet_wrap(~fam, ncol=1, scales='free_y', drop=T, strip.position='right')+ 
+           theme(strip.background = element_blank(),strip.text.x = element_blank(), strip.text.y = element_text(angle = 360), axis.text=element_text(size=10), axis.text.y = element_blank(), axis.ticks.y = element_blank()) + scale_fill_manual(values=dd.col) +
+           ylab('') + scale_x_continuous(name='Age (million years)', breaks=c(0,5e5,1e6), labels=c(0,0.5,1), limits=c(0,1.1))
+
+}
+                              
+                              
 
 ## figure 3
 pdf(paste0('figure3.', Sys.Date(), '.pdf'), 10,10)
@@ -105,6 +127,23 @@ plot_grid(sups, almostbig, labels=c('A', ''), ncol=2, align='v')
 
 plot_grid(sups, bigones5, labels=c('A', ''), ncol=2, align='h', rel_widths = c(1.5, 1.1))
 
+## also try 1 mya limit
+sups=ggplot(te[!is.na(te$sup),], aes(x=mya*1e6, fill=factor(sup, levels=TESUPFACTORLEVELS))) + geom_histogram(binwidth=1e4) + facet_wrap(~factor(sup, levels=TESUPFACTORLEVELS), ncol=1, scales='free_y')+ theme(strip.background = element_blank(),strip.text.x = element_blank(), axis.text=element_text(size=10)) +  scale_fill_manual(values=dd.col, name='') + scale_x_continuous(name='Age (million years)', breaks=c(0,1e6,2e6), labels=c(0,1,2), limits=c(0,2.1e6)) + ylab('Number copies')
+
+rightside1my=plot_grid(DHH + xlim(0,1e6), DTA + xlim(0,1e6), DTC + xlim(0,1e6), DTH + xlim(0,1e6), DTM + xlim(0,1e6), DTT + xlim(0,1e6), RLC + xlim(0,1e6), RLG + xlim(0,1e6), RLX + xlim(0,1e6), RST + xlim(0,1e6), labels=c('B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K'), ncol=1)
+bigones1my=plot_grid(DHH + theme(legend.position="none"), RLC + theme(legend.position="none"), RLG + theme(legend.position="none"), labels=c('B', 'C', 'D'), ncol=1, align='h')
+almostbig1my=plot_grid(DHH5+ theme(legend.position="none"), DTA5+ theme(legend.position="none"), RLC5+ theme(legend.position="none"), RLG5+ theme(legend.position="none"), labels=c('B', 'C', 'D', 'E', 'F', 'G'), ncol=1)
+bigones51my=plot_grid(DHH5 + theme(legend.position="none"), RLC5 + theme(legend.position="none"), RLG5 + theme(legend.position="none"), labels=c('B', 'C', 'D'), ncol=1, align='h')
+
+#plot_grid(sups, rightside, labels=c('A', ''), ncol=2, align='v')
+plot_grid(sups + xlim(0,1e6), bigones1my, labels=c('A', ''), ncol=2, align='v')
+
+plot_grid(sups+ xlim(0,1e6), almostbig1my, labels=c('A', ''), ncol=2, align='v')
+
+plot_grid(sups+ xlim(0,1e6), bigones51my, labels=c('A', ''), ncol=2, align='h', rel_widths = c(1.5, 1.1))
+                              
+                              
+                              
 dev.off()
                               
 pdf('supplemental_TEage.pdf', 10,15)
