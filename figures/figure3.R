@@ -143,7 +143,7 @@ plot_grid(sups+ xlim(0,1e6), almostbig1my, labels=c('A', ''), ncol=2, align='v')
 plot_grid(sups+ xlim(0,1e6), bigones51my, labels=c('A', ''), ncol=2, align='h', rel_widths = c(1.5, 1.1))
                               
                               
-                              
+  
 dev.off()
                               
 pdf('supplemental_TEage.pdf', 10,15)
