@@ -138,13 +138,13 @@ mSSf=ggplot(ss, aes(segsites.bp, yhat.centered/2/3.3e-8/1e6, color=sup)) +
                 geom_line(aes(group = yhat.id), alpha = 0.1, data=ss[ss$yhat.id %in% sample(1:34151, 1000),]) + 
 #                stat_summary(fun.y = mean, geom = "line",  size = 0.5, aes(group=fam, color=sup), alpha=0.2)+  
                 stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  
-                scale_color_manual(values=dd.col)
+                scale_color_manual(values=dd.col)+ theme(legend.position='none')
 anth=fread('../age_model/anther_avg_chh.2019-02-01.txt')
 mAnthf=ggplot(anth, aes(anther_avg_chh, yhat.centered/2/3.3e-8/1e6, color=sup)) + #
                 geom_line(aes(group = yhat.id), alpha = 0.1, data=anth[anth$yhat.id %in% sample(1:34151, 1000),]) + 
 #                stat_summary(fun.y = mean, geom = "line",  size = 0.5, aes(group=fam, color=sup), alpha=0.2)+  
                 stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  
-                scale_color_manual(values=dd.col)
+                scale_color_manual(values=dd.col) + theme(legend.position='none')
 
 ## plot the raw correlations
 rSS=ggplot(ind, aes(x=segsites.bp, y=mya, color=sup)) + geom_point(size=0.1, alpha=0.1) + stat_smooth() + ylim(0,1) + theme(legend.position='none') + scale_color_manual(values=dd.col) + xlim(0,0.05)
@@ -156,11 +156,11 @@ r=plot_grid(rSS, mSSf + ylim(0,5), rAnth, mAnthf + ylim(0,1), labels=c('C', 'D',
 
 r4=plot_grid(rSS, mSSf + ylim(0,5), rAnth, mAnthf + ylim(0,1), labels=c('D', 'E', 'F', 'G'), ncol=2, align='v')
 
-
-plot_grid(musc + theme(legend.position='none') + ylab('Reduction in square root mean squared error (Mya)') + xlab(''), 
-          ispsc + theme(legend.position='none') + ylab('Reduction in square root mean squared error (Mya)') + xlab(''), 
-          r, 
-          ncol = 3, labels=c('A', 'B', ''), align = 'v', rel_widths=c(1,1,1.5))
+### overleaf has a file size limit!
+#plot_grid(musc + theme(legend.position='none') + ylab('Reduction in square root mean squared error (Mya)') + xlab(''), 
+#          ispsc + theme(legend.position='none') + ylab('Reduction in square root mean squared error (Mya)') + xlab(''), 
+#          r, 
+#          ncol = 3, labels=c('A', 'B', ''), align = 'v', rel_widths=c(1,1,1.5))
     
 plot_grid(musc + theme(legend.position='none') + ylab('Reduction in square root mean squared error (Mya)') + xlab(''), 
           ispsc + theme(legend.position='none') + ylab('Reduction in square root mean squared error (Mya)') + xlab(''), 
@@ -174,7 +174,16 @@ plot_grid(musc + theme(legend.position='none') + ylab('Reduction in square root 
 
 dev.off()
 
+## make a reasonably sized png
+pdf(paste0('figure6.modeloutput.', Sys.Date(), '.png'), 30*300,12*300) ## *300 dpi
 
+plot_grid(musc + theme(legend.position='none') + ylab('Reduction in square root mean squared error (Mya)') + xlab(''), 
+          ispsc + theme(legend.position='none') + ylab('Reduction in square root mean squared error (Mya)') + xlab(''), 
+          ispscCOR,
+          r, 
+          ncol = 4, labels=c('A', 'B', 'C', ''), align = 'v', rel_widths=c(1,1,2,1.75))
+dev.off()
+                              
 
 
 
