@@ -175,7 +175,7 @@ plot_grid(musc + theme(legend.position='none') + ylab('Reduction in square root 
 dev.off()
 
 ## make a reasonably sized png
-pdf(paste0('figure6.modeloutput.', Sys.Date(), '.png'), 30*300,12*300) ## *300 dpi
+png(paste0('figure6.modeloutput.', Sys.Date(), '.png'), 30, 12)#*300,12*300) ## *300 dpi
 
 plot_grid(musc + theme(legend.position='none') + ylab('Reduction in square root mean squared error (Mya)') + xlab(''), 
           ispsc + theme(legend.position='none') + ylab('Reduction in square root mean squared error (Mya)') + xlab(''), 
