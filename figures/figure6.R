@@ -165,7 +165,7 @@ r4=plot_grid(rSS, mSSf + ylim(0,5), rAnth, mAnthf + ylim(0,1), labels=c('D', 'E'
 plot_grid(musc + theme(legend.position='none') + ylab('Reduction in square root mean squared error (Mya)') + xlab(''), 
           ispsc + theme(legend.position='none') + ylab('Reduction in square root mean squared error (Mya)') + xlab(''), 
           ispscCOR,
-          r, 
+          r4, 
           ncol = 4, labels=c('A', 'B', 'C', ''), align = 'v', rel_widths=c(1,1,2,1.75))
                                   
                               
@@ -180,7 +180,7 @@ png(paste0('figure6.modeloutput.', Sys.Date(), '.png'), 30, 12)#*300,12*300) ## 
 plot_grid(musc + theme(legend.position='none') + ylab('Reduction in square root mean squared error (Mya)') + xlab(''), 
           ispsc + theme(legend.position='none') + ylab('Reduction in square root mean squared error (Mya)') + xlab(''), 
           ispscCOR,
-          r, 
+          r4, 
           ncol = 4, labels=c('A', 'B', 'C', ''), align = 'v', rel_widths=c(1,1,2,1.75))
 dev.off()
                               
