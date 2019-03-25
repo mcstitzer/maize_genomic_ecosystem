@@ -139,8 +139,8 @@ legend <- get_legend( ggplot(get_largest_quantile_backgroundbox('tebp'), aes(x=x
                      theme(legend.title=element_blank())+ scale_color_manual(values=dd.col))
 
 
-fig4hm=plot_grid(fig4, legend, as.ggplot(hm) + scale_color_manual(values=dd.col), labels=c('', '', 'G'), ncol=3, rel_widths=c(1,0.1, 0.6), align='v')
-fig4hm10=plot_grid(fig4, legend, as.ggplot(hm10)+ scale_color_manual(values=dd.col), labels=c('','', 'G'), ncol=3, rel_widths=c(1,0.1, 0.6), align='v')
+fig4hm=plot_grid(fig4, legend, as.ggplot(hm) + scale_color_manual(values=dd.col), labels=c('', '', 'F'), ncol=3, rel_widths=c(1,0.1, 0.6), align='v')
+fig4hm10=plot_grid(fig4, legend, as.ggplot(hm10)+ scale_color_manual(values=dd.col), labels=c('','', 'F'), ncol=3, rel_widths=c(1,0.1, 0.6), align='v')
 #fig4 ## this will have the heatmap of tissue specificity added to the right side of it
 ### sometimes these are weird and plot just the heatmap. I recall the pdf and replot and they're then fine. Weird!
 
