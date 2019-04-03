@@ -143,6 +143,8 @@ almostbig1my=plot_grid(DHH51my+ theme(legend.position="none"), DTA51my + theme(l
 #plot_grid(sups, rightside, labels=c('A', ''), ncol=2, align='v')
 #plot_grid(sups + xlim(0,1e6), bigones1my, labels=c('A', ''), ncol=2, align='v')
 
+plot_grid(sups1my + theme(legend.position="bottom"), almostbig1my, labels=c('A', ''), ncol=2, align='v')
+plot_grid(sups1my + theme(legend.position="top"), almostbig1my, labels=c('A', ''), ncol=2, align='v')
 plot_grid(sups1my, almostbig1my, labels=c('A', ''), ncol=2, align='v')
 
 #plot_grid(sups+ xlim(0,1e6), bigones51my, labels=c('A', ''), ncol=2, align='h', rel_widths = c(1.5, 1.1))
