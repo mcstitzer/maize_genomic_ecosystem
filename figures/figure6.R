@@ -103,23 +103,41 @@ ispsc=ggplot(meltimp[meltimp$variable=='rmseMya',], aes(x=feat, y=abs(value), fi
 ## make a correlation plot for alongside this one!!!! use feat30 i make above
 mf=melt(feat30)
 mf$sup=substr(mf$variable,1,3)
-ispscCOR=ggplot(mf[mf$variable %in% names(largest5),], aes(x=factor(variable, levels=names(largest5)), y=factor(feat, levels=meltimp$feat[order(meltimp[meltimp$variable=='rmseMya','value'])]), size=abs(value), color=sup, fill=factor(sign(value)))) +
-#                               geom_rect(xmin = 0, xmax = 5.5, ymin = -Inf, ymax = Inf, fill = dd.col['DHH'], alpha=0.3) +
-#                              geom_rect(xmin = 5, xmax = 10, ymin = -Inf, ymax = Inf, fill = dd.col['DTA'], alpha=0.3) +
-#                              geom_rect(xmin = 10, xmax = 15, ymin = -Inf, ymax = Inf, fill = dd.col['DTC'], alpha=0.3) +
-#                              geom_rect(xmin = 15, xmax = 20, ymin = -Inf, ymax = Inf, fill = dd.col['DTH'], alpha=0.3) +
-#                              geom_rect(xmin = 20, xmax = 25, ymin = -Inf, ymax = Inf, fill = dd.col['DTM'], alpha=0.3) +
-#                              geom_rect(xmin = 25, xmax = 30, ymin = -Inf, ymax = Inf, fill = dd.col['DTT'], alpha=0.3) +
-#                              geom_rect(xmin = 30, xmax = 35, ymin = -Inf, ymax = Inf, fill = dd.col['DTX'], alpha=0.3) +
-#                              geom_rect(xmin = 35, xmax = 40, ymin = -Inf, ymax = Inf, fill = dd.col['RLC'], alpha=0.3) +
-#                              geom_rect(xmin = 40, xmax = 45, ymin = -Inf, ymax = Inf, fill = dd.col['RLG'], alpha=0.3) +
-#                              geom_rect(xmin = 45, xmax = 50, ymin = -Inf, ymax = Inf, fill = dd.col['RLX'], alpha=0.3) +
-#                              geom_rect(xmin = 50, xmax = 55, ymin = -Inf, ymax = Inf, fill = dd.col['RIL'], alpha=0.3) +
-#                              geom_rect(xmin = 55, xmax = 57, ymin = -Inf, ymax = Inf, fill = dd.col['RIT'], alpha=0.3) +
-#                              geom_rect(xmin = 57, xmax = 62, ymin = -Inf, ymax = Inf, fill = dd.col['RST'], alpha=0.3) +
-                               geom_point(shape=21, stroke=2) + scale_color_manual(name='', values=dd.col) + scale_fill_manual(name='Sign of Cor.', values=c('red', 'blue', 'black')) + 
-                              ylab('') + xlab('') + theme(axis.title.x=element_blank(),axis.ticks.x=element_blank(), axis.text.x=element_text(hjust=1, angle=90, size=rel(0.8))) +labs(size=expression('r^2'))+
-                              theme(axis.text.y=element_blank())
+ispscCOR=ggplot(mf[mf$variable %in% names(largest5),], aes(x=factor(variable, levels=names(largest5)), y=factor(feat, levels=meltimp$feat[order(meltimp[meltimp$variable=='rmseMya','value'])]), size=abs(value), fill=factor(sign(value)))) +
+                               geom_point(shape=21, stroke=0.1) + #scale_color_manual(values='black') + 
+                              scale_fill_manual(name='Sign of Cor.', values=c('red', 'blue', 'black')) + 
+                              ylab('') + xlab('') + theme(axis.title.x=element_blank(),axis.ticks.x=element_blank(), 
+#                                                          axis.text.x=element_text(hjust=1, angle=90, size=rel(0.8))) +
+                                                          axis.text.x=element_blank()) +
+                              labs(size=expression('r^2'))+
+                              theme(axis.text.y=element_blank()) + 
+                              annotate('rect', xmin = 0, xmax = 5.5, ymin = -Inf, ymax = Inf, fill = dd.col['DHH'], alpha=0.3) +
+                              annotate('rect', xmin = 5.5, xmax = 10.5, ymin = -Inf, ymax = Inf, fill = dd.col['DTA'], alpha=0.3) +
+                              annotate('rect', xmin = 10.5, xmax = 15.5, ymin = -Inf, ymax = Inf, fill = dd.col['DTC'], alpha=0.3) +
+                              annotate('rect', xmin = 15.5, xmax = 20.5, ymin = -Inf, ymax = Inf, fill = dd.col['DTH'], alpha=0.3) +
+                              annotate('rect', xmin = 20.5, xmax = 25.5, ymin = -Inf, ymax = Inf, fill = dd.col['DTM'], alpha=0.3) +
+                              annotate('rect', xmin = 25.5, xmax = 30.5, ymin = -Inf, ymax = Inf, fill = dd.col['DTT'], alpha=0.3) +
+                              annotate('rect', xmin = 30.5, xmax = 35.5, ymin = -Inf, ymax = Inf, fill = dd.col['DTX'], alpha=0.3) +
+                              annotate('rect', xmin = 35.5, xmax = 40.5, ymin = -Inf, ymax = Inf, fill = dd.col['RLC'], alpha=0.3) +
+                              annotate('rect', xmin = 40.5, xmax = 45.5, ymin = -Inf, ymax = Inf, fill = dd.col['RLG'], alpha=0.3) +
+                              annotate('rect', xmin = 45.5, xmax = 50.5, ymin = -Inf, ymax = Inf, fill = dd.col['RLX'], alpha=0.3) +
+                              annotate('rect', xmin = 50.5, xmax = 55.5, ymin = -Inf, ymax = Inf, fill = dd.col['RIL'], alpha=0.3) +
+                              annotate('rect', xmin = 55.5, xmax = 57.5, ymin = -Inf, ymax = Inf, fill = dd.col['RIT'], alpha=0.3) +
+                              annotate('rect', xmin = 57.5, xmax = 62.5, ymin = -Inf, ymax = Inf, fill = dd.col['RST'], alpha=0.3)
+
+ispscCOR4=ggplot(mf[mf$variable %in% names(largest5) & mf$sup %in% c('DHH', 'DTA', 'RLC', 'RLG'),], aes(x=factor(variable, levels=names(largest5)), y=factor(feat, levels=meltimp$feat[order(meltimp[meltimp$variable=='rmseMya','value'])]), size=abs(value), fill=factor(sign(value)))) +
+                               geom_point(shape=21, stroke=0.1) + #scale_color_manual(values='black') + 
+                              scale_fill_manual(name='Sign of Cor.', values=c('red', 'blue', 'black')) + 
+                              ylab('') + xlab('') + theme(axis.title.x=element_blank(),axis.ticks.x=element_blank(), 
+#                                                          axis.text.x=element_text(hjust=1, angle=90, size=rel(0.8))) +
+                                                          axis.text.x=element_blank()) +
+                              labs(size=expression('r^2'))+
+                              theme(axis.text.y=element_blank()) + 
+                              annotate('rect', xmin = 0, xmax = 5.5, ymin = -Inf, ymax = Inf, fill = dd.col['DHH'], alpha=0.3) +
+                              annotate('rect', xmin = 5.5, xmax = 10.5, ymin = -Inf, ymax = Inf, fill = dd.col['DTA'], alpha=0.3) +
+                              annotate('rect', xmin = 10.5, xmax = 15.5, ymin = -Inf, ymax = Inf, fill = dd.col['RLC'], alpha=0.3) +
+                              annotate('rect', xmin = 15.5, xmax = 20.5, ymin = -Inf, ymax = Inf, fill = dd.col['RLG'], alpha=0.3)
+
 
 #ispscCOR10=ggplot(mf[mf$variable %in% names(largest5),], aes(x=factor(variable, levels=names(largest5)), y=factor(feat, levels=rev(feat30$feat)), size=log10(abs(value)), color=sup, fill=factor(sign(value)))) +
 #        geom_point(shape=21, stroke=2) + scale_color_manual(values=dd.col) + scale_fill_manual(values=c('red', 'blue', 'black'))
@@ -147,10 +165,10 @@ mAnthf=ggplot(anth, aes(anther_avg_chh, yhat.centered/2/3.3e-8/1e6, color=sup)) 
                 scale_color_manual(values=dd.col) + theme(legend.position='none')
 
 ## plot the raw correlations
-rSS=ggplot(ind, aes(x=segsites.bp, y=mya, color=sup)) + geom_point(size=0.1, alpha=0.1) + stat_smooth() + ylim(0,1) + theme(legend.position='none') + scale_color_manual(values=dd.col) + xlim(0,0.05)
+rSS=ggplot(ind, aes(x=segsites.bp, y=mya, color=sup)) + geom_point(size=0.1, alpha=0.1) + stat_smooth(se=F) + ylim(0,1) + theme(legend.position='none') + scale_color_manual(values=dd.col) + xlim(0,0.05)
 rD=ggplot(ind, aes(group=disruptor, y=mya, color=sup)) + geom_boxplot() + ylim(0,1) + theme(legend.position='none')+ scale_color_manual(values=dd.col)
-rAnth=ggplot(ind, aes(x=anther_avg_chh, y=mya, color=sup)) + geom_point(size=0.1, alpha=0.1) + stat_smooth() + ylim(0,1) + theme(legend.position='none')+ scale_color_manual(values=dd.col)+ xlim(0,0.05)
-rP=ggplot(ind, aes(x=TEfam_pollen_mature, y=mya, color=sup)) + geom_point(size=0.1, alpha=0.1) + stat_smooth() + ylim(0,1) + theme(legend.position='none')+ scale_color_manual(values=dd.col) + xlim(0,2000)
+rAnth=ggplot(ind, aes(x=anther_avg_chh, y=mya, color=sup)) + geom_point(size=0.1, alpha=0.1) + stat_smooth(se=F) + ylim(0,1) + theme(legend.position='none')+ scale_color_manual(values=dd.col)+ xlim(0,0.05)
+rP=ggplot(ind, aes(x=TEfam_pollen_mature, y=mya, color=sup)) + geom_point(size=0.1, alpha=0.1) + stat_smooth(se=F) + ylim(0,1) + theme(legend.position='none')+ scale_color_manual(values=dd.col) + xlim(0,2000)
 
 r=plot_grid(rSS, mSSf + ylim(0,5), rAnth, mAnthf + ylim(0,1), labels=c('C', 'D', 'E', 'F'), ncol=2, align='v')
 
@@ -175,16 +193,26 @@ plot_grid(musc + theme(legend.position='none') + ylab('Reduction in square root 
 dev.off()
 
 ## make a reasonably sized png
-png(paste0('figure6.modeloutput.', Sys.Date(), '.png'), 30, 12)#*300,12*300) ## *300 dpi
+png(paste0('figure6.modeloutput.', Sys.Date(), '.png'), 30, 12, units='in', res=600)#*300,12*300) ## *300 dpi
 
+                              
 plot_grid(musc + theme(legend.position='none') + ylab('Reduction in square root mean squared error (Mya)') + xlab(''), 
           ispsc + theme(legend.position='none') + ylab('Reduction in square root mean squared error (Mya)') + xlab(''), 
           ispscCOR,
           r4, 
-          ncol = 4, labels=c('A', 'B', 'C', ''), align = 'v', rel_widths=c(1,1,2,1.75))
+          ncol = 4, labels=c('A', 'B', 'C', ''), align = 'h', axis='t', rel_widths=c(1,1,2,1.75), scale=c(1,1,1,1))
 dev.off()
                               
+## make a reasonably sized png
+png(paste0('figure6.modeloutput4sups.', Sys.Date(), '.png'), 30, 12, units='in', res=600)#*300,12*300) ## *300 dpi
 
+plot_grid(musc + theme(legend.position='none') + ylab('Reduction in square root mean squared error (Mya)') + xlab(''), 
+          ispsc + theme(legend.position='none') + ylab('Reduction in square root mean squared error (Mya)') + xlab(''), 
+          ispscCOR4,
+          r4, 
+          ncol = 4, labels=c('A', 'B', 'C', ''), align = 'h', axis='t',rel_widths=c(1,1,2,1.75), scale=c(1,1,1,1))
+dev.off()
+  
 
 
 ## old stuff!
