@@ -4,6 +4,7 @@ library(cowplot)
 library(data.table)
 library(plyr)
 library(dplyr)
+library(stargazer)
 
 source('../GenomeInfo.R')
 source('color_palette.R')
@@ -32,8 +33,9 @@ ind$largest10=ind$fam %in% names(largest10)
 largest10=largest10[c(1:70,83:112,71:82,113:122)] ## super hard coded to get the nonLTR together!                     
                      
 
-
-
+largest10df=data.frame(sup=substr(names(largest10), 1,3), fam=names(largest10), famsize=largest10)
+names(largest10df)=c('Superfamily', 'Family', 'Number Copies')
+stargazer(largest10df, summary=F, rownames=F, align=T)
 
 
 ################### 
