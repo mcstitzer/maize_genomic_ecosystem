@@ -42,30 +42,8 @@ stargazer(largest10df, summary=F, rownames=F, align=T)
 ### actual plotting starts!
 ###################
 
-#pdf(paste0('pointrange_fams_quantileWideBox_selfTE.', Sys.Date(), '.pdf'), 16,8)
-#tel=plotlargest('tebp', 'TE Length (bp)')
-#age=plotlargest('mya', 'Age \n(million years)') + coord_cartesian(ylim=c(0,3))
-##piece=plot_percentages('pieces', 'Proportion intact')
-#disr=plot_percentages('disruptor', 'Proportion in \nanother TE')
-#cl=plotlargest('closest', 'Distance from \ngene (bp)')
-#ingene=plot_percentages('ingene', 'Proportion in \ntranscript', invert=TRUE)
-#
-#disrX=plot_percentages('disruptor', 'Proportion in \nanother TE', xaxis=TRUE)
-#
-#                               
-#plot_grid(tel, cl, ingene, disrX ,  labels = "AUTO", ncol = 1, align = 'v')
-##plot_grid(tel, age, cl, ingene, disr ,  labels = "AUTO", ncol = 1, align = 'v')
-##plot_grid(tel, cl, ingene, piece, disr + scale_x_discrete(labels=substr(names(largest10),1,3)[!duplicated(substr(names(largest10),1,3))]),  labels = "AUTO", ncol = 1, align = 'v')
-### version with a legend.
-#legend <- get_legend( ggplot(get_largest_quantile_backgroundbox('tebp'), aes(x=x, y=median, ymin=min, ymax=max, color=sup, fill=sup))+ geom_pointrange(size=1)+ 
-#                     theme(legend.title=element_blank())+ scale_color_manual(values=dd.col))
-#plots <- plot_grid(tel, cl, ingene, disrX ,  labels = "AUTO", ncol = 1, align = 'v')
-##plots <- plot_grid(tel, age, cl, ingene, disr ,  labels = "AUTO", ncol = 1, align = 'v')
-#plot_grid(plots,legend, ncol = 2, align = 'v',  rel_widths = c(1, .1))                              
-#dev.off()
 
-
-##### add tremapify to this figure to get real figure 1
+##### Treemapify is figure 1, pointrange is figure 2. 
 
 a=ind %>% group_by(fam, sup) %>% dplyr::summarize(famcopynumber=n(), fambp=sum(tebp), avg_bp=mean(tebp))
 as=a %>% group_by(sup) %>% dplyr::summarize(supcopynumber=sum(famcopynumber), supbp=sum(fambp), avg_bp_sup=weighted.mean(avg_bp, famcopynumber))
@@ -112,9 +90,16 @@ famplotbp=ggplot(fs, aes(
    scale_fill_manual(values=dd.col)+
   theme(legend.position="none")
 
+                               
 
-# figure 1                               
-pdf(paste0('figure1.', Sys.Date(), '.pdf'), 28,8)
+supplots <- plot_grid(tempfamplot, famplotbp, labels=c('A', 'B'), ncol=2, align='v', scale=0.96)
+
+pdf(paste0('figure1.', Sys.Date(), '.pdf'), 14,8)
+supplots #sup is for superfamily, not supplement!
+dev.off()
+
+# figure 2                               
+pdf(paste0('figure2.', Sys.Date(), '.pdf'), 20,8)
 tel=plotlargest('tebp', 'TE Length (bp)')
 age=plotlargest('mya', 'Age \n(million years)') + coord_cartesian(ylim=c(0,3))
 #piece=plot_percentages('pieces', 'Proportion intact')
@@ -132,9 +117,11 @@ ageX=plotlargest('mya', 'Age \n(million years)', xaxis=TRUE) + coord_cartesian(y
 legend <- get_legend( ggplot(get_largest_quantile_backgroundbox('tebp'), aes(x=x, y=median, ymin=min, ymax=max, color=factor(sup, levels=TESUPFACTORLEVELS)))+ geom_pointrange(size=1)+ 
                      theme(legend.title=element_blank())+ scale_color_manual(values=dd.col))
 #plots <- plot_grid(tel, age, cl, ingene, disr ,  labels = c('B', 'C', 'D', 'E', 'F'), ncol = 1, align = 'v')
-plots <- plot_grid(tel, cl, disr, ageX ,  labels = c('C', 'D', 'E', 'F'), rel_heights=c(0.8,0.8,0.8,0.8,1), ncol = 1, align = 'v')
-supplots <- plot_grid(tempfamplot, famplotbp, labels=c('A', 'B'), ncol=2, align='v', scale=0.96)
-plot_grid(supplots, plots,legend, ncol = 3, align = 'v', labels=c('','', ''), scale=c(0.96,1,1), rel_widths = c(0.7, 1, .1))                              
+plots <- plot_grid(tel, cl, disr, age ,  labels=c('A', 'B', 'C', 'D'), ncol = 1, align = 'v')
+#supplots <- plot_grid(tempfamplot, famplotbp, labels=c('A', 'B'), ncol=2, align='v', scale=0.96)
+#plot_grid(supplots, plots,legend, ncol = 3, align = 'v', labels=c('','', ''), scale=c(0.96,1,1), rel_widths = c(0.7, 1, .1))                              
+plot_grid(plots,legend, ncol = 2, align = 'v', labels=c(''), scale=c(1,1), rel_widths = c(1, .1))                              
+
 dev.off()                             
 
 ##### no longer needed
