@@ -40,13 +40,22 @@ te=ind
 
 supChrFun=function(superfam){
     ggplot(te[te$chr==1 & te$sup==superfam,], aes(x=start, fill=sup, group=fam)) + geom_histogram(binwidth=1e6) + facet_wrap(~fam, ncol=1, scales='free_y', drop=T, strip.position='right')+ 
-           theme(strip.background = element_blank(),strip.text.x = element_blank(), strip.text.y = element_text(angle = 360), axis.text=element_text(size=10)) + scale_fill_manual(values=dd.col) +
-           ylab('') + scale_x_continuous(name='Position (Mb)', breaks=c(0,1e8,2e8, 3e8), labels=c(0,100,200,300))
+           theme(strip.background = element_blank(),strip.text.x = element_blank(), 
+#                 strip.text.y = element_text(angle = 360), 
+                 strip.text.y=element_blank(),
+                 axis.text=element_text(size=10)) + 
+          scale_fill_manual(values=dd.col) +
+           ylab('') + scale_x_continuous(name='Position (Mb)', breaks=c(0,1e8,2e8, 3e8), labels=c(0,100,200,300)) +
+          scale_y_continuous(breaks=scales::pretty_breaks(2), limits=c(0,NA))
 
 }
 supChrFun5=function(superfam, chrom=1){
     ggplot(te[te$chr==chrom & te$largest5 & te$sup==superfam,], aes(x=start, fill=sup, group=fam)) + geom_histogram(binwidth=1e6) + facet_wrap(~fam, ncol=1, scales='free_y', drop=T, strip.position='right')+ 
-           theme(strip.background = element_blank(),strip.text.x = element_blank(), strip.text.y = element_text(angle = 360), axis.text=element_text(size=10)) + scale_fill_manual(values=dd.col) +
+           theme(strip.background = element_blank(),strip.text.x = element_blank(), 
+#                 strip.text.y = element_text(angle = 360), 
+                 strip.text.y=element_blank(),
+                 axis.text=element_text(size=10)) + 
+          scale_fill_manual(values=dd.col) +
            ylab('') + scale_x_continuous(name='Position (Mb)', breaks=c(0,1e8,2e8, 3e8), labels=c(0,100,200,300)) +
           scale_y_continuous(breaks=scales::pretty_breaks(2), limits=c(0,NA))
 
@@ -54,14 +63,18 @@ supChrFun5=function(superfam, chrom=1){
                               
 supChrFun5multsups=function(superfam){
     ggplot(te[te$chr==1 & te$largest5 & te$sup%in%superfam,], aes(x=start, fill=sup, group=fam)) + geom_histogram(binwidth=1e6) + facet_wrap(~fam, ncol=1, drop=T, strip.position='right', scales='free_y')+ 
-           theme(strip.background = element_blank(),strip.text.x = element_blank(), strip.text.y = element_text(angle = 360), axis.text=element_text(size=10)) + scale_fill_manual(values=dd.col) +
+           theme(strip.background = element_blank(),strip.text.x = element_blank(), 
+#                 strip.text.y = element_text(angle = 360), 
+                 strip.text.y=element_blank(),
+                 axis.text=element_text(size=10)) + 
+          scale_fill_manual(values=dd.col) +
            ylab('') + scale_x_continuous(name='Position (Mb)', breaks=c(0,1e8,2e8, 3e8), labels=c(0,100,200,300)) + 
           scale_y_continuous(breaks=scales::pretty_breaks(2), limits=c(0,NA))
 
 }                              
 
-pdf(paste0('figure2.chromosome1_dists.', Sys.Date(), '.pdf'), 10,10)
-sups=ggplot(te[te$chr==1,], aes(x=start, fill=sup)) + geom_histogram(binwidth=1e6) + facet_wrap(~factor(sup, levels=TESUPFACTORLEVELS), ncol=1, scales='free_y')+ theme(strip.background = element_blank(),strip.text.x = element_blank(), axis.text=element_text(size=10)) +  scale_fill_manual(values=dd.col) + scale_x_continuous(name='Position (Mb)', breaks=c(0,1e8,2e8, 3e8), labels=c(0,100,200,300)) + ylab('Number copies')
+pdf(paste0('figure3.chromosome1_dists.', Sys.Date(), '.pdf'), 10,10)
+sups=ggplot(te[te$chr==1,], aes(x=start, fill=sup)) + geom_histogram(binwidth=1e6) + facet_wrap(~factor(sup, levels=TESUPFACTORLEVELS), ncol=1, scales='free_y')+ theme(strip.background = element_blank(),strip.text.x = element_blank(), axis.text=element_text(size=10), legend.position='bottom') +  scale_fill_manual(values=dd.col) + scale_x_continuous(name='Position (Mb)', breaks=c(0,1e8,2e8, 3e8), labels=c(0,100,200,300)) + ylab('Number copies') +  scale_y_continuous(breaks=scales::pretty_breaks(2), limits=c(0,NA))
 #DHH= ggplot(te[te$chr==1 & te$largest10 & te$famsize>10 & te$sup=='DHH',], aes(x=start, fill=sup, group=fam)) + geom_histogram(binwidth=1e6) + facet_wrap(~fam, ncol=1, scales='free_y', drop=T, strip.position='right')+ 
 #           theme(strip.background = element_blank(),strip.text.x = element_blank()) + scale_fill_manual(values=dd.col)
 DHH = supChrFun('DHH')
@@ -92,23 +105,29 @@ RST5 = supChrFun5('RST')
 RIL5 = supChrFun5('RIL')                              
 RIT5 = supChrFun5('RIT')                              
               
-DHHDTTRLCRLG5=supChrFun5multsups(c('DHH', 'DTT', 'RLC', 'RLG'))
+#DHHDTTRLCRLG5=supChrFun5multsups(c('DHH', 'DTT', 'RLC', 'RLG'))
                               
-rightside=plot_grid(DHH, DTA, DTC, DTH, DTM, DTT, DTX, RLC, RLG, RLX, RIL, RIT, RST, labels=c('B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N'), ncol=1)
-bigones=plot_grid(DHH + theme(legend.position="none"), RLC + theme(legend.position="none"), RLG + theme(legend.position="none"), labels=c('B', 'C', 'D'), ncol=1, align='h')
-almostbigH=plot_grid(DHH5+ theme(legend.position="none", axis.text.x=element_blank(), axis.label.x=element_blank()), DTH5+ theme(legend.position="none", axis.text.x=element_blank(), axis.label.x=element_blank()), RLC5+ theme(legend.position="none", axis.text.x=element_blank(), axis.label.x=element_blank()), RLG5+ theme(legend.position="none"), labels=c('B', 'C', 'D', 'E', 'F', 'G'), ncol=1)
-almostbigT=plot_grid(DHH5+ theme(legend.position="none", axis.text.x=element_blank(), axis.label.x=element_blank()), DTT5+ theme(legend.position="none", axis.text.x=element_blank(), axis.label.x=element_blank()), RLC5+ theme(legend.position="none", axis.text.x=element_blank(), axis.label.x=element_blank()), RLG5+ theme(legend.position="none"), labels=c('B', 'C', 'D', 'E', 'F', 'G'), ncol=1)
+#rightside=plot_grid(DHH, DTA, DTC, DTH, DTM, DTT, DTX, RLC, RLG, RLX, RIL, RIT, RST, labels=c('B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N'), ncol=1)
+#bigones=plot_grid(DHH + theme(legend.position="none"), RLC + theme(legend.position="none"), RLG + theme(legend.position="none"), labels=c('B', 'C', 'D'), ncol=1, align='h')
+almostbigH=plot_grid(DHH5+ theme(legend.position="none", axis.text.x=element_blank(), axis.title.x=element_blank()), DTH5+ theme(legend.position="none", axis.text.x=element_blank(), axis.title.x=element_blank()), RLC5+ theme(legend.position="none", axis.text.x=element_blank(), axis.title.x=element_blank()), RLG5+ theme(legend.position="none"), labels=c('B', 'C', 'D', 'E', 'F', 'G'), ncol=1)
+almostbigT=plot_grid(DHH5+ theme(legend.position="none", axis.text.x=element_blank(), 
+                                 axis.title.x=element_blank()), 
+                     DTT5+ theme(legend.position="none", axis.text.x=element_blank(), 
+                                 axis.title.x=element_blank()), 
+                     RLC5+ theme(legend.position="none", axis.text.x=element_blank(), 
+                                 axis.title.x=element_blank()), 
+                     RLG5+ theme(legend.position="none"), labels=c('B', 'C', 'D', 'E', 'F', 'G'), ncol=1)
 bigones5=plot_grid(DHH5 + theme(legend.position="none"), RLC5 + theme(legend.position="none"), RLG5 + theme(legend.position="none"), labels=c('B', 'C', 'D'), ncol=1, align='h')
 foursups=plot_grid(DHHDTTRLCRLG5 + theme(legend.position='none'), labels=c('B'), ncol=1, align='h')
 #plot_grid(sups, rightside, labels=c('A', ''), ncol=2, align='v')
-plot_grid(sups, bigones, labels=c('A', ''), ncol=2, align='v')
+#plot_grid(sups+ theme(legend.position="bottom"), bigones, labels=c('A', ''), ncol=2, align='v')
 
-plot_grid(sups, almostbigH, labels=c('A', ''), ncol=2, align='v', rel_widths = c(1.5, 1.1))
-plot_grid(sups, almostbigT, labels=c('A', ''), ncol=2, align='v', rel_widths = c(1.5, 1.1))
+plot_grid(sups+ theme(legend.position="bottom"), almostbigH, labels=c('A', ''), ncol=2, align='v', rel_widths = c(1.5, 1.1))
+plot_grid(sups+ theme(legend.position="bottom"), almostbigT, labels=c('A', ''), ncol=2, align='v', rel_widths = c(1.5, 1.1))
 
-plot_grid(sups, foursups, labels=c('A', ''), ncol=2, align='v', rel_widths = c(1.5, 1.1))
+plot_grid(sups+ theme(legend.position="bottom"), foursups, labels=c('A', ''), ncol=2, align='v', rel_widths = c(1.5, 1.1))
              
-plot_grid(sups, bigones5, labels=c('A', ''), ncol=2, align='h', rel_widths = c(1.5, 1.1))
+plot_grid(sups+ theme(legend.position="bottom"), bigones5, labels=c('A', ''), ncol=2, align='h', rel_widths = c(1.5, 1.1))
 
 dev.off()
 
