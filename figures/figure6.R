@@ -108,7 +108,7 @@ ispscCOR=ggplot(mf[mf$variable %in% names(largest5),], aes(x=factor(variable, le
                               scale_fill_manual(name='Sign of Cor.', values=c('red', 'blue', 'black')) + 
                               ylab('') + xlab('') + theme(axis.title.x=element_blank(),axis.ticks.x=element_blank(), 
 #                                                          axis.text.x=element_text(hjust=1, angle=90, size=rel(0.8))) +
-                                                          axis.text.x=element_blank()) +
+                                                          axis.text.x=element_blank(), legend.position='none') +
                               labs(size=expression('r^2'))+
                               theme(axis.text.y=element_blank()) + 
                               annotate('rect', xmin = 0, xmax = 5.5, ymin = -Inf, ymax = Inf, fill = dd.col['DHH'], alpha=0.3) +
@@ -126,11 +126,11 @@ ispscCOR=ggplot(mf[mf$variable %in% names(largest5),], aes(x=factor(variable, le
                               annotate('rect', xmin = 57.5, xmax = 62.5, ymin = -Inf, ymax = Inf, fill = dd.col['RST'], alpha=0.3)
 
 ispscCOR4=ggplot(mf[mf$variable %in% names(largest5) & mf$sup %in% c('DHH', 'DTA', 'RLC', 'RLG'),], aes(x=factor(variable, levels=names(largest5)), y=factor(feat, levels=meltimp$feat[order(meltimp[meltimp$variable=='rmseMya','value'])]), size=abs(value), fill=factor(sign(value)))) +
-                               geom_point(shape=21, stroke=0.1) + #scale_color_manual(values='black') + 
+                               geom_point(shape=21, stroke=0.01) + #scale_color_manual(values='black') + 
                               scale_fill_manual(name='Sign of Cor.', values=c('red', 'blue', 'black')) + 
                               ylab('') + xlab('') + theme(axis.title.x=element_blank(),axis.ticks.x=element_blank(), 
 #                                                          axis.text.x=element_text(hjust=1, angle=90, size=rel(0.8))) +
-                                                          axis.text.x=element_blank()) +
+                                                          axis.text.x=element_blank(), legend.position='none') +
                               labs(size=expression('r^2'))+
                               theme(axis.text.y=element_blank()) + 
                               annotate('rect', xmin = 0, xmax = 5.5, ymin = -Inf, ymax = Inf, fill = dd.col['DHH'], alpha=0.3) +
@@ -163,17 +163,49 @@ mAnthf=ggplot(anth, aes(anther_avg_chh, yhat.centered/2/3.3e-8/1e6, color=sup)) 
 #                stat_summary(fun.y = mean, geom = "line",  size = 0.5, aes(group=fam, color=sup), alpha=0.2)+  
                 stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  
                 scale_color_manual(values=dd.col) + theme(legend.position='none')
+bp=fread('../figures/tebp.2019-07-15.txt') ## ugh put in the wrong directory :(
+mTEBPf=ggplot(bp, aes(tebp, yhat.centered/2/3.3e-8/1e6, color=sup)) + #
+                geom_line(aes(group = yhat.id), alpha = 0.1, data=bp[bp$yhat.id %in% sample(1:34151, 1000),]) + 
+#                stat_summary(fun.y = mean, geom = "line",  size = 0.5, aes(group=fam, color=sup), alpha=0.2)+  
+                stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  
+                scale_color_manual(values=dd.col) + theme(legend.position='none')
+close=fread('../figures/closest.2019-07-15.txt') ## ugh put in the wrong directory :(
+mClosestf=ggplot(close, aes(closest, yhat.centered/2/3.3e-8/1e6, color=sup)) + #
+                geom_line(aes(group = yhat.id), alpha = 0.1, data=close[close$yhat.id %in% sample(1:34151, 1000),]) + 
+#                stat_summary(fun.y = mean, geom = "line",  size = 0.5, aes(group=fam, color=sup), alpha=0.2)+  
+                stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  
+                scale_color_manual(values=dd.col) + theme(legend.position='none')
 
+                              
+                              
+                              
 ## plot the raw correlations
 rSS=ggplot(ind, aes(x=segsites.bp, y=mya, color=sup)) + geom_point(size=0.1, alpha=0.1) + stat_smooth(se=F) + ylim(0,1) + theme(legend.position='none') + scale_color_manual(values=dd.col) + xlim(0,0.05)
 rD=ggplot(ind, aes(group=disruptor, y=mya, color=sup)) + geom_boxplot() + ylim(0,1) + theme(legend.position='none')+ scale_color_manual(values=dd.col)
 rAnth=ggplot(ind, aes(x=anther_avg_chh, y=mya, color=sup)) + geom_point(size=0.1, alpha=0.1) + stat_smooth(se=F) + ylim(0,1) + theme(legend.position='none')+ scale_color_manual(values=dd.col)+ xlim(0,0.05)
 rP=ggplot(ind, aes(x=TEfam_pollen_mature, y=mya, color=sup)) + geom_point(size=0.1, alpha=0.1) + stat_smooth(se=F) + ylim(0,1) + theme(legend.position='none')+ scale_color_manual(values=dd.col) + xlim(0,2000)
 
-r=plot_grid(rSS, mSSf + ylim(0,5), rAnth, mAnthf + ylim(0,1), labels=c('C', 'D', 'E', 'F'), ncol=2, align='v')
+rTEBP=ggplot(ind, aes(x=tebp, y=mya, color=sup)) + geom_point(size=0.1, alpha=0.1) + stat_smooth(se=F) + ylim(0,1) + theme(legend.position='none')+ scale_color_manual(values=dd.col)+ xlim(0,14308)
+rClosest=ggplot(ind, aes(x=closest, y=mya, color=sup)) + geom_point(size=0.1, alpha=0.1) + stat_smooth(se=F) + ylim(0,1) + theme(legend.position='none')+ scale_color_manual(values=dd.col) + xlim(0,112572)
+                              
 
-r4=plot_grid(rSS, mSSf + ylim(0,5), rAnth, mAnthf + ylim(0,1), labels=c('D', 'E', 'F', 'G'), ncol=2, align='v')
+r=plot_grid(rSS + ylab('Age (Million years)') + xlab('Segregating sites per base pair'), 
+            mSSf + ylim(0,5)+ ylab('Age (Million years)') + xlab('Permuted segregating sites per base pair'), 
+            rAnth+ ylab('Age (Million years)') + xlab('CHH methylation (Anther tissue)'), 
+            mAnthf + ylim(0,1)+ ylab('Age (Million years)') + xlab('Permuted CHH methylation (Anther tissue)'), 
+            labels=c('D', 'E', 'F', 'G'), ncol=2, align='v')
 
+r4=plot_grid(rSS + xlim(0,0.1)+ ylab('Age (Million years)') + xlab('Segregating sites per base pair'), 
+             mSSf + ylim(0,5)+ xlim(0,0.1)+ ylab('Age (Million years)') + xlab('Permuted segregating sites per base pair'), 
+             rAnth + xlim(0,0.05)+ ylab('Age (Million years)') + xlab('CHH methylation (Anther tissue)'), 
+             mAnthf + ylim(0,1) + xlim(0,0.05)+ ylab('Age (Million years)') + xlab('Permuted CHH methylation (Anther tissue)'), 
+             labels=c('D', 'E', 'F', 'G'), ncol=2, align='v')
+
+rSupp=plot_grid(rTEBP+ ylab('Age (Million years)') + xlab('TE length (base pairs)'), 
+                mTEBPf+ ylab('Age (Million years)') + xlab('Permuted TE length (base pairs)'), 
+                rClosest+ ylab('Age (Million years)') + xlab('Distance to gene (base pairs)'),
+                mClosestf+ ylab('Age (Million years)') + xlab('Permuted distance to gene (base pairs)'), 
+                labels='AUTO', ncol=2, align='v')
 ### overleaf has a file size limit!
 #plot_grid(musc + theme(legend.position='none') + ylab('Reduction in square root mean squared error (Mya)') + xlab(''), 
 #          ispsc + theme(legend.position='none') + ylab('Reduction in square root mean squared error (Mya)') + xlab(''), 
@@ -213,7 +245,11 @@ plot_grid(musc + theme(legend.position='none') + ylab('Reduction in square root 
           ncol = 4, labels=c('A', 'B', 'C', ''), align = 'h', axis='t',rel_widths=c(1,1,2,1.75), scale=c(1,1,1,1))
 dev.off()
   
+## make a reasonably sized png
+png(paste0('supp.modeloutput.', Sys.Date(), '.png'), 30, 12, units='in', res=600)#*300,12*300) ## *300 dpi
 
+rSupp
+dev.off()
 
 ## old stuff!
 ############ start plotting
