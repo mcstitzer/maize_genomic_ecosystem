@@ -315,12 +315,15 @@ dev.off()
 ### pollen supplement
 po=ind %>% group_by(sup, fam,famsize) %>% dplyr::summarize(medianage=median(mya), pollen=median(TEfam_pollen_mature))
 
-pdf('pollen_vs_age.pdf')
+pdf('pollen_vs_age.pdf',14,8)
 ggplot(po[po$famsize>=10 & !is.na(po$pollen),], aes(x=pollen, y=medianage, col=sup)) + geom_point()  + theme(legend.position='none') + scale_color_manual(values=dd.col) + geom_smooth(method='gam', se=F)
-ggplot(po[po$famsize>=10 & !is.na(po$pollen),], aes(x=pollen/famsize, y=medianage, col=sup)) + geom_point()  + theme(legend.position='none') + scale_color_manual(values=dd.col) + geom_smooth(method='gam', se=F)
+poall=ggplot(po[po$famsize>=10 & !is.na(po$pollen),], aes(x=pollen/famsize, y=medianage, col=sup)) + geom_point()  + theme(legend.position='none') + scale_color_manual(values=dd.col) + geom_smooth(method='gam', se=F)
+poall
 ggplot(po[po$famsize>=10 & !is.na(po$pollen),], aes(x=pollen, y=medianage, col=sup)) + geom_point()  + theme(legend.position='none') + scale_color_manual(values=dd.col) + geom_smooth(method='gam', se=F) + xlim(0,2) + ylim(0,2)
 ggplot(po[po$famsize>=10 & !is.na(po$pollen),], aes(x=pollen/famsize, y=medianage, col=sup)) + geom_point()  + theme(legend.position='none') + scale_color_manual(values=dd.col) + geom_smooth(method='gam', se=F) + xlim(0,2) + ylim(0,2)
-ggplot(po[po$famsize>=10 & !is.na(po$pollen),], aes(x=pollen/famsize, y=medianage, col=sup)) + geom_point()  + theme(legend.position='none') + scale_color_manual(values=dd.col) + geom_smooth(method='gam', se=F) + xlim(0,0.5) + ylim(0,2)
+posmall=ggplot(po[po$famsize>=10 & !is.na(po$pollen),], aes(x=pollen/famsize, y=medianage, col=sup)) + geom_point()  + theme(legend.position='none') + scale_color_manual(values=dd.col) + geom_smooth(method='gam', se=F) + xlim(0,0.5) + ylim(0,2)
+posmall
+plot_grid(poall, posmall, labels='AUTO')                              
 dev.off()
 
 
