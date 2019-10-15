@@ -5,10 +5,12 @@ library(data.table)
 library(plyr)
 library(dplyr)
 library(stargazer)
+library(grid)
 
 source('../GenomeInfo.R')
 source('color_palette.R')
 source('meanSD_functions.R')
+source('label_x_axis_sup.R') ## gives us grobs, and grobs.supOnly which can be used to plot an x axis with superfamily names
 
 ## note that this expects there to be an ind data frame
 
@@ -122,6 +124,17 @@ plots <- plot_grid(tel, cl, disr, age ,  labels=c('A', 'B', 'C', 'D'), ncol = 1,
 #plot_grid(supplots, plots,legend, ncol = 3, align = 'v', labels=c('','', ''), scale=c(0.96,1,1), rel_widths = c(0.7, 1, .1))                              
 plot_grid(plots,legend, ncol = 2, align = 'v', labels=c(''), scale=c(1,1), rel_widths = c(1, .1))                              
 
+                        
+
+                               
+#x.grob <- textGrob("Common X", 
+#                   gp=gpar(fontface="bold", col="blue", fontsize=15))
+#add to plot
+#grid.arrange(arrangeGrob(plot, left = y.grob, bottom = x.grob))
+gg <- arrangeGrob(plots, bottom=grobs, padding = unit(3, "line"))
+grid.newpage()
+grid.draw(gg)      
+                               
 dev.off()                             
 
 ##### no longer needed
@@ -169,7 +182,12 @@ span=plotlargest('tespan', 'TE Span (bp)')
 legend <- get_legend( ggplot(get_largest_quantile_backgroundbox('tebp'), aes(x=x, y=median, ymin=min, ymax=max, color=factor(sup, levels=c('DHH', 'DTA', 'DTC', 'DTH', 'DTM', 'DTT', 'DTX', 'RLC', 'RLG', 'RLX', 'RIL', 'RIT', 'RST')), fill=sup))+ geom_pointrange(size=1)+ 
                      theme(legend.title=element_blank())+ scale_color_manual(values=dd.col))
 plots <- plot_grid(ingene, span, piece, labels = 'AUTO', ncol = 1, align = 'v')
-plot_grid(plots,legend, ncol = 2, align = 'v', labels='', rel_widths = c(1, .1))                              
+plot_grid(plots,legend, ncol = 2, align = 'v', labels='', rel_widths = c(1, .1)) 
+                               
+gg <- arrangeGrob(plots, bottom=grobs.supOnly, padding = unit(3, "line"))
+grid.newpage()
+grid.draw(gg)      
+         
 dev.off() 
                                
                                
