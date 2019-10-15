@@ -5,6 +5,7 @@ library(data.table)
 library(plyr)
 library(dplyr)
 library(scales)
+library(grid)
 
 source('../GenomeInfo.R')
 source('color_palette.R')
@@ -75,6 +76,31 @@ supChrFun5multsups=function(superfam){
 
 pdf(paste0('figure3.chromosome1_dists.', Sys.Date(), '.pdf'), 10,10)
 sups=ggplot(te[te$chr==1,], aes(x=start, fill=sup)) + geom_histogram(binwidth=1e6) + facet_wrap(~factor(sup, levels=TESUPFACTORLEVELS), ncol=1, scales='free_y')+ theme(strip.background = element_blank(),strip.text.x = element_blank(), axis.text=element_text(size=10), legend.position='bottom') +  scale_fill_manual(values=dd.col) + scale_x_continuous(name='Position (Mb)', breaks=c(0,1e8,2e8, 3e8), labels=c(0,100,200,300)) + ylab('Number copies') +  scale_y_continuous(breaks=scales::pretty_breaks(2), limits=c(0,NA))
+supsNamed=ggplot(te[te$chr==1,], aes(x=start, fill=sup)) + geom_histogram(binwidth=1e6) + 
+                              facet_wrap(factor(sup, levels=TESUPFACTORLEVELS)~., ncol=1, scales='free_y', strip.position='right')+ 
+                              theme(strip.background = element_blank(),strip.text = element_text(angle = 270), axis.text=element_text(size=10), legend.position='none') +  
+                              scale_fill_manual(values=dd.col) + 
+                              scale_x_continuous(name='Position (Mb)', breaks=c(0,1e8,2e8, 3e8), labels=c(0,100,200,300)) + 
+                              ylab('Number copies') +  scale_y_continuous(breaks=scales::pretty_breaks(2), limits=c(0,NA))
+                              
+                              
+## have to go into the weeds to get each facet text to be a different color!
+g <- ggplot_gtable(ggplot_build(supsNamed))
+stripr <- which(grepl('strip-r', g$layout$name))
+fills <- dd.col
+k <- 1
+for (i in stripr) {
+#  j <- which(grepl('text', g$grobs[[i]]$grobs[[1]]$childrenOrder))
+  sup=as.character(g$grobs[[i]]$grobs[[1]]$children[[2]]$children[[1]]$label)
+  print(sup)
+  g$grobs[[i]]$grobs[[1]]$children[[2]]$children[[1]]$gp$col <- fills[sup]
+#  k <- k+1
+}
+#grid.draw(g)
+                              
+                              
+                              
+                 
 #DHH= ggplot(te[te$chr==1 & te$largest10 & te$famsize>10 & te$sup=='DHH',], aes(x=start, fill=sup, group=fam)) + geom_histogram(binwidth=1e6) + facet_wrap(~fam, ncol=1, scales='free_y', drop=T, strip.position='right')+ 
 #           theme(strip.background = element_blank(),strip.text.x = element_blank()) + scale_fill_manual(values=dd.col)
 DHH = supChrFun('DHH')
@@ -129,6 +155,11 @@ plot_grid(sups+ theme(legend.position="bottom"), foursups, labels=c('A', ''), nc
              
 plot_grid(sups+ theme(legend.position="bottom"), bigones5, labels=c('A', ''), ncol=2, align='h', rel_widths = c(1.5, 1.1))
 
+                              
+plot_grid(g, almostbigT, labels=c('A', ''), ncol=2, align='v', rel_widths = c(1.5, 1.1))
+plot_grid(g, bigones5, labels=c('A', ''), ncol=2, align='h', rel_widths = c(1.5, 1.1))
+
+                              
 dev.off()
 
 pdf(paste0('all_chroms_supp.', Sys.Date(), '.pdf'), 20,10)
