@@ -9,11 +9,13 @@ library(viridis)
 library(gridGraphics)
 library(ggimage)
 library(ggplotify)
-
+library(grid)
 
 source('../GenomeInfo.R')
 source('color_palette.R')
 source('meanSD_functions.R')
+source('label_x_axis_sup.R') ## gives us grobs, and grobs.supOnly which can be used to plot an x axis with superfamily names
+
 
 ## note that this expects there to be an ind data frame
 
@@ -122,9 +124,10 @@ gagautpol=plot_grid(ltrgag, ltrauton, ltrpol, ncol=3)
                                
                                
                                
-pdf(paste0('figure4.', Sys.Date(), '.pdf'), 16,8)
+pdf(paste0('figure5.', Sys.Date(), '.pdf'), 16,8)
                                
-fig4 = plot_grid(orfAA, auton,  gagautpol, exprpercopy, tetau, labels='AUTO', ncol=1, align='v')
+#fig4 = plot_grid(orfAA, auton,  gagautpol, exprpercopy, tetau, labels='AUTO', ncol=1, align='v')
+fig4 = plot_grid(orfAA, auton, exprpercopy, tetau, labels='AUTO', ncol=1, align='v')
                           
 #hms=plot_grid(as.ggplot(hm), as.ggplot(ghm), labels='AUTO', ncol=2, align='v')
 #hms10=plot_grid(as.ggplot(hm10), as.ggplot(ghm10), labels='AUTO', ncol=2, align='v')
@@ -139,8 +142,9 @@ legend <- get_legend( ggplot(get_largest_quantile_backgroundbox('tebp'), aes(x=x
                      theme(legend.title=element_blank())+ scale_color_manual(values=dd.col))
 
 
-fig4hm=plot_grid(fig4, legend, as.ggplot(hm) + scale_color_manual(values=dd.col), labels=c('', '', 'F'), ncol=3, rel_widths=c(1,0.1, 0.6), align='v')
-fig4hm10=plot_grid(fig4, legend, as.ggplot(hm10)+ scale_color_manual(values=dd.col), labels=c('','', 'F'), ncol=3, rel_widths=c(1,0.1, 0.6), align='v')
+  
+fig4hm=plot_grid(fig4, legend, as.ggplot(hm) + scale_color_manual(values=dd.col), labels=c('', '', 'E'), ncol=3, rel_widths=c(1,0.1, 0.6), align='v')
+fig4hm10=plot_grid(fig4, legend, as.ggplot(hm10)+ scale_color_manual(values=dd.col), labels=c('','', 'E'), ncol=3, rel_widths=c(1,0.1, 0.6), align='v')
 #fig4 ## this will have the heatmap of tissue specificity added to the right side of it
 ### sometimes these are weird and plot just the heatmap. I recall the pdf and replot and they're then fine. Weird!
 
@@ -149,7 +153,13 @@ fig4hm10
              
 hms3
 hms103
-
+                               
+                               
+gg <- arrangeGrob(fig4, bottom=grobs.supOnlyFig5, padding = unit(3, "line"))
+plot_grid(gg, as.ggplot(hm) + scale_color_manual(values=dd.col), labels=c('', 'E'), ncol=2, rel_widths=c(1, 0.6), align='v')
+plot_grid(gg, as.ggplot(hm10) + scale_color_manual(values=dd.col), labels=c('', 'E'), ncol=2, rel_widths=c(1, 0.6), align='v')
+                           
+                               
 dev.off()                               
 
 
