@@ -3,6 +3,7 @@ library(data.table)
 library(dplyr)
 library(ggpubr)
 library(scales)
+library(grid)
 
 source('../GenomeInfo.R')
 source('color_palette.R')
@@ -152,6 +153,30 @@ plot_grid(sups, bigones5, labels=c('A', ''), ncol=2, align='h', rel_widths = c(1
 ## also try 1 mya limit
 sups1my=ggplot(te[!is.na(te$sup),], aes(x=mya*1e6, fill=factor(sup, levels=TESUPFACTORLEVELS))) + geom_histogram(binwidth=1e4) + facet_wrap(~factor(sup, levels=TESUPFACTORLEVELS), ncol=1, scales='free_y')+ theme(strip.background = element_blank(),strip.text.x = element_blank(), axis.text=element_text(size=10)) +  scale_fill_manual(values=dd.col, name='') + scale_x_continuous(name='Age (million years)', breaks=c(0,5e5,1e6), labels=c(0,0.5,1), limits=c(0,1.01e6)) + ylab('Number copies') + scale_y_continuous(breaks=scales::pretty_breaks(2), limits=c(0,NA))
 
+sups1myF=ggplot(te[!is.na(te$sup),], aes(x=mya*1e6, fill=factor(sup, levels=TESUPFACTORLEVELS))) + 
+                              geom_histogram(binwidth=1e4) + 
+                              facet_wrap(~factor(sup, levels=TESUPFACTORLEVELS), ncol=1, scales='free_y', strip.position='right')+ 
+                              theme(strip.background = element_blank(), axis.text=element_text(size=10)) +  
+                              scale_fill_manual(values=dd.col, name='') + 
+                              scale_x_continuous(name='Age (million years)', breaks=c(0,5e5,1e6), labels=c(0,0.5,1), limits=c(0,1.01e6)) + 
+                              ylab('Number copies') + scale_y_continuous(breaks=scales::pretty_breaks(2), limits=c(0,NA))
+                       
+                              
+## have to go into the weeds to get each facet text to be a different color!
+g <- ggplot_gtable(ggplot_build(sups1myF + theme(legend.position='none')))
+stripr <- which(grepl('strip-r', g$layout$name))
+fills <- dd.col
+k <- 1
+for (i in stripr) {
+#  j <- which(grepl('text', g$grobs[[i]]$grobs[[1]]$childrenOrder))
+  sup=as.character(g$grobs[[i]]$grobs[[1]]$children[[2]]$children[[1]]$label)
+  print(sup)
+  g$grobs[[i]]$grobs[[1]]$children[[2]]$children[[1]]$gp$col <- fills[sup]
+#  k <- k+1
+}
+#grid.draw(g)
+                              
+                              
 #rightside1my=plot_grid(DHH + xlim(0,1e6), DTA + xlim(0,1e6), DTC + xlim(0,1e6), DTH + xlim(0,1e6), DTM + xlim(0,1e6), DTT + xlim(0,1e6), RLC + xlim(0,1e6), RLG + xlim(0,1e6), RLX + xlim(0,1e6), RST + xlim(0,1e6), labels=c('B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K'), ncol=1)
 #bigones1my=plot_grid(DHH + theme(legend.position="none"), RLC + theme(legend.position="none"), RLG + theme(legend.position="none"), labels=c('B', 'C', 'D'), ncol=1, align='h')
 
@@ -171,7 +196,8 @@ plot_grid(sups1my, almostbig1my, labels=c('A', ''), ncol=2, align='v')
 
 #plot_grid(sups+ xlim(0,1e6), bigones51my, labels=c('A', ''), ncol=2, align='h', rel_widths = c(1.5, 1.1))
                               
-                              
+plot_grid(g, almostbig1my, labels=c('A', ''), rel_widths=c(0.9,1), ncol=2, align='v')
+                   
   
 dev.off()
                               
