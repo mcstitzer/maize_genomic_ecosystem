@@ -2,7 +2,7 @@ library(rtracklayer)
 library(stringr)
 library(lme4)
 library(dplyr)
-
+library(data.table)
 
 source('../GenomeInfo.R')
 
@@ -20,6 +20,16 @@ g=g[g$type %in% c('five_prime_UTR', 'exon', 'CDS', 'three_prime_UTR', 'tRNA_gene
 g$genename=str_split_fixed(unstrsplit(g$Parent), ":", 4)[,2] ## gene name with transcript numbered
 g$notransc=str_split_fixed(g$genename, "_", 2)[,1] ## gene without trancript info
 
+## read in syntenic info
+synteny='sorghum3_intell_plusteff.csv'
+if (!file.exists(synteny)){
+	download.file('https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/14750297/sorghum3_intell_plusteff.csv', 'sorghum3_intell_plusteff.csv', method='auto')
+}
+sy=fread(synteny)
+sygenes=unique(c(sy$maize1_v4, sy$maize2_v4))
+g$syntenic=g$notrans %in% sygenes
+
+
 ## read in TEs
 te=import.gff3(TEDISJOINED)
 
@@ -33,7 +43,8 @@ te$closestgene=NA
 te$closestgene[queryHits(closest)]=g$notransc[subjectHits(closest)]
 te$closestgenetype=NA
 te$closestgenetype[queryHits(closest)]=as.character(g$type)[subjectHits(closest)]
-
+te$closestgenesyntenic=F
+te$closestgenesyntenic[queryHits(closest)]=as.logical(g$syntenic)[subjectHits(closest)]
 
 ## find closest gene, same strand as TE (if TE is unstranded, this will always retrieve the closest TE on either strand!)
 closest.samestrand=distanceToNearest(te, g, ignore.strand=F)
@@ -58,15 +69,15 @@ te$closestgenetype.upstream=NA
 te$closestgenetype.upstream=as.character(g$type)[closest.upstream]
 
 ## find closest gene, downstream (same strand) of TE (if TE is unstranded, this will always retrieve the closest TE on either strand!)
-closest.downstream=precede(te, g) ## this returns the index in g that 
-closest.downstreamdist=distance(te, g[closest.upstream,])
+#closest.downstream=precede(te, g) ## this returns the index in g that 
+#closest.downstreamdist=distance(te, g[closest.downstream,])
 
-te$closest.downstream=NA
-te$closest.downstream=closest.downstreamdist
-te$closestgene.downstream=NA
-te$closestgene.downstream=g$notransc[closest.downstream]
-te$closestgenetype.downstream=NA
-te$closestgenetype.downstream=as.character(g$type)[closest.downstream]
+#te$closest.downstream=NA
+#te$closest.downstream=closest.downstreamdist
+#te$closestgene.downstream=NA
+#te$closestgene.downstream=g$notransc[closest.downstream]
+#te$closestgenetype.downstream=NA
+#te$closestgenetype.downstream=as.character(g$type)[closest.downstream]
 
 ## add in fam and sup!
 te$sup=substr(te$ID,1,3)
@@ -75,19 +86,20 @@ te$fam=substr(te$ID,1,8)
 ## summarize across disjoint ranges by finding the minimum distance
 tg=as.data.frame(te[!is.na(te$closest),]) %>% group_by(sup, fam, ID) %>% dplyr::summarize(closest=min(closest), 
                                                               closestgene=closestgene[which.min(closest)],
-                                                              closestgenetype=closestgenetype[which.min(closest)]
-                                                              ### same strand
-                                                              dplyr::summarize(closest.samestrand=min(closest.samestrand),
-                                                              closestgene.samestrand=closestgene.samestrand[which.min(closest.samestrand)],
-                                                              closestgenetype.samestrand=closestgenetype.samestrand[which.min(closest.samestrand)],
-                                                              ### upstream
-                                                              dplyr::summarize(closest.upstream=min(closest.upstream),
-                                                              closestgene.upstream=closestgene.samestrand[which.min(closest.upstream)],
-                                                              closestgenetype.upstream=closestgenetype.samestrand[which.min(closest.upstream)],
-                                                              ### downstream
-                                                              dplyr::summarize(closest.downstream=min(closest.downstream),
-                                                              closestgene.downstream=closestgene.downstream[which.min(closest.downstream)],
-                                                              closestgenetype.downstream=closestgenetype.downstream[which.min(closest.downstream)]
+                                                              closestgenetype=closestgenetype[which.min(closest)],
+							      closestgenesyntenic=closestgenesyntenic[which.min(closest)]#,
+#                                                              ### same strand
+#                                                              dplyr::summarize(closest.samestrand=min(closest.samestrand),
+#                                                              closestgene.samestrand=closestgene.samestrand[which.min(closest.samestrand)],
+#                                                              closestgenetype.samestrand=closestgenetype.samestrand[which.min(closest.samestrand)],
+#                                                              ### upstream
+#                                                              dplyr::summarize(closest.upstream=min(closest.upstream),
+#                                                              closestgene.upstream=closestgene.samestrand[which.min(closest.upstream)],
+#                                                              closestgenetype.upstream=closestgenetype.samestrand[which.min(closest.upstream)],
+#                                                              ### downstream
+#                                                              dplyr::summarize(closest.downstream=min(closest.downstream),
+#                                                              closestgene.downstream=closestgene.downstream[which.min(closest.downstream)],
+#                                                              closestgenetype.downstream=closestgenetype.downstream[which.min(closest.downstream)]
 
                                                               
                                                               )
