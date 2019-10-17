@@ -22,8 +22,8 @@ te$pieces=mapvalues(te$ID, from=teds$ID, to=teds$pieces)
 te$pieces=as.numeric(as.character(te$pieces))
 te$disruptor=countOverlaps(te, type='within', ignore.strand=T)
 
-te$disruptor.samefam=sapply(1:length(te), function(x) countOverlaps(te[x,], te[te$fam==te$fam[x],], ignore.strand=T)) ## I think this is counting any piece any depth in the nest - is this what I want?
-te$disruptor.samesup=sapply(1:length(te), function(x) countOverlaps(te[x,], te[te$sup==te$sup[x],], ignore.strand=T))
+te$disruptor.samefam=sapply(1:length(te), function(x) countOverlaps(te[x,], te[te$fam==te$fam[x],], ignore.strand=T, type='within')) ## I think this is counting any piece any depth in the nest - is this what I want?
+te$disruptor.samesup=sapply(1:length(te), function(x) countOverlaps(te[x,], te[te$sup==te$sup[x],], ignore.strand=T, type='within'))
 
 tt=data.frame(TEID=te$ID, chr=seqnames(te), start=start(te), end=end(te), strand=strand(te), source=te$source, type=te$type, sup=te$sup, fam=te$fam, tebp=te$bp, tespan=width(te), pieces=te$pieces, disruptor=te$disruptor, disruptor.samefam=te$disruptor.samefam, disruptor.samesup=te$disruptor.samesup)
 write.table(tt, paste0(GENOME, '_TE_individual_copies.', Sys.Date(), '.txt'), quote=F, sep='\t', col.names=T, row.names=F)
