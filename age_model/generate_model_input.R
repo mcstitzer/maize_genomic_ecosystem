@@ -17,7 +17,7 @@ source('../GenomeInfo.R')
 ## could make these use GENOME to get the file name
 techar=fread('../te_characteristics/B73_TE_individual_copies.2018-09-19.txt')
 ################### genes nearby
-gene=fread('../genes/B73_closest_gene.2018-09-20.txt')
+gene=fread('../genes/B73_closest_gene.2019-10-16.txt')
 colnames(gene)[3]='TEID'
 ################### ages
 tbl=fread('../te_age/tbl_age/B73_terminalbranchlength2018-10-27.txt')
@@ -59,9 +59,9 @@ ind=merge(ind, orfs, all.x=T, by=c('TEID'))
 
 
 ##################### base composition
-basecomp=fread('../base_composition/B73_TE_methylatable.txt')
-basecomp.flank=fread('../base_composition/B73_TE_methylatable.flank.txt')
-colnames(basecomp.flank)[4:7]=paste0(colnames(basecomp.flank)[4:7], '_1kbflank')
+basecomp=fread('../base_composition/B73_TE_methylatable.2019-10-18.txt')
+basecomp.flank=fread('../base_composition/B73_TE_methylatable.flank.2019-10-18.txt')
+colnames(basecomp.flank)[4:8]=paste0(colnames(basecomp.flank)[4:8], '_1kbflank')
 mnase=fread('../mnase/B73_TEandFlank_mnase.2018-10-23.txt')
 ind=merge(ind, basecomp, all.x=T, by=c('TEID', 'fam', 'sup'))
 ind=merge(ind, basecomp.flank, all.x=T, by=c('TEID', 'fam', 'sup'))
