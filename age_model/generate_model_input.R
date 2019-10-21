@@ -90,9 +90,17 @@ ind=merge(ind, sam, all.x=T, by=c('TEID', 'fam', 'sup'))
 
 ################## gene expression
 
-tgem=fread('../genes/B73_closest_gene_expression.maizegdbWalley.txt')
+tgem=fread('../genes/B73_closest_gene_expression.maizegdbWalley.2019-10-21.txt')
 colnames(tgem)[3]='TEID'
-ind=merge(ind, tgem, all.x=T, by=c('TEID', 'fam', 'sup', 'closest', 'closestgene', 'closestgenetype'))
+ind=merge(ind, tgem, all.x=T, by=c('TEID', 'fam', 'sup', 'closest', 'closestgene', 'closestgenetype', 'closest.syntenic', 'closestgene.syntenic', 'closestgenetype.syntenic'))
+
+
+
+################## syntenic gene expression
+
+tges=fread('../genes/B73_closest_syntenic_gene_expression.maizegdbWalley.2019-10-21.txt')
+colnames(tges)[3]='TEID'
+ind=merge(ind, tges, all.x=T, by=c('TEID', 'fam', 'sup', 'closest', 'closestgene', 'closestgenetype', 'closest.syntenic', 'closestgene.syntenic', 'closestgenetype.syntenic'))
 
 
 ################# te expression
