@@ -17,7 +17,7 @@ source('../GenomeInfo.R')
 ## could make these use GENOME to get the file name
 techar=fread('../te_characteristics/B73_TE_individual_copies.2019-10-18.txt')
 ################### genes nearby
-gene=fread('../genes/B73_closest_gene.2019-10-16.txt')
+gene=fread('../genes/B73_closest_gene.2019-10-21.txt')
 colnames(gene)[3]='TEID'
 ################### ages
 tbl=fread('../te_age/tbl_age/B73_terminalbranchlength2018-10-27.txt')
