@@ -5,7 +5,7 @@ library(dplyr)
 library(reshape2)
 library(data.table)
 
-tg=read.table('B73_closest_gene.2018-09-20.txt', header=T, sep='\t')
+tg=read.table('B73_closest_gene.2019-10-21.txt', header=T, sep='\t')
 ## this is gene expression
 #e=read.table('~/projects/b73_ecology/RawData/expression/gene_rpkm_31Aug17.txt.gz', header=T)
 e=fread('walley_fpkm.txt') ## from https://ftp.maizegdb.org/MaizeGDB/FTP/B73_RefGen_v4%20RNA-SEQ%20Gene%20Atlas/walley_fpkm.txt
@@ -44,3 +44,35 @@ tge$famsize=tge_famsize
                        
 write.table(tge, 'B73_closest_gene_expression.maizegdbWalley.txt', row.names=F, col.names=T, sep='\t')                             
                      
+### now repeat for syntenic
+## unfortunately, not every TE has a nearby gene we can work with
+tgs=tg[tg$closestgene.syntenic %in% e$geneID,]
+tgs[,colnames(e)]=e[e$geneID %in% tg$closestgene.syntenic,][match(tg$closestgene.syntenic[tg$closestgene.syntenic %in% e$geneID], e$geneID[e$geneID %in% tg$closestgene.syntenic]),]
+
+## the m ending denotes using em, the mean expression across all replicates
+
+
+colnames(tgs)[8:30]=gsub(' ', '_', colnames(tgs)[8:30])   
+colnames(tgs)[8:30]=gsub('/', '_', colnames(tgs)[8:30]) 
+colnames(tgs)[8:30]=gsub('-', '_', colnames(tgs)[8:30]) 
+colnames(tgs)[8:30]=gsub('\\(', '_', colnames(tgs)[8:30]) 
+colnames(tgs)[8:30]=gsub(')', '_', colnames(tgs)[8:30]) 
+colnames(tgs)[8:30]=paste0('gene_', colnames(tgs)[8:30])   
+                             
+coef.variation <- function(x) {
+    sqrt(var(x))/mean(x)
+}
+tgs$gene_coefvar=sapply(1:nrow(tgs), function(x) coef.variation(unlist(tgs[x,8:30])))                             
+tgs$gene_median=sapply(1:nrow(tgs), function(x) median(unlist(tgs[x,8:30]), na.rm=T))                             
+    
+## calculate gene tau
+tau=function(x){
+    t=sum(1-x/max(x))/(length(x)-1)
+  }
+tgs$gene_tau=apply(tgs[,8:30], 1, tau)
+                       
+                       
+tgs_famsize=as.numeric(table(tgs$fam)[tgs$fam])
+tgs$famsize=tgs_famsize
+                       
+write.table(tgs, paste0('B73_closest_syntenic_gene_expression.maizegdbWalley.', Sys.Date(), '.txt'), row.names=F, col.names=T, sep='\t')                             
