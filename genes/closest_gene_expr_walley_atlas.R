@@ -62,14 +62,14 @@ colnames(tgs)[12:34]=paste0('syntenicgene_', colnames(tgs)[12:34])
 coef.variation <- function(x) {
     sqrt(var(x))/mean(x)
 }
-tgs$gene_coefvar=sapply(1:nrow(tgs), function(x) coef.variation(unlist(tgs[x,12:34])))                             
-tgs$gene_median=sapply(1:nrow(tgs), function(x) median(unlist(tgs[x,12:34]), na.rm=T))                             
+tgs$syntenicgene_coefvar=sapply(1:nrow(tgs), function(x) coef.variation(unlist(tgs[x,12:34])))                             
+tgs$syntenicgene_median=sapply(1:nrow(tgs), function(x) median(unlist(tgs[x,12:34]), na.rm=T))                             
     
 ## calculate gene tau
 tau=function(x){
     t=sum(1-x/max(x))/(length(x)-1)
   }
-tgs$gene_tau=apply(tgs[,12:34], 1, tau)
+tgs$syntenicgene_tau=apply(tgs[,12:34], 1, tau)
                        
                        
 tgs_famsize=as.numeric(table(tgs$fam)[tgs$fam])
