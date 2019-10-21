@@ -16,10 +16,10 @@ source('label_x_axis_sup.R') ## gives us grobs, and grobs.supOnly which can be u
 ## note that this expects there to be an ind data frame
 
 ## could make these use GENOME to get the file name
-ind=fread('../age_model/B73.LTRAGE.allDescriptors.2019-10-19.txt')
+ind=fread('../age_model/B73.LTRAGE.allDescriptors.2019-10-21.txt')
 ind$mya=ind$age/3.3e-8/2/1e6
 ind$ya=ind$age/3.3e-8/2
-indt=fread('../age_model/B73.TBLAGE.allDescriptors.2019-10-19.txt')
+indt=fread('../age_model/B73.TBLAGE.allDescriptors.2019-10-21.txt')
 ind$tblmya=indt$tbl/3.3e-8/2/1e6
 indt=NULL
 gc()
@@ -179,12 +179,13 @@ disr.samefam=plot_percentages('disruptor.samefam', 'Proportion in \na family mem
 #cl=plotlargest('closest', 'Distance from \ngene (bp)')
 ingene=plot_percentages('ingene', 'Proportion in \ntranscript', invert=TRUE)
 span=plotlargest('tespan', 'TE Span (bp)')
+syngenes=plotlargest('closest.syntenic', 'Distance from \nsyntenic gene (bp)')
 
 
 ## version with a legend.
 legend <- get_legend( ggplot(get_largest_quantile_backgroundbox('tebp'), aes(x=x, y=median, ymin=min, ymax=max, color=factor(sup, levels=c('DHH', 'DTA', 'DTC', 'DTH', 'DTM', 'DTT', 'DTX', 'RLC', 'RLG', 'RLX', 'RIL', 'RIT', 'RST')), fill=sup))+ geom_pointrange(size=1)+ 
                      theme(legend.title=element_blank())+ scale_color_manual(values=dd.col))
-plots <- plot_grid(ingene, span, piece, disr.samefam, labels = 'AUTO', ncol = 1, align = 'v')
+plots <- plot_grid(ingene, syngenes, span, piece, disr.samefam, labels = 'AUTO', ncol = 1, align = 'v')
 plot_grid(plots,legend, ncol = 2, align = 'v', labels='', rel_widths = c(1, .1)) 
                                
 gg <- arrangeGrob(plots, bottom=grobs.supOnly, padding = unit(3, "line"))
