@@ -19,7 +19,7 @@ source('label_x_axis_sup.R') ## gives us grobs, and grobs.supOnly which can be u
 
 ## note that this expects there to be an ind data frame
 
-ind=fread('../age_model/B73.LTRAGE.allDescriptors.2019-01-31.txt')
+ind=fread('../age_model/B73.LTRAGE.allDescriptors.2019-10-21.txt')
 
 ############
 ### THE MOST DIFFICULT PLOT EVER - set up functions
@@ -285,16 +285,21 @@ dev.off()
                                
 ind$gene_median_1kb=NA
 ind$gene_median_1kb[ind$closest<=1000 & !is.na(ind$closest)]=ind$gene_median[ind$closest<=1000 & !is.na(ind$closest)]
-                               
-pdf(paste0('supp_expression.', Sys.Date(), '.pdf'), 14,12)
+ind$syntenicgene_median_1kb=NA
+ind$syntenicgene_median_1kb[ind$closest.syntenic<=1000 & !is.na(ind$closest.syntenic)]=ind$syntenicgene_median[ind$closest.syntenic<=1000 & !is.na(ind$closest.syntenic)]
+
+pdf(paste0('supp_expression.', Sys.Date(), '.pdf'), 14,22)
                              
 rec=plotlargest('cmmb', 'cM/Mb')
 subgenome=plot_percentages('subgenome', 'Subgenome A proportion')
 geneexpr=plotlargest('gene_median', 'log10(Median expression\nclosest gene (FPKM))') + scale_y_log10()
 geneexpr1kb=plotlargest('gene_median_1kb', 'log10(Median expression\nclosest gene within 1kb (FPKM))') + scale_y_log10()
 genetau=plotlargest('gene_tau', 'Tau of closest gene') + ylim(0.25,1)
+syngeneexpr=plotlargest('syntenicgene_median', 'log10(Median expression\nclosest syntenic\ngene (FPKM))') + scale_y_log10()
+syngeneexpr1kb=plotlargest('syntenicgene_median_1kb', 'log10(Median expression\nclosest syntenic gene\nwithin 1kb (FPKM))') + scale_y_log10()
+syngenetau=plotlargest('syntenicgene_tau', 'Tau of closest syntenic gene') + ylim(0.25,1)
                                
-plot_grid(rec, subgenome, geneexpr, geneexpr1kb, genetau, ncol=1, align='v', labels='AUTO')
+plot_grid(rec, subgenome, geneexpr, geneexpr1kb, genetau, syngeneexpr, syngeneexpr1kb, syngenetau, ncol=1, align='v', labels='AUTO')
 dev.off()
                                
                                
