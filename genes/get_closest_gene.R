@@ -7,7 +7,7 @@ library(data.table)
 source('../GenomeInfo.R')
 
 ## download gene annotation if needed
-subgenomegff='Zea_mays.AGPv4.40.gff3.gz'
+subgenomegff='Zea_mays.AGPv4.40.gff3.gz'  ## hahah, this is just regular genes and I didn't change the name so it still says subgenome :(
 if (!file.exists(subgenomegff)) {
     download.file('ftp://ftp.ensemblgenomes.org/pub/plants/release-40/gff3/zea_mays/Zea_mays.AGPv4.40.gff3.gz' ,'Zea_mays.AGPv4.40.gff3.gz',method="auto")
 #     system('gunzip Zea_mays.AGPv4.40.gff3.gz')
@@ -27,7 +27,7 @@ if (!file.exists(synteny)){
 }
 sy=fread(synteny)
 sygenes=unique(c(sy$maize1_v4, sy$maize2_v4))
-g$syntenic=g$notrans %in% sygenes
+g$syntenic=g$notransc %in% sygenes
 
 
 ## read in TEs
@@ -79,15 +79,35 @@ te$closestgenetype.upstream=as.character(g$type)[closest.upstream]
 #te$closestgenetype.downstream=NA
 #te$closestgenetype.downstream=as.character(g$type)[closest.downstream]
 
+
+
+## find closest gene that is syntenic
+closest.syntenic=distanceToNearest(te, g[g$syntenic,], ignore.strand=T)
+
+te$closest.syntenic=NA
+te$closest.syntenic[queryHits(closest.syntenic)]=mcols(closest.syntenic)$distance
+te$closestgene.syntenic=NA
+te$closestgene.syntenic[queryHits(closest.syntenic)]=g$notransc[subjectHits(closest.syntenic)]
+te$closestgenetype.syntenic=NA
+te$closestgenetype.syntenic[queryHits(closest.syntenic)]=as.character(g$type)[subjectHits(closest.syntenic)]
+
+
 ## add in fam and sup!
 te$sup=substr(te$ID,1,3)
 te$fam=substr(te$ID,1,8)
 
 ## summarize across disjoint ranges by finding the minimum distance
 tg=as.data.frame(te[!is.na(te$closest),]) %>% group_by(sup, fam, ID) %>% dplyr::summarize(closest=min(closest), 
-                                                              closestgene=closestgene[which.min(closest)],
-                                                              closestgenetype=closestgenetype[which.min(closest)],
-							      closestgenesyntenic=closestgenesyntenic[which.min(closest)]#,
+											  closestgene=closestgene[which.min(closest)],
+											  closestgenetype=closestgenetype[which.min(closest)],
+											  closestgenesyntenic=closestgenesyntenic[which.min(closest)],
+											  closest.syntenic=min(closest.syntenic),
+											  closestgene.syntenic=ifelse(length(which.min(closest.syntenic))==1, 
+														      closestgene.syntenic[which.min(closest.syntenic)], 
+														      'NA'),
+											  closestgenetype.syntenic=ifelse(length(which.min(closest.syntenic))==1,
+															  closestgenetype.syntenic[which.min(closest.syntenic)],
+															  'NA')#,
 #                                                              ### same strand
 #                                                              dplyr::summarize(closest.samestrand=min(closest.samestrand),
 #                                                              closestgene.samestrand=closestgene.samestrand[which.min(closest.samestrand)],
@@ -103,6 +123,8 @@ tg=as.data.frame(te[!is.na(te$closest),]) %>% group_by(sup, fam, ID) %>% dplyr::
 
                                                               
                                                               )
+tg$closestgene.syntenic[tg$closestgene.syntenic=='NA']=NA
+tg$closestgenetype.syntenic[tg$closestgenetype.syntenic=='NA']=NA
 
 colnames(tg)[3]='TEID'
 write.table(tg, paste0(GENOME, '_closest_gene.', Sys.Date(), '.txt'), quote=F, sep='\t', row.names=F, col.names=T)
