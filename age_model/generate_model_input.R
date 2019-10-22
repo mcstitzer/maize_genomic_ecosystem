@@ -92,7 +92,12 @@ ind=merge(ind, sam, all.x=T, by=c('TEID', 'fam', 'sup'))
 
 tgem=fread('../genes/B73_closest_gene_expression.maizegdbWalley.2019-10-21.txt')
 colnames(tgem)[3]='TEID'
-ind=merge(ind, tgem, all.x=T, by=c('TEID', 'fam', 'sup', 'closest', 'closestgene', 'closestgenetype', 'closest.syntenic', 'closestgene.syntenic', 'closestgenetype.syntenic'))
+tgem$famsize=NULL
+tgem$geneID=NULL
+tgem$closestgene.syntenic=NULL
+tgem$closestgenetype.syntenic=NULL
+tgem$closestgenesyntenic=NULL
+ind=merge(ind, tgem, all.x=T, by=c('TEID', 'fam', 'sup', 'closest', 'closestgene', 'closestgenetype', 'closest.syntenic'))
 
 
 
@@ -100,7 +105,12 @@ ind=merge(ind, tgem, all.x=T, by=c('TEID', 'fam', 'sup', 'closest', 'closestgene
 
 tges=fread('../genes/B73_closest_syntenic_gene_expression.maizegdbWalley.2019-10-21.txt')
 colnames(tges)[3]='TEID'
-ind=merge(ind, tges, all.x=T, by=c('TEID', 'fam', 'sup', 'closest', 'closestgene', 'closestgenetype', 'closest.syntenic', 'closestgene.syntenic', 'closestgenetype.syntenic'))
+tges$famsize=NULL
+tges$geneID=NULL
+tges$closestgene.syntenic=NULL
+tges$closestgenetype.syntenic=NULL
+tges$closestgenesyntenic=NULL
+ind=merge(ind, tges, all.x=T, by=c('TEID', 'fam', 'sup', 'closest', 'closestgene', 'closestgenetype', 'closest.syntenic'))
 
 
 ################# te expression
@@ -128,8 +138,9 @@ ind=merge(ind, sg, all.x=T, by=c('TEID', 'fam', 'sup'))
 ##remove extra te_bp that comes in, and flank_bp
 ind$te_bp=NULL
 ind$flank_bp=NULL
-ind$geneID=NULL
-
+#ind$geneID=NULL ## removed earlier now that I have syntenic
+ind$closestgene.syntenic=NULL
+ind$closestgenetype.syntenic=NULL
 
 ## add famsize 
 ind$famsize=as.numeric(table(ind$fam)[ind$fam])
