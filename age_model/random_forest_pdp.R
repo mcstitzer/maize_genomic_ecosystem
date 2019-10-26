@@ -83,7 +83,7 @@ train=ind[samplerow,]
 test=ind[-samplerow,]
 
 ## remove segsites/bp
-minitest=ind[sample.int(n=nrow(ind), size=34151, replace=F),]
+minitest=ind[sample.int(n=nrow(ind), size=nrow(ind)/2, replace=F),] ## sample half to run
 minitest[is.na(minitest)]=-1 ## na in 
 minitest.origfam=minitest$fam
 minitest$fam=minitest$famlev
@@ -91,7 +91,7 @@ minitest$famlev=NULL
 set.seed(1234)
 subset_rf=randomForest(age~., data=minitest[,-c(2)], importance=T, keep.inbag=T, replace=F, do.trace=10, ntree=1000) ## too many factor levels for TEID
 ## or subset_rf=readRDS('../age_model/subset_rf_object.2019-01-31.RDS')
-
+# saveRDS(subset_rf, paste0('subset_rf_object.', Sys.Date(), '.RDS'))
 ## could use strata=sup to get equal sampling by superfamily in building the tree!
 
 
@@ -175,18 +175,18 @@ categories$category=NA
 categories$category[categories$feature %in% c('fam', 'sup')]='TE_taxonomy'
 categories$category[categories$feature %in% c('famsize', 'pieces', 'chr', 'helLCV3p', 'helLCV5p', 'TIRlen', 'avg_ltr_length','te_bp', 'tebp', 'tespan' )]='TE_features'
 categories$category[grepl('_avg_c', categories$feature) | categories$feature %in% c('shoot_prop', 'shoot_bp','root_bp', 'root_prop', 'n_shoot_hs', 'n_root_hs') ]='TE_methylation_mnase'
-categories$category[categories$feature %in% c('nCG', 'nCHG', 'nCHH',  'percGC') ]='TE_base_composition'
+categories$category[categories$feature %in% c('nCG', 'nCHG', 'nCHH', 'nTG', 'percGC') ]='TE_base_composition'
 categories$category[categories$feature %in% c('GAG', 'AP', 'RT', 'RNaseH', 'INT', 'ENV', 'CHR', 'auton', 'pol', 'orfAA', 'helprot', 'tirprot', 'rveprot', 'tpaseprot', 'GAGfam', 'APfam', 'INTfam', 'RTfam', 'RNaseHfam', 'ENVfam', 'CHRfam', 'polfam', 'autonfam', 'helprotfam', 'rveprotfam', 'tpaseprotfam')]='TE_genes'
 categories$category[grepl('_[[:digit:]]+', categories$feature) | grepl('h3k9me2_[[:digit:]]+', categories$feature) | categories$feature %in% c('flank_h3k9me2', 'flank_cg', 'flank_chg', 'flank_chh')  | (grepl('_flank', categories$feature) &  grepl('oot', categories$feature))]='flank_methylation_mnase'
 categories$category[grepl('^avg_c', categories$feature)]='flank_base_composition'
-categories$category[grepl('cm', categories$feature) | grepl('segsites', categories$feature) | categories$feature %in% c('closest', 'ingene', 'subgenome', 'disruptor')]='flank_selection'
-categories$category[grepl('^gene_', categories$feature) ]='flank_closest_gene_expression'
+categories$category[grepl('cm', categories$feature) | grepl('segsites', categories$feature) | categories$feature %in% c('closest', 'closestgenesyntenic', 'closest.syntenic', 'ingene', 'subgenome', 'disruptor')]='flank_selection'
+categories$category[grepl('^gene_', categories$feature) | grepl('^syntenicgene_', categories$feature) ]='flank_closest_gene_expression'
 categories$category[grepl('^TEfam', categories$feature) | grepl('unique', categories$feature)]='TE_expression'
 
 ## new ways to get at this - quick fix :(
-categories$category[categories$feature %in% c('percGC_1kbflank','nCG_1kbflank','nCHG_1kbflank','nCHH_1kbflank','flank_bp')]='flank_base_composition'
+categories$category[categories$feature %in% c('percGC_1kbflank','nCG_1kbflank','nCHG_1kbflank','nCHH_1kbflank','flank_bp', 'nTG_1kb_flank')]='flank_base_composition'
 categories$category[categories$feature %in% c('flank_n_root_hs','flank_root_bp','flank_root_prop','flank_n_shoot_hs','flank_shoot_bp','flank_shoot_prop')]='flank_methylation_mnase'
-categories$category[categories$feature %in% c('segsites.bp', 'disruptor')]='TE_features'
+categories$category[categories$feature %in% c('segsites.bp', 'disruptor', 'disruptor.samefam', 'disruptor.samesup')]='TE_features'
 categories[is.na(categories$category),]
 
                                  
@@ -229,7 +229,7 @@ dev.off()
 ########### 
 ## partial dependences
 
-pdf(paste0('partial_dependences.', Sys.Date(),  '.pdf'))
+pdf(paste0('partial_dependences.', Sys.Date(), '.pdf'))
 partialPlot(subset_rf, pred.data=minitest, x.var='segsites.bp')
 partialPlot(subset_rf, pred.data=minitest, x.var='ingene')
 partialPlot(subset_rf, pred.data=minitest, x.var='closest')

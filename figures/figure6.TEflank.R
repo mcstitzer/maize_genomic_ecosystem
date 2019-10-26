@@ -4,13 +4,15 @@ library(data.table)
 library(plyr)
 library(dplyr)
 library(stringr)
+library(gridExtra)
 
 source('../GenomeInfo.R')
 source('color_palette.R')
 source('meanSD_functions.R')
+source('label_x_axis_sup.R') ## gives us grobs, and grobs.supOnly which can be used to plot an x axis with superfamily names
 
 ## note that this expects there to be an ind data frame - and can use the one generated for model building!!!
-ind=fread('../age_model/B73.LTRAGE.allDescriptors.2018-1-31.txt')
+ind=fread('../age_model/B73.LTRAGE.allDescriptors.2019-10-22.txt')
 
 largest10=unlist(unique(sapply(unique(ind$sup), function(x) rev(tail(sort(table(ind$fam[ind$sup==x & !duplicated(ind$TEID)])),10)))))
 
@@ -76,7 +78,7 @@ tissueplots[[tissue]]=d.mg
                               
 ##### AND FINALLY, PLOT!                              
 
-pdf(paste0('figure5.', Sys.Date(), '.pdf'), 32,20)
+pdf(paste0('figure6.', Sys.Date(), '.pdf'), 32,20)
 cgte.seedlingleaf=plotlargest('all3_avg_cg', 'mCG, Seedling Leaf')
 chgte.seedlingleaf=plotlargest('all3_avg_chg', 'mCHG, Seedling Leaf')
 chhte.seedlingleaf=plotlargest('all3_avg_chh', 'mCHH, Seeding Leaf')
@@ -197,7 +199,28 @@ plot_grid(cgte.seedlingleaf+ ylim(0,1), cgflank.seedlingleaf+ ylim(0,1),
 #          mnase+ ylim(0,0.4), mnase.flank+ ylim(0,0.4),
           diversity+ ylim(0,0.15), diversity.flank+ ylim(0,0.15),
           labels = "AUTO", ncol = 2, align = 'v')                                 
+dev.off()
                               
+pdf(paste0('figure6.methylOnly.', Sys.Date(), '.pdf'), 34,10)
+                            
+plots=plot_grid(cgte.anther+ ylim(0,1), 
+          chgte.anther+ ylim(0,1), 
+          chhte.anther+ ylim(0,0.4),    
+          ## try with these others in supplement? point was that these are 
+#          gc + ylim(0,0.8), gc.flank+ ylim(0,0.8),  
+#          cg+ ylim(0,0.15),cg.flank+ ylim(0,0.15), 
+##          mnase+ ylim(0,0.4), mnase.flank+ ylim(0,0.4),
+#          diversity+ ylim(0,0.15), diversity.flank+ ylim(0,0.15),
+          labels = "AUTO", ncol = 1, align = 'v')
+flankplots=plot_grid(cgflank.anther+ ylim(0,1) + ylab(''),
+                     chgflank.anther+ ylim(0,1) + ylab(''), 
+                     chhflank.anther+ ylim(0,0.4),      
+                     ncol=1, labels=c("D", 'E', 'F'), align='v')
+gg <- arrangeGrob(plots, bottom=grobs.supOnly, padding = unit(3, "line"))
+ggg = arrangeGrob(flankplots, bottom=grobs.supOnly, padding=unit(3, 'line'))
+#grid.newpage()
+#grid.draw(gg)      
+plot_grid(gg, ggg, ncol=2, align='v')
 dev.off()
                               
 
