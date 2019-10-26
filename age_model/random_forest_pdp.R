@@ -11,7 +11,9 @@ library(RColorBrewer)
 
 source('../figures/color_palette.R')
 
-ind=fread('B73.LTRAGE.allDescriptors.2019-01-31.txt')
+set.seed(1234) ## make samples reproducible
+
+ind=fread('B73.LTRAGE.allDescriptors.2019-10-21.txt')
 ind$sup=as.factor(ind$sup)
 samplerow=sample.int(n=nrow(ind), size=floor(0.5*nrow(ind)), replace=F)
 
@@ -123,7 +125,7 @@ write.table(imp, paste0('importance_each_variable.', Sys.Date(), '.txt'), col.na
 write.table(impsort, paste0('importance_combo_variable.', Sys.Date(), '.txt'), col.names=T, row.names=F, quote=F)
 
 
-pdf('variable_importance_plot.pdf')
+pdf(paste0('variable_importance_plot.', Sys.Date(), '.pdf'))
 vip(subset_rf, bar=F, horizontal=F, size=1)
 randomForest::varImpPlot(subset_rf)
 ggplot(impsort, aes(y=category, x=sum)) + geom_point() + scale_y_discrete(limits=impsort$category)
@@ -195,7 +197,7 @@ imp$category=mapvalues(imp$feat, from=categories$feature, to=categories$category
 meltimp=melt(imp[rev(order(imp$X.IncMSE)),][1:20,]) ## keep this managable!
 meltimpsum=melt(imp %>% group_by(category) %>% summarize_if(.predicate="is.numeric", .funs="sum") %>% arrange(desc(X.IncMSE))) #sum=sum(X.IncMSE), meanscaled=mean(scaled)) %>% arrange(desc(sum))
 
-pdf('variable_importance_bysup_plot.pdf')
+pdf(paste0('variable_importance_bysup_plot.', Sys.Date(), '.pdf'))
 ggplot(impsort, aes(y=category, x=sum)) + geom_point() + scale_y_discrete(limits=impsort$category)
 ggplot(impsort, aes(y=category, x=meanscaled)) + geom_point() + scale_y_discrete(limits=(impsort %>% arrange(desc(meanscaled)))$category)
 
@@ -227,7 +229,7 @@ dev.off()
 ########### 
 ## partial dependences
 
-pdf('partial_dependences.pdf')
+pdf(paste0('partial_dependences.', Sys.Date(),  '.pdf'))
 partialPlot(subset_rf, pred.data=minitest, x.var='segsites.bp')
 partialPlot(subset_rf, pred.data=minitest, x.var='ingene')
 partialPlot(subset_rf, pred.data=minitest, x.var='closest')
