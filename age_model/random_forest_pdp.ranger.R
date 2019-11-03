@@ -8,6 +8,7 @@ library(IPMRF)
 library(reshape2)
 library(plyr)
 library(RColorBrewer)
+library(ranger)
 
 source('../figures/color_palette.R')
 
@@ -37,46 +38,46 @@ ind$subgenome[is.na(ind$subgenome)]=0
 ind$subgenome=as.numeric(ind$subgenome)
 ## full corr matrix for interactive plot!
 #allcorr=melt(round(cor(ind[,c(1,5:(ncol(ind)-1))]*1, use='na.or.complete'),2))
-allcorr=melt(round(cor(data.frame(ind)[,c(1, 5:(ncol(ind)-1))]*1, use='na.or.complete'),2))
+#allcorr=melt(round(cor(data.frame(ind)[,c(1, 5:(ncol(ind)-1))]*1, use='na.or.complete'),2))
 ### corr matrix by sup
-suplist=vector("list", 13)
-names(suplist)=names(table(ind$sup))
-for(sup in names(table(ind$sup))){a=melt(round(cor(data.frame(ind)[ind$sup==sup,c(1, 5:(ncol(ind)-1))]*1, use='na.or.complete'),2))
-                                 suplist[[sup]]=a}
-### corr matrix by fam
-famlist=vector("list", 107) ## this gets you families >500
-names(famlist)=head(names(rev(sort(table(ind$fam)))),107)
-for(fam in head(names(rev(sort(table(ind$fam)))),107)){a=melt(round(cor(data.frame(ind)[ind$fam==fam,c(1, 5:(ncol(ind)-1))]*1, use='na.or.complete'),2))
-                                 famlist[[fam]]=a}
-## output these so shiny can play!
-for(sup in names(table(ind$sup))){allcorr[,sup]=suplist[[sup]]$value}
-for(fam in head(names(rev(sort(table(ind$fam)))),107)){allcorr[,fam]=famlist[[fam]]$value}
-write.table(allcorr, paste0('correlations_by_sup_fam.', Sys.Date(), '.txt'), row.names=F, col.names=T, sep='\t', quote=F)
+#suplist=vector("list", 13)
+#names(suplist)=names(table(ind$sup))
+#for(sup in names(table(ind$sup))){a=melt(round(cor(data.frame(ind)[ind$sup==sup,c(1, 5:(ncol(ind)-1))]*1, use='na.or.complete'),2))
+#                                 suplist[[sup]]=a}
+#### corr matrix by fam
+#famlist=vector("list", 107) ## this gets you families >500
+#names(famlist)=head(names(rev(sort(table(ind$fam)))),107)
+#for(fam in head(names(rev(sort(table(ind$fam)))),107)){a=melt(round(cor(data.frame(ind)[ind$fam==fam,c(1, 5:(ncol(ind)-1))]*1, use='na.or.complete'),2))
+#                                 famlist[[fam]]=a}
+### output these so shiny can play!
+#for(sup in names(table(ind$sup))){allcorr[,sup]=suplist[[sup]]$value}
+#for(fam in head(names(rev(sort(table(ind$fam)))),107)){allcorr[,fam]=famlist[[fam]]$value}
+#write.table(allcorr, paste0('correlations_by_sup_fam.', Sys.Date(), '.txt'), row.names=F, col.names=T, sep='\t', quote=F)
 
 
 ## quick corr heatmap
 
-pdf(paste0('correlation_all.', Sys.Date(), '.pdf'), 50,50)
-ggplot(data=melt(round(cor(ind[,5:(ncol(ind)-1)]*1, use='na.or.complete'),2)), aes(x=Var1, y=Var2, fill=value)) + geom_tile(color = "white")+
- scale_fill_gradient2(low = "blue", high = "red", mid = "white", 
-   midpoint = 0, limit = c(-1,1), space = "Lab", 
-   name="Pearson\nCorrelation") +
-  theme_minimal()+ 
- theme(axis.text.x = element_text(angle = 45, vjust = 1, 
-    size = 12, hjust = 1))+
- coord_fixed()
-## then by superfamily!
-for(sup in names(table(ind$sup))){
-print(ggplot(data=melt(round(cor(data.frame(ind)[ind$sup==sup,5:(ncol(ind)-1)]*1, use='na.or.complete'),2)), aes(x=Var1, y=Var2, fill=value)) + geom_tile(color = "white")+
- scale_fill_gradient2(low = "blue", high = "red", mid = "white", 
-   midpoint = 0, limit = c(-1,1), space = "Lab", 
-   name="Pearson\nCorrelation") +
-  theme_minimal()+ 
- theme(axis.text.x = element_text(angle = 45, vjust = 1, 
-    size = 12, hjust = 1))+
- coord_fixed() + ggtitle(sup))
-  }
-dev.off()
+#pdf(paste0('correlation_all.', Sys.Date(), '.pdf'), 50,50)
+#ggplot(data=melt(round(cor(ind[,5:(ncol(ind)-1)]*1, use='na.or.complete'),2)), aes(x=Var1, y=Var2, fill=value)) + geom_tile(color = "white")+
+# scale_fill_gradient2(low = "blue", high = "red", mid = "white", 
+#   midpoint = 0, limit = c(-1,1), space = "Lab", 
+#   name="Pearson\nCorrelation") +
+#  theme_minimal()+ 
+# theme(axis.text.x = element_text(angle = 45, vjust = 1, 
+#    size = 12, hjust = 1))+
+# coord_fixed()
+### then by superfamily!
+#for(sup in names(table(ind$sup))){
+#print(ggplot(data=melt(round(cor(data.frame(ind)[ind$sup==sup,5:(ncol(ind)-1)]*1, use='na.or.complete'),2)), aes(x=Var1, y=Var2, fill=value)) + geom_tile(color = "white")+
+# scale_fill_gradient2(low = "blue", high = "red", mid = "white", 
+#   midpoint = 0, limit = c(-1,1), space = "Lab", 
+#   name="Pearson\nCorrelation") +
+#  theme_minimal()+ 
+# theme(axis.text.x = element_text(angle = 45, vjust = 1, 
+#    size = 12, hjust = 1))+
+# coord_fixed() + ggtitle(sup))
+#  }
+#dev.off()
 
 ## split data into managable pieces!
 train=ind[samplerow,]
@@ -89,9 +90,9 @@ minitest.origfam=minitest$fam
 minitest$fam=minitest$famlev
 minitest$famlev=NULL
 set.seed(1234)
-subset_rf=randomForest(age~., data=minitest[,-c(2)], importance=T, keep.inbag=T, replace=F, do.trace=10, ntree=1000) ## too many factor levels for TEID
+subset_rf=ranger(formula=age~., data=minitest[,-c(2)], keep.inbag=T, replace=F, num.trees=1000, importance='permutation') ## too many factor levels for TEID
 ## or subset_rf=readRDS('../age_model/subset_rf_object.2019-01-31.RDS')
-saveRDS(subset_rf, paste0('subset_rf_object.', Sys.Date(), '.RDS'))
+saveRDS(subset_rf, paste0('subset_ranger_object.', Sys.Date(), '.RDS'))
 ## could use strata=sup to get equal sampling by superfamily in building the tree!
 
 
@@ -125,7 +126,7 @@ write.table(imp, paste0('importance_each_variable.', Sys.Date(), '.txt'), col.na
 write.table(impsort, paste0('importance_combo_variable.', Sys.Date(), '.txt'), col.names=T, row.names=F, quote=F)
 
 
-pdf(paste0('variable_importance_plot.', Sys.Date(), '.pdf'))
+pdf(paste0('variable_importance_plot.ranger.', Sys.Date(), '.pdf'))
 vip(subset_rf, bar=F, horizontal=F, size=1)
 randomForest::varImpPlot(subset_rf)
 ggplot(impsort, aes(y=category, x=sum)) + geom_point() + scale_y_discrete(limits=impsort$category)
@@ -197,7 +198,7 @@ imp$category=mapvalues(imp$feat, from=categories$feature, to=categories$category
 meltimp=melt(imp[rev(order(imp$X.IncMSE)),][1:20,]) ## keep this managable!
 meltimpsum=melt(imp %>% group_by(category) %>% summarize_if(.predicate="is.numeric", .funs="sum") %>% arrange(desc(X.IncMSE))) #sum=sum(X.IncMSE), meanscaled=mean(scaled)) %>% arrange(desc(sum))
 
-pdf(paste0('variable_importance_bysup_plot.', Sys.Date(), '.pdf'))
+pdf(paste0('variable_importance_bysup_plot.ranger.', Sys.Date(), '.pdf'))
 ggplot(impsort, aes(y=category, x=sum)) + geom_point() + scale_y_discrete(limits=impsort$category)
 ggplot(impsort, aes(y=category, x=meanscaled)) + geom_point() + scale_y_discrete(limits=(impsort %>% arrange(desc(meanscaled)))$category)
 
@@ -229,7 +230,7 @@ dev.off()
 ########### 
 ## partial dependences
 
-pdf(paste0('partial_dependences.', Sys.Date(), '.pdf'))
+pdf(paste0('partial_dependences.ranger.', Sys.Date(), '.pdf'))
 partialPlot(subset_rf, pred.data=minitest, x.var='segsites.bp')
 partialPlot(subset_rf, pred.data=minitest, x.var='ingene')
 partialPlot(subset_rf, pred.data=minitest, x.var='closest')
@@ -267,7 +268,7 @@ return(rm.ice)
 
 
 
-pdf(paste0('ice_dependences.', Sys.Date(), '.pdf'))
+pdf(paste0('ice_dependences.ranger.', Sys.Date(), '.pdf'))
 rm.ice=generateICE('segsites.bp', subset_rf, grid=data.frame(segsites.bp=seq(0,quantile(ind$segsites.bp, 0.95, na.rm=T), length.out=50)))
 write.table(rm.ice, paste0('segsites.bp.', Sys.Date(), '.txt'), quote=F, sep='\t', row.names=F, col.names=T)
 ggplot(rm.ice, aes(segsites.bp, yhat/2/3.3e-8, color=sup)) + geom_line(aes(group = yhat.id), alpha = 0.2) + stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  scale_color_manual(values=dd.col) + xlim(0,0.05) + ylim(0,1)
