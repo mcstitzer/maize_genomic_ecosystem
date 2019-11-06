@@ -95,6 +95,10 @@ subset_rf=ranger(formula=age~., data=minitest[,-c(2)], keep.inbag=T, replace=F, 
 saveRDS(subset_rf, paste0('subset_ranger_object.', Sys.Date(), '.RDS'))
 ## could use strata=sup to get equal sampling by superfamily in building the tree!
 
+## impurity corrected to get p values for importances
+subset_rf=ranger(formula=age~., data=minitest[,-c(2)], keep.inbag=T, replace=F, num.trees=1000, importance='impurity_corrected') ## too many factor levels for TEID
+## or subset_rf=readRDS('../age_model/subset_rf_object.2019-01-31.RDS')
+saveRDS(subset_rf, paste0('subset_ranger_object.impurity_corrected.', Sys.Date(), '.RDS'))
 
 ## try gbm
 #library(gbm)
@@ -110,8 +114,8 @@ minitest2$famlev=NULL
 ## could try drop-column importance to get at colinear groups of variables - 
 ##   difficult to do, needs to drop a column, retrain model, and then subtract importance value from missing model from importance from baseline model
 
-imp=data.frame(importance(subset_rf, type=1, scale=F)) #permutation importances, see https://explained.ai/rf-importance/index.html
-imp$scaled=data.frame(importance(subset_rf, type=1, scale=T))[,1]
+imp=data.frame(permutation=importance(subset_rf, type=1, scale=F)) #permutation importances, see https://explained.ai/rf-importance/index.html
+#imp$scaled=data.frame(importance(subset_rf, type=1, scale=T))[,1]
 imp$feat=rownames(imp)
 imp$category=imp$feat
 imp$category[grepl("flank_cg", imp$feat)]='flank_cg_methylation'
@@ -120,17 +124,17 @@ imp$category[grepl("flank_chh", imp$feat)]='flank_chh_methylation'
 imp$category[grepl("avg_cg", imp$feat)]='te_cg_methylation'
 imp$category[grepl("avg_chg", imp$feat)]='te_chg_methylation'
 imp$category[grepl("avg_chh", imp$feat)]='te_chh_methylation'
-impsort=imp %>% group_by(category) %>% dplyr::summarize(sum=sum(X.IncMSE), meanscaled=mean(scaled)) %>% arrange(desc(sum))
+impsort=imp %>% group_by(category) %>% dplyr::summarize(sum=sum(permutation)) %>% arrange(desc(sum))
 
-write.table(imp, paste0('importance_each_variable.', Sys.Date(), '.txt'), col.names=T, row.names=F, quote=F)
-write.table(impsort, paste0('importance_combo_variable.', Sys.Date(), '.txt'), col.names=T, row.names=F, quote=F)
+write.table(imp, paste0('importance_each_variable.ranger.', Sys.Date(), '.txt'), col.names=T, row.names=F, quote=F)
+write.table(impsort, paste0('importance_combo_variable.ranger.', Sys.Date(), '.txt'), col.names=T, row.names=F, quote=F)
 
 
 pdf(paste0('variable_importance_plot.ranger.', Sys.Date(), '.pdf'))
 vip(subset_rf, bar=F, horizontal=F, size=1)
 randomForest::varImpPlot(subset_rf)
 ggplot(impsort, aes(y=category, x=sum)) + geom_point() + scale_y_discrete(limits=impsort$category)
-ggplot(impsort, aes(y=category, x=meanscaled)) + geom_point() + scale_y_discrete(limits=(impsort %>% arrange(desc(meanscaled)))$category)
+#ggplot(impsort, aes(y=category, x=meanscaled)) + geom_point() + scale_y_discrete(limits=(impsort %>% arrange(desc(meanscaled)))$category)
 dev.off()
 
 
@@ -144,7 +148,7 @@ minitest3[,5:ncol(minitest3)]=minitest3[,5:ncol(minitest3)]*1
 #newpred=ipmrfnew(subset_rf, da=minitest3[minitest3$sup=='DTA',-c(1,2)], ntree=1000)
 #sapply(1:ncol(newpred), function(x) mean(newpred[,x]))
 for(sup in names(table(ind$sup))){
-  newpred=ipmrfnew(subset_rf, da=data.frame(minitest3)[minitest3$sup==sup,-c(1,2)], ntree=1000) ## may need to subset to make this not over the top number of things to summarize - but some less than 10 so hard to do and I gave up with small minitest3
+  newpred=ipmrangernew(subset_rf, da=data.frame(minitest3)[minitest3$sup==sup,-c(1,2)], ntree=1000) ## may need to subset to make this not over the top number of things to summarize - but some less than 10 so hard to do and I gave up with small minitest3
   temp=data.frame(meanimp=sapply(1:ncol(newpred), function(x) mean(newpred[,x])), feat=as.character(colnames(newpred)))
   imp[,sup]=as.numeric(mapvalues(imp$feat, from=temp$feat, to=temp$meanimp))
  }
@@ -195,27 +199,27 @@ library(stargazer)
 stargazer(categories, summary=F, rownames=F, align=T)                                 
                                  
 imp$category=mapvalues(imp$feat, from=categories$feature, to=categories$category)
-meltimp=melt(imp[rev(order(imp$X.IncMSE)),][1:20,]) ## keep this managable!
-meltimpsum=melt(imp %>% group_by(category) %>% summarize_if(.predicate="is.numeric", .funs="sum") %>% arrange(desc(X.IncMSE))) #sum=sum(X.IncMSE), meanscaled=mean(scaled)) %>% arrange(desc(sum))
+meltimp=melt(imp[rev(order(imp$permutation)),][1:20,]) ## keep this managable!
+meltimpsum=melt(imp %>% group_by(category) %>% summarize_if(.predicate="is.numeric", .funs="sum") %>% arrange(desc(permutation))) #sum=sum(X.IncMSE), meanscaled=mean(scaled)) %>% arrange(desc(sum))
 
 pdf(paste0('variable_importance_bysup_plot.ranger.', Sys.Date(), '.pdf'))
 ggplot(impsort, aes(y=category, x=sum)) + geom_point() + scale_y_discrete(limits=impsort$category)
 ggplot(impsort, aes(y=category, x=meanscaled)) + geom_point() + scale_y_discrete(limits=(impsort %>% arrange(desc(meanscaled)))$category)
 
-ggplot(meltimpsum[meltimpsum$variable=='X.IncMSE',], aes(x=category, y=value, fill=category)) + geom_bar(position="dodge",stat="identity") + 
+ggplot(meltimpsum[meltimpsum$variable=='permutation',], aes(x=category, y=value, fill=category)) + geom_bar(position="dodge",stat="identity") + 
 #       geom_errorbar(aes(ymin=weight-std/2, ymax=weight+std/2), size=.3, width=.2, position=position_dodge(.9)) +
-       scale_x_discrete(limits=meltimpsum$category[order(meltimpsum[meltimpsum$variable=='X.IncMSE','value'])]) +  
+       scale_x_discrete(limits=meltimpsum$category[order(meltimpsum[meltimpsum$variable=='permutation','value'])]) +  
        coord_flip() + scale_fill_brewer(palette='Set3') #+ colScale
-ggplot(meltimpsum[meltimpsum$variable=='scaled',], aes(x=category, y=value, fill=category)) + geom_bar(position="dodge",stat="identity") + 
-#       geom_errorbar(aes(ymin=weight-std/2, ymax=weight+std/2), size=.3, width=.2, position=position_dodge(.9)) +
-       scale_x_discrete(limits=meltimpsum$category[order(meltimpsum[meltimpsum$variable=='X.IncMSE','value'])]) +  
-       coord_flip() + scale_fill_brewer(palette='Set3') #+ colScale
+#ggplot(meltimpsum[meltimpsum$variable=='scaled',], aes(x=category, y=value, fill=category)) + geom_bar(position="dodge",stat="identity") + 
+##       geom_errorbar(aes(ymin=weight-std/2, ymax=weight+std/2), size=.3, width=.2, position=position_dodge(.9)) +
+#       scale_x_discrete(limits=meltimpsum$category[order(meltimpsum[meltimpsum$variable=='X.IncMSE','value'])]) +  
+#       coord_flip() + scale_fill_brewer(palette='Set3') #+ colScale
 
-ggplot(meltimp[meltimp$variable!='scaled',], aes(x=feat, y=value, group=variable, fill=category)) + geom_bar(position="dodge",stat="identity") + 
+ggplot(meltimp[meltimp$variable!='permutation',], aes(x=feat, y=value, group=variable, fill=category)) + geom_bar(position="dodge",stat="identity") + 
 #       geom_errorbar(aes(ymin=weight-std/2, ymax=weight+std/2), size=.3, width=.2, position=position_dodge(.9)) +
-       scale_x_discrete(limits=rev(imp$feat[order(imp$X.IncMSE)])[1:20]) + coord_flip() + scale_fill_brewer(palette='Set3') + 
+       scale_x_discrete(limits=rev(imp$feat[order(imp$permutation)])[1:20]) + coord_flip() + scale_fill_brewer(palette='Set3') + 
        ggtitle('Feature weights for gradient boosted forest') + facet_wrap(~variable)
-ggplot(meltimpsum[meltimpsum$variable!='scaled',], aes(x=category, y=value, fill=category)) + geom_bar(position="dodge",stat="identity") + 
+ggplot(meltimpsum[meltimpsum$variable!='permutation',], aes(x=category, y=value, fill=category)) + geom_bar(position="dodge",stat="identity") + 
 #       geom_errorbar(aes(ymin=weight-std/2, ymax=weight+std/2), size=.3, width=.2, position=position_dodge(.9)) +
 #       scale_x_discrete(limits=rev(wm$feature)) +  
        coord_flip() + scale_fill_brewer(palette='Set3') + 
@@ -229,26 +233,28 @@ dev.off()
                                  
 ########### 
 ## partial dependences
-
+#p2 <- partial(boston_rf, pred.var = "lstat", plot = TRUE,
+#              plot.engine = "ggplot2")
+                                 
 pdf(paste0('partial_dependences.ranger.', Sys.Date(), '.pdf'))
-partialPlot(subset_rf, pred.data=minitest, x.var='segsites.bp')
-partialPlot(subset_rf, pred.data=minitest, x.var='ingene')
-partialPlot(subset_rf, pred.data=minitest, x.var='closest')
-partialPlot(subset_rf, pred.data=minitest, x.var='sup')
-partialPlot(subset_rf, pred.data=minitest, x.var='flank_segsites.bp')
-partialPlot(subset_rf, pred.data=minitest, x.var='flank_root_bp')
-partialPlot(subset_rf, pred.data=minitest, x.var='all3_avg_chh')
-partialPlot(subset_rf, pred.data=minitest, x.var='anther_flank_cg_300')
-partialPlot(subset_rf, pred.data=minitest, x.var='te_bp')
-partialPlot(subset_rf, pred.data=minitest, x.var='famsize')
-partialPlot(subset_rf, pred.data=minitest, x.var='shoot_bp')
-partialPlot(subset_rf, pred.data=minitest, x.var='shoot_prop')
-partialPlot(subset_rf, pred.data=minitest, x.var='percGC')
-partialPlot(subset_rf, pred.data=minitest, x.var='disruptor')
-partialPlot(subset_rf, pred.data=minitest, x.var='anther_avg_chh')
-partialPlot(subset_rf, pred.data=minitest, x.var='earshoot_avg_cg')
-partialPlot(subset_rf, pred.data=minitest, x.var='tespan')
-partialPlot(subset_rf, pred.data=minitest, x.var='nCHH')
+partial(subset_rf, pred.data=minitest, plot=T, plot.engine='ggplot2', pred.var='segsites.bp')
+partial(subset_rf, pred.data=minitest, plot=T, plot.engine='ggplot2', pred.var='ingene')
+partial(subset_rf, pred.data=minitest, plot=T, plot.engine='ggplot2', pred.var='closest')
+partial(subset_rf, pred.data=minitest, plot=T, plot.engine='ggplot2', pred.var='sup')
+partial(subset_rf, pred.data=minitest, plot=T, plot.engine='ggplot2', pred.var='flank_segsites.bp')
+partial(subset_rf, pred.data=minitest, plot=T, plot.engine='ggplot2', pred.var='flank_root_bp')
+partial(subset_rf, pred.data=minitest, plot=T, plot.engine='ggplot2', pred.var='all3_avg_chh')
+partial(subset_rf, pred.data=minitest, plot=T, plot.engine='ggplot2', pred.var='anther_flank_cg_300')
+partial(subset_rf, pred.data=minitest, plot=T, plot.engine='ggplot2', pred.var='te_bp')
+partial(subset_rf, pred.data=minitest, plot=T, plot.engine='ggplot2', pred.var='famsize')
+partial(subset_rf, pred.data=minitest, plot=T, plot.engine='ggplot2', pred.var='shoot_bp')
+partial(subset_rf, pred.data=minitest, plot=T, plot.engine='ggplot2', pred.var='shoot_prop')
+partial(subset_rf, pred.data=minitest, plot=T, plot.engine='ggplot2', pred.var='percGC')
+partial(subset_rf, pred.data=minitest, plot=T, plot.engine='ggplot2', pred.var='disruptor')
+partial(subset_rf, pred.data=minitest, plot=T, plot.engine='ggplot2', pred.var='anther_avg_chh')
+partial(subset_rf, pred.data=minitest, plot=T, plot.engine='ggplot2', pred.var='earshoot_avg_cg')
+partial(subset_rf, pred.data=minitest, plot=T, plot.engine='ggplot2', pred.var='tespan')
+partial(subset_rf, pred.data=minitest, plot=T, plot.engine='ggplot2', pred.var='nCHH')
 dev.off()
 
 ##########
@@ -270,21 +276,21 @@ return(rm.ice)
 
 pdf(paste0('ice_dependences.ranger.', Sys.Date(), '.pdf'))
 rm.ice=generateICE('segsites.bp', subset_rf, grid=data.frame(segsites.bp=seq(0,quantile(ind$segsites.bp, 0.95, na.rm=T), length.out=50)))
-write.table(rm.ice, paste0('segsites.bp.', Sys.Date(), '.txt'), quote=F, sep='\t', row.names=F, col.names=T)
+write.table(rm.ice, paste0('segsites.bp.ranger.', Sys.Date(), '.txt'), quote=F, sep='\t', row.names=F, col.names=T)
 ggplot(rm.ice, aes(segsites.bp, yhat/2/3.3e-8, color=sup)) + geom_line(aes(group = yhat.id), alpha = 0.2) + stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  scale_color_manual(values=dd.col) + xlim(0,0.05) + ylim(0,1)
 ggplot(rm.ice, aes(segsites.bp, yhat.centered/2/3.3e-8, color=sup)) + geom_line(aes(group = yhat.id), alpha = 0.2) + stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  scale_color_manual(values=dd.col) + xlim(0,0.05) + ylim(0,1)
 ggplot(rm.ice, aes(segsites.bp, yhat/2/3.3e-8, color=sup)) + geom_line(aes(group = yhat.id), alpha = 0.2) + stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  scale_color_manual(values=dd.col) +facet_wrap(~sup)+ xlim(0,0.05) + ylim(0,1)
 ggplot(rm.ice, aes(segsites.bp, yhat.centered/2/3.3e-8, color=sup)) + geom_line(aes(group = yhat.id), alpha = 0.2) + stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  scale_color_manual(values=dd.col) +facet_wrap(~sup)+ xlim(0,0.05) + ylim(0,1)
 
 rm.ice=generateICE('anther_avg_chh', subset_rf, grid=data.frame(anther_avg_chh=seq(0,quantile(ind$anther_avg_chh, 0.95, na.rm=T), length.out=50)))
-write.table(rm.ice, paste0('anther_avg_chh.', Sys.Date(), '.txt'), quote=F, sep='\t', row.names=F, col.names=T)
+write.table(rm.ice, paste0('anther_avg_chh.ranger.', Sys.Date(), '.txt'), quote=F, sep='\t', row.names=F, col.names=T)
 ggplot(rm.ice, aes(anther_avg_chh, yhat/2/3.3e-8/1e6, color=sup)) + geom_line(aes(group = yhat.id), alpha = 0.2) + stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  scale_color_manual(values=dd.col) + xlim(0,0.05) + ylim(0,1)
 ggplot(rm.ice, aes(anther_avg_chh, yhat.centered/2/3.3e-8/1e6, color=sup)) + geom_line(aes(group = yhat.id), alpha = 0.2) + stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  scale_color_manual(values=dd.col)  + xlim(0,0.05) + ylim(0,1)
 ggplot(rm.ice, aes(anther_avg_chh, yhat/2/3.3e-8/1e6, color=sup)) + geom_line(aes(group = yhat.id), alpha = 0.2) + stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  scale_color_manual(values=dd.col) +facet_wrap(~sup) + xlim(0,0.05) + ylim(0,1)
 ggplot(rm.ice, aes(anther_avg_chh, yhat.centered/2/3.3e-8/1e6, color=sup)) + geom_line(aes(group = yhat.id), alpha = 0.2) + stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  scale_color_manual(values=dd.col) +facet_wrap(~sup) + xlim(0,0.05) + ylim(0,1)
                                  
 rm.ice=generateICE('tebp', subset_rf, grid=data.frame(tebp=seq(0,quantile(ind$tebp, 0.95, na.rm=T), length.out=50)))
-write.table(rm.ice, paste0('tebp.', Sys.Date(), '.txt'), quote=F, sep='\t', row.names=F, col.names=T)
+write.table(rm.ice, paste0('tebp.ranger.', Sys.Date(), '.txt'), quote=F, sep='\t', row.names=F, col.names=T)
 ggplot(rm.ice, aes(tebp, yhat/2/3.3e-8/1e6, color=sup)) + geom_line(aes(group = yhat.id), alpha = 0.2) + stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  scale_color_manual(values=dd.col) #+ xlim(0,0.05) + ylim(0,1)
 ggplot(rm.ice, aes(tebp, yhat.centered/2/3.3e-8/1e6, color=sup)) + geom_line(aes(group = yhat.id), alpha = 0.2) + stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  scale_color_manual(values=dd.col) # + xlim(0,0.05) + ylim(0,1)
 ggplot(rm.ice, aes(tebp, yhat/2/3.3e-8/1e6, color=sup)) + geom_line(aes(group = yhat.id), alpha = 0.2) + stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  scale_color_manual(values=dd.col) +facet_wrap(~sup)# + xlim(0,0.05) + ylim(0,1)
@@ -292,42 +298,42 @@ ggplot(rm.ice, aes(tebp, yhat.centered/2/3.3e-8/1e6, color=sup)) + geom_line(aes
                                     
                                  
 rm.ice=generateICE('closest', subset_rf, grid=data.frame(closest=seq(0,quantile(ind$closest, 0.95, na.rm=T), length.out=50)))
-write.table(rm.ice, paste0('closest.', Sys.Date(), '.txt'), quote=F, sep='\t', row.names=F, col.names=T)
+write.table(rm.ice, paste0('closest.ranger.', Sys.Date(), '.txt'), quote=F, sep='\t', row.names=F, col.names=T)
 ggplot(rm.ice, aes(closest, yhat/2/3.3e-8, color=sup)) + geom_line(aes(group = yhat.id), alpha = 0.2) + stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  scale_color_manual(values=dd.col) 
 ggplot(rm.ice, aes(closest, yhat.centered/2/3.3e-8, color=sup)) + geom_line(aes(group = yhat.id), alpha = 0.2) + stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  scale_color_manual(values=dd.col) 
 ggplot(rm.ice, aes(closest, yhat/2/3.3e-8, color=sup)) + geom_line(aes(group = yhat.id), alpha = 0.2) + stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  scale_color_manual(values=dd.col) +facet_wrap(~sup)
 ggplot(rm.ice, aes(closest, yhat.centered/2/3.3e-8, color=sup)) + geom_line(aes(group = yhat.id), alpha = 0.2) + stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  scale_color_manual(values=dd.col) +facet_wrap(~sup)
 
 rm.ice=generateICE('famsize', subset_rf)
-write.table(rm.ice, paste0('famsize.', Sys.Date(), '.txt'), quote=F, sep='\t', row.names=F, col.names=T)
+write.table(rm.ice, paste0('famsize.ranger.', Sys.Date(), '.txt'), quote=F, sep='\t', row.names=F, col.names=T)
 ggplot(rm.ice, aes(famsize, yhat/2/3.3e-8, color=sup)) + geom_line(aes(group = yhat.id), alpha = 0.2) + stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  scale_color_manual(values=dd.col) 
 ggplot(rm.ice, aes(famsize, yhat.centered/2/3.3e-8, color=sup)) + geom_line(aes(group = yhat.id), alpha = 0.2) + stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  scale_color_manual(values=dd.col) 
 ggplot(rm.ice, aes(famsize, yhat/2/3.3e-8, color=sup)) + geom_line(aes(group = yhat.id), alpha = 0.2) + stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  scale_color_manual(values=dd.col) +facet_wrap(~sup)
 ggplot(rm.ice, aes(famsize, yhat.centered/2/3.3e-8, color=sup)) + geom_line(aes(group = yhat.id), alpha = 0.2) + stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  scale_color_manual(values=dd.col) +facet_wrap(~sup)
 
 rm.ice=generateICE('percGC', subset_rf)
-write.table(rm.ice, paste0('percGC.', Sys.Date(), '.txt'), quote=F, sep='\t', row.names=F, col.names=T)
+write.table(rm.ice, paste0('percGC.ranger.', Sys.Date(), '.txt'), quote=F, sep='\t', row.names=F, col.names=T)
 ggplot(rm.ice, aes(percGC, yhat/2/3.3e-8, color=sup)) + geom_line(aes(group = yhat.id), alpha = 0.2) + stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  scale_color_manual(values=dd.col) 
 ggplot(rm.ice, aes(percGC, yhat.centered/2/3.3e-8, color=sup)) + geom_line(aes(group = yhat.id), alpha = 0.2) + stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  scale_color_manual(values=dd.col) 
 ggplot(rm.ice, aes(percGC, yhat/2/3.3e-8, color=sup)) + geom_line(aes(group = yhat.id), alpha = 0.2) + stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  scale_color_manual(values=dd.col) +facet_wrap(~sup)
 ggplot(rm.ice, aes(percGC, yhat.centered/2/3.3e-8, color=sup)) + geom_line(aes(group = yhat.id), alpha = 0.2) + stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  scale_color_manual(values=dd.col) +facet_wrap(~sup)
 
 rm.ice=generateICE('disruptor', subset_rf)
-write.table(rm.ice, paste0('disruptor.', Sys.Date(), '.txt'), quote=F, sep='\t', row.names=F, col.names=T)
+write.table(rm.ice, paste0('disruptor.ranger.', Sys.Date(), '.txt'), quote=F, sep='\t', row.names=F, col.names=T)
 ggplot(rm.ice, aes(disruptor, yhat/2/3.3e-8, color=sup)) + geom_line(aes(group = yhat.id), alpha = 0.2) + stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  scale_color_manual(values=dd.col) 
 ggplot(rm.ice, aes(disruptor, yhat.centered/2/3.3e-8, color=sup)) + geom_line(aes(group = yhat.id), alpha = 0.2) + stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  scale_color_manual(values=dd.col) 
 ggplot(rm.ice, aes(disruptor, yhat/2/3.3e-8, color=sup)) + geom_line(aes(group = yhat.id), alpha = 0.2) + stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  scale_color_manual(values=dd.col) +facet_wrap(~sup)
 ggplot(rm.ice, aes(disruptor, yhat.centered/2/3.3e-8, color=sup)) + geom_line(aes(group = yhat.id), alpha = 0.2) + stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  scale_color_manual(values=dd.col) +facet_wrap(~sup)
 
 rm.ice=generateICE('earshoot_avg_cg', subset_rf)
-write.table(rm.ice, paste0('earshoot_avg_cg.', Sys.Date(), '.txt'), quote=F, sep='\t', row.names=F, col.names=T)
+write.table(rm.ice, paste0('earshoot_avg_cg.ranger.', Sys.Date(), '.txt'), quote=F, sep='\t', row.names=F, col.names=T)
 ggplot(rm.ice, aes(earshoot_avg_cg, yhat/2/3.3e-8, color=sup)) + geom_line(aes(group = yhat.id), alpha = 0.2) + stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  scale_color_manual(values=dd.col) + xlim(0,1)
 ggplot(rm.ice, aes(earshoot_avg_cg, yhat.centered/2/3.3e-8, color=sup)) + geom_line(aes(group = yhat.id), alpha = 0.2) + stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  scale_color_manual(values=dd.col)  + xlim(0,1)
 ggplot(rm.ice, aes(earshoot_avg_cg, yhat/2/3.3e-8, color=sup)) + geom_line(aes(group = yhat.id), alpha = 0.2) + stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  scale_color_manual(values=dd.col) +facet_wrap(~sup) + xlim(0,1)
 ggplot(rm.ice, aes(earshoot_avg_cg, yhat.centered/2/3.3e-8, color=sup)) + geom_line(aes(group = yhat.id), alpha = 0.2) + stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  scale_color_manual(values=dd.col) +facet_wrap(~sup) + xlim(0,1)
 
 rm.ice=generateICE('flank_root_bp', subset_rf)
-write.table(rm.ice, paste0('flank_root_bp.', Sys.Date(), '.txt'), quote=F, sep='\t', row.names=F, col.names=T)
+write.table(rm.ice, paste0('flank_root_bp.ranger.', Sys.Date(), '.txt'), quote=F, sep='\t', row.names=F, col.names=T)
 ggplot(rm.ice, aes(flank_root_bp, yhat/2/3.3e-8, color=sup)) + geom_line(aes(group = yhat.id), alpha = 0.2) + stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  scale_color_manual(values=dd.col)
 ggplot(rm.ice, aes(flank_root_bp, yhat.centered/2/3.3e-8, color=sup)) + geom_line(aes(group = yhat.id), alpha = 0.2) + stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  scale_color_manual(values=dd.col) 
 ggplot(rm.ice, aes(flank_root_bp, yhat/2/3.3e-8, color=sup)) + geom_line(aes(group = yhat.id), alpha = 0.2) + stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  scale_color_manual(values=dd.col) +facet_wrap(~sup)
@@ -340,7 +346,7 @@ ggplot(rm.ice, aes(all3_avg_chh, yhat/2/3.3e-8, color=sup)) + geom_line(aes(grou
 ggplot(rm.ice, aes(all3_avg_chh, yhat.centered/2/3.3e-8, color=sup)) + geom_line(aes(group = yhat.id), alpha = 0.2) + stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  scale_color_manual(values=dd.col) +facet_wrap(~sup)+ xlim(0,0.2)
 
 rm.ice=generateICE('gene_Mature_Leaf_8', subset_rf)
-write.table(rm.ice, paste0('gene_Mature_Leaf_8.', Sys.Date(), '.txt'), quote=F, sep='\t', row.names=F, col.names=T)
+write.table(rm.ice, paste0('gene_Mature_Leaf_8.ranger.', Sys.Date(), '.txt'), quote=F, sep='\t', row.names=F, col.names=T)
 ggplot(rm.ice, aes(gene_Mature_Leaf_8, yhat/2/3.3e-8, color=sup)) + geom_line(aes(group = yhat.id), alpha = 0.2) + stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  scale_color_manual(values=dd.col) 
 ggplot(rm.ice, aes(gene_Mature_Leaf_8, yhat.centered/2/3.3e-8, color=sup)) + geom_line(aes(group = yhat.id), alpha = 0.2) + stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  scale_color_manual(values=dd.col) 
 ggplot(rm.ice, aes(gene_Mature_Leaf_8, yhat/2/3.3e-8, color=sup)) + geom_line(aes(group = yhat.id), alpha = 0.2) + stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  scale_color_manual(values=dd.col) +facet_wrap(~sup)
@@ -348,7 +354,7 @@ ggplot(rm.ice, aes(gene_Mature_Leaf_8, yhat.centered/2/3.3e-8, color=sup)) + geo
 
 
 rm.ice=generateICE('te_germk_combo', subset_rf)
-write.table(rm.ice, paste0('te_germk_combo.', Sys.Date(), '.txt'), quote=F, sep='\t', row.names=F, col.names=T)                                 
+write.table(rm.ice, paste0('te_germk_combo.ranger.', Sys.Date(), '.txt'), quote=F, sep='\t', row.names=F, col.names=T)                                 
 ggplot(rm.ice, aes(te_germk_combo, yhat/2/3.3e-8, color=sup)) + geom_line(aes(group = yhat.id), alpha = 0.2) + stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  scale_color_manual(values=dd.col) 
 ggplot(rm.ice, aes(te_germk_combo, yhat.centered/2/3.3e-8, color=sup)) + geom_line(aes(group = yhat.id), alpha = 0.2) + stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  scale_color_manual(values=dd.col) 
 ggplot(rm.ice, aes(te_germk_combo, yhat/2/3.3e-8, color=sup)) + geom_line(aes(group = yhat.id), alpha = 0.2) + stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  scale_color_manual(values=dd.col) +facet_wrap(~sup)
