@@ -304,7 +304,7 @@ ggplot(rm.ice, aes(famsize, yhat.centered/2/3.3e-8, color=sup)) + geom_line(aes(
 ggplot(rm.ice, aes(famsize, yhat/2/3.3e-8, color=sup)) + geom_line(aes(group = yhat.id), alpha = 0.2) + stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  scale_color_manual(values=dd.col) +facet_wrap(~sup)
 ggplot(rm.ice, aes(famsize, yhat.centered/2/3.3e-8, color=sup)) + geom_line(aes(group = yhat.id), alpha = 0.2) + stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  scale_color_manual(values=dd.col) +facet_wrap(~sup)
 
-rm.ice=generateICE('percGC', subset_rf)
+rm.ice=generateICE('percGC', subset_rf, grid=data.frame(percGC=seq(quantile(ind$percGC, 0.05, na.rm=T), quantile(ind$percGC, 0.95, na.rm=T), length.out=50)))
 write.table(rm.ice, paste0('percGC.', Sys.Date(), '.txt'), quote=F, sep='\t', row.names=F, col.names=T)
 ggplot(rm.ice, aes(percGC, yhat/2/3.3e-8, color=sup)) + geom_line(aes(group = yhat.id), alpha = 0.2) + stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  scale_color_manual(values=dd.col) 
 ggplot(rm.ice, aes(percGC, yhat.centered/2/3.3e-8, color=sup)) + geom_line(aes(group = yhat.id), alpha = 0.2) + stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  scale_color_manual(values=dd.col) 
