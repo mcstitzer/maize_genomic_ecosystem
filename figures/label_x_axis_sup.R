@@ -188,9 +188,9 @@ names(positionvector)=c('DHH', 'DTA', 'DTC', 'DTH', 'DTM', 'DTT', 'DTX', 'RLC', 
 ## this ONLY plots superfamily along the x axis
 grobs.supOnlyFig7 <- grobTree(
   gp = gpar(fontsize = 12, fontface = "bold"), 
-  textGrob(label='Superfamily:', name='Superfamily:',
-           x=0.01, y=unit(2.2, "lines"),
-           hjust=0, vjust=0),
+#  textGrob(label='Superfamily:', name='Superfamily:',
+#           x=0.01, y=unit(2.2, "lines"),
+#           hjust=0, vjust=0),
   textGrob(label = "DHH", name = "DHH",
            x = positionvector['DHH'], y = unit(2.2, "lines"), 
            hjust = 0, vjust = 0, gp = gpar(col =dd.col['DHH'])),
