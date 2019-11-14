@@ -3,15 +3,19 @@ library(cowplot)
 library(data.table)
 library(RColorBrewer)
 library(plyr)
+library(grid)
+library(gridExtra)
+
 
 source('color_palette.R')
+source('label_x_axis_sup.R') ## gives us grobs, and grobs.supOnly which can be used to plot an x axis with superfamily names
 
 ind=fread('../age_model/B73.LTRAGE.allDescriptors.2019-10-22.txt')
 ind$sup=as.factor(ind$sup)
 ind$mya=ind$age/2/3.3e-8/1e6
 
-imp=fread('../age_model/importance_each_variable.2019-10-23.txt')
-impsort=fread('../age_model/importance_combo_variable.2019-10-23.txt')
+imp=fread('../age_model/importance_each_variable.2019-11-09.txt')
+impsort=fread('../age_model/importance_combo_variable.2019-11-09.txt')
 
 largest10=unlist(unique(sapply(unique(ind$sup), function(x) rev(tail(sort(table(ind$fam[ind$sup==x & !duplicated(ind$TEID)])),10)))))
 
@@ -284,8 +288,10 @@ categories$nicefeature=mapvalues(categories$feature, from=names(nicefeaturenames
 library(stargazer)
 stargazer(categories, summary=F, rownames=F, align=T)                                 
 
-imp$category=mapvalues(imp$feat, from=categories$feature, to=categories$nicecategory)
-imp$feat=mapvalues(imp$feat, from=as.character(categories$feature), to=as.character(categories$nicefeature))
+imp$category=mapvalues(imp$feat, from=categories$feature, to=categories$category)
+imp$nicecategory=mapvalues(imp$feat, from=categories$feature, to=categories$nicecategory)
+#imp$feat=mapvalues(imp$feat, from=as.character(categories$feature), to=as.character(categories$nicefeature))
+imp$nicefeat=mapvalues(imp$feat, from=as.character(categories$feature), to=as.character(categories$nicefeature))
 
 #meltimp=melt(imp[rev(order(abs(imp$X.IncMSE))),][1:30,]) ## keep this managable!
 #meltimpsum=melt(imp %>% group_by(category) %>% summarize_if(.predicate="is.numeric", .funs="abs") %>% summarize_if(.predicate="is.numeric", .funs="sum") %>% arrange(desc(X.IncMSE))) #sum=sum(X.IncMSE), meanscaled=mean(scaled)) %>% arrange(desc(sum))
@@ -293,7 +299,7 @@ imp$feat=mapvalues(imp$feat, from=as.character(categories$feature), to=as.charac
 meltimp=melt(imp[rev(order(abs(imp$scaled))),-'X.IncMSE'][1:30,]) ## keep this managable!
 meltimpsum=melt(imp %>% group_by(category) %>% summarize_if(.predicate="is.numeric", .funs="sum", na.rm=TRUE) %>% arrange(desc(scaled))) #sum=sum(X.IncMSE), meanscaled=mean(scaled)) %>% arrange(desc(sum))
 meltimpall=melt(imp[rev(order(abs(imp$scaled))),]) ## keep this managable!
-meltimpmean=melt(imp %>% group_by(category) %>% summarize_if(.predicate="is.numeric", .funs="mean", na.rm=TRUE) %>% arrange(desc(scaled))) #sum=sum(X.IncMSE), meanscaled=mean(scaled)) %>% arrange(desc(sum))
+meltimpmean=melt(imp %>% group_by(nicecategory) %>% summarize_if(.predicate="is.numeric", .funs="mean", na.rm=TRUE) %>% arrange(desc(scaled))) #sum=sum(X.IncMSE), meanscaled=mean(scaled)) %>% arrange(desc(sum))
 
 
 ## for text:
@@ -307,22 +313,23 @@ feat30=data.frame(feat=as.character(imp$feat[rev(order(abs(imp$scaled)))[1:30]])
 ### corr matrix by fam
 for(fam in names(largest10)){
   feat30[,fam]<-NA
-  for(feat in feat30$feat[-c(2,6)]){ ## have to get rid of sup and fam because they're not numeric
+  for(feat in feat30$feat[-which(feat30$feat %in% c('sup', 'fam'))]){ ## have to get rid of sup and fam because they're not numeric
   feat30[feat30$feat==feat,fam]<-cor(ind$mya[ind$fam==fam], data.frame(ind)[,feat][ind$fam==fam]*1, use='na.or.complete')
     }
 #  a=melt(round(cor(data.frame(ind)[ind$fam==fam, c('mya', feat30$feat)]*1, use='na.or.complete'),2))
 #  
   }
-
+write.table(feat30, paste0('feat30.', Sys.Date(), '.txt'), col.names=T, row.names=F, quote=F)
 
 ## real plot
 pdf(paste0('figure7.modeloutput.', Sys.Date(), '.pdf'), 30,12)
 
-ispsc=ggplot(meltimp[meltimp$variable=='rmseMya',], aes(x=feat, y=abs(value), fill=category)) + geom_bar(position="dodge",stat="identity") + 
+ispsc=ggplot(meltimp[meltimp$variable=='rmseMya',], aes(x=nicefeat, y=abs(value), fill=nicecategory)) + geom_bar(position="dodge",stat="identity") + 
 #       geom_errorbar(aes(ymin=weight-std/2, ymax=weight+std/2), size=.3, width=.2, position=position_dodge(.9)) +
-       scale_x_discrete(limits=meltimp$feat[order(meltimp[meltimp$variable=='rmseMya','value'])]) +  
+       scale_x_discrete(limits=meltimp$nicefeat[order(meltimp[meltimp$variable=='rmseMya','value'])]) +  
        coord_flip() + #scale_fill_brewer(palette='Set3') #+ colScale
-       scale_fill_manual(values=myColors)
+       scale_fill_manual(values=myColors) + scale_y_continuous(breaks=scales::pretty_breaks(2), limits=c(0,NA)) + 
+       theme(axis.text.x = element_text(size=rel(0.7)), axis.text.y=element_text(size=rel(0.9))) #+ scale_y_reverse(breaks=scales::pretty_breaks(2), limits=c(0,NA))
 
 ## make a correlation plot for alongside this one!!!! use feat30 i make above
 mf=melt(feat30)
@@ -348,6 +355,7 @@ ispscCOR=ggplot(mf[mf$variable %in% names(largest5),], aes(x=factor(variable, le
                               annotate('rect', xmin = 50.5, xmax = 55.5, ymin = -Inf, ymax = Inf, fill = dd.col['RIL'], alpha=0.3) +
                               annotate('rect', xmin = 55.5, xmax = 57.5, ymin = -Inf, ymax = Inf, fill = dd.col['RIT'], alpha=0.3) +
                               annotate('rect', xmin = 57.5, xmax = 62.5, ymin = -Inf, ymax = Inf, fill = dd.col['RST'], alpha=0.3)
+#ispscCOR=arrangeGrob(ispscCOR, bottom=grobs.supOnly, padding = unit(3, "line"))
 
 ispscCOR4=ggplot(mf[mf$variable %in% names(largest5) & mf$sup %in% c('DHH', 'DTA', 'RLC', 'RLG'),], aes(x=factor(variable, levels=names(largest5)), y=factor(feat, levels=meltimp$feat[order(meltimp[meltimp$variable=='rmseMya','value'])]), size=abs(value), fill=factor(sign(value)))) +
                                geom_point(shape=21, stroke=0.01) + #scale_color_manual(values='black') + 
@@ -368,32 +376,32 @@ ispscCOR4=ggplot(mf[mf$variable %in% names(largest5) & mf$sup %in% c('DHH', 'DTA
 #
                       
                               
-musc=ggplot(meltimpmean[meltimpmean$variable=='rmseMya',], aes(x=category, y=abs(value), fill=category)) + geom_bar(position="dodge",stat="identity") + 
+musc=ggplot(meltimpmean[meltimpmean$variable=='rmseMya',], aes(x=nicecategory, y=abs(value), fill=nicecategory)) + geom_bar(position="dodge",stat="identity") + 
 #       geom_errorbar(aes(ymin=weight-std/2, ymax=weight+std/2), size=.3, width=.2, position=position_dodge(.9)) +
-       scale_x_discrete(limits=meltimpmean$category[order(abs(meltimpmean[meltimpmean$variable=='rmseMya','value']))]) +  
+       scale_x_discrete(limits=meltimpmean$nicecategory[order(abs(meltimpmean[meltimpmean$variable=='rmseMya','value']))]) +  
        coord_flip() + #scale_fill_brewer(palette='Set3') #+ colScale
        scale_fill_manual(values=myColors)
 
 ## try out some model fits!
-ss=fread('../age_model/segsites.bp.2019-01-31.txt')
+ss=fread('../age_model/segsites.bp.2019-11-13.txt')
 mSSf=ggplot(ss, aes(segsites.bp, yhat.centered/2/3.3e-8/1e6, color=sup)) + 
                 geom_line(aes(group = yhat.id), alpha = 0.1, data=ss[ss$yhat.id %in% sample(1:34151, 1000),]) + 
 #                stat_summary(fun.y = mean, geom = "line",  size = 0.5, aes(group=fam, color=sup), alpha=0.2)+  
                 stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  
                 scale_color_manual(values=dd.col)+ theme(legend.position='none')
-anth=fread('../age_model/anther_avg_chh.2019-02-01.txt')
+anth=fread('../age_model/anther_avg_chh.2019-11-14.txt')
 mAnthf=ggplot(anth, aes(anther_avg_chh, yhat.centered/2/3.3e-8/1e6, color=sup)) + #
                 geom_line(aes(group = yhat.id), alpha = 0.1, data=anth[anth$yhat.id %in% sample(1:34151, 1000),]) + 
 #                stat_summary(fun.y = mean, geom = "line",  size = 0.5, aes(group=fam, color=sup), alpha=0.2)+  
                 stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  
                 scale_color_manual(values=dd.col) + theme(legend.position='none')
-bp=fread('../figures/tebp.2019-07-15.txt') ## ugh put in the wrong directory :(
+bp=fread('../age_model/tebp.2019-11-14.txt') ## ugh put in the wrong directory :(
 mTEBPf=ggplot(bp, aes(tebp, yhat.centered/2/3.3e-8/1e6, color=sup)) + #
                 geom_line(aes(group = yhat.id), alpha = 0.1, data=bp[bp$yhat.id %in% sample(1:34151, 1000),]) + 
 #                stat_summary(fun.y = mean, geom = "line",  size = 0.5, aes(group=fam, color=sup), alpha=0.2)+  
                 stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  
                 scale_color_manual(values=dd.col) + theme(legend.position='none')
-close=fread('../figures/closest.2019-07-15.txt') ## ugh put in the wrong directory :(
+close=fread('../age_model/closest.2019-11-13.txt') ## ugh put in the wrong directory :(
 mClosestf=ggplot(close, aes(closest, yhat.centered/2/3.3e-8/1e6, color=sup)) + #
                 geom_line(aes(group = yhat.id), alpha = 0.1, data=close[close$yhat.id %in% sample(1:34151, 1000),]) + 
 #                stat_summary(fun.y = mean, geom = "line",  size = 0.5, aes(group=fam, color=sup), alpha=0.2)+  
@@ -425,6 +433,10 @@ r4=plot_grid(rSS + xlim(0,0.1)+ ylab('Age (Million years)') + xlab('Segregating 
              mAnthf + ylim(0,1) + xlim(0,0.05)+ ylab('Age (Million years)') + xlab('Permuted CHH methylation (Anther tissue)'), 
              labels=c('D', 'E', 'F', 'G'), ncol=2, align='v')
 
+r2=plot_grid(rAnth + xlim(0,0.05)+ ylab('Age (Million years)') + xlab('CHH methylation (Anther tissue)'), 
+             mAnthf + ylim(0,1) + xlim(0,0.05)+ ylab('Age (Million years)') + xlab('Permuted CHH methylation (Anther tissue)'),
+             labels=c('D', 'E'), ncol=1, align='v')
+             
 rSupp=plot_grid(rTEBP+ ylab('Age (Million years)') + xlab('TE length (base pairs)'), 
                 mTEBPf+ ylab('Age (Million years)') + xlab('Permuted TE length (base pairs)'), 
                 rClosest+ ylab('Age (Million years)') + xlab('Distance to gene (base pairs)'),
@@ -449,24 +461,27 @@ plot_grid(musc + theme(legend.position='none') + ylab('Reduction in square root 
 dev.off()
 
 ## make a reasonably sized png
-png(paste0('figure6.modeloutput.', Sys.Date(), '.png'), 30, 12, units='in', res=600)#*300,12*300) ## *300 dpi
+png(paste0('figure7.modeloutput.', Sys.Date(), '.png'), 30, 12, units='in', res=300)#*300,12*300) ## *300 dpi
 
                               
-plot_grid(musc + theme(legend.position='none') + ylab('Reduction in square root mean squared error (Mya)') + xlab(''), 
-          ispsc + theme(legend.position='none') + ylab('Reduction in square root mean squared error (Mya)') + xlab(''), 
+grid.newpage()
+grid.draw(arrangeGrob(plot_grid(musc + theme(legend.position='none') + ylab('Reduction in square root\nmean squared error (Mya)') + xlab('')+ theme(axis.text.y = element_text(margin = margin(l = -1, unit = "cm"))), 
+          ispsc + theme(legend.position='none') + ylab('Reduction in square root\nmean squared error (Mya)') + xlab('') + theme(axis.text.y = element_text(margin = margin(l = -1, unit = "cm"))), 
           ispscCOR,
-          r4, 
-          ncol = 4, labels=c('A', 'B', 'C', ''), align = 'h', axis='t', rel_widths=c(1,1,2,1.75), scale=c(1,1,1,1))
+          r2, 
+          ncol = 4, labels=c('A', 'B', 'C', ''), align = 'h', axis='t', rel_widths=c(1,1,2,1.75), scale=c(1,1,1,1)), bottom=grobs.supOnlyFig7, padding = unit(0.1, "line"))
+                       )
 dev.off()
                               
 ## make a reasonably sized png
-png(paste0('figure6.modeloutput4sups.', Sys.Date(), '.png'), 30, 12, units='in', res=600)#*300,12*300) ## *300 dpi
-
-plot_grid(musc + theme(legend.position='none') + ylab('Reduction in square root mean squared error (Mya)') + xlab(''), 
+png(paste0('figure7.modeloutput4sups.', Sys.Date(), '.png'), 30, 12, units='in', res=600)#*300,12*300) ## *300 dpi
+grid.newpage()
+grid.draw(arrangeGrob(plot_grid(musc + theme(legend.position='none') + ylab('Reduction in square root mean squared error (Mya)') + xlab(''), 
           ispsc + theme(legend.position='none') + ylab('Reduction in square root mean squared error (Mya)') + xlab(''), 
           ispscCOR4,
           r4, 
-          ncol = 4, labels=c('A', 'B', 'C', ''), align = 'h', axis='t',rel_widths=c(1,1,2,1.75), scale=c(1,1,1,1))
+          ncol = 4, labels=c('A', 'B', 'C', ''), align = 'h', axis='t',rel_widths=c(1,1,2,1.75), scale=c(1,1,1,1)), bottom=grobs.supOnlyFig7, padding = unit(0.1, "line"))
+)
 dev.off()
   
 ## make a reasonably sized png
