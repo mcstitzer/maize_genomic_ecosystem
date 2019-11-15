@@ -312,3 +312,8 @@ data.frame(ind %>% group_by(substr(sup,1,2)=='DT', sup) %>% dplyr::summarize(fla
 ssf=ind %>% group_by(fam) %>% filter(famsize>=10) %>% dplyr::summarize(segsites=median(segsites.bp), flank=median(flank_segsites.bp))                         
                          
                          
+### test if medians different for subgenomes
+wilcox.test(ind$age[ind$subgenome=='A' & !is.na(ind$subgenome)], ind$age[ind$subgenome=='B' & !is.na(ind$subgenome)])                                                    
+                                                    
+                                                    
+                                                    
