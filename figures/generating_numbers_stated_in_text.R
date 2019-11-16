@@ -317,3 +317,6 @@ wilcox.test(ind$age[ind$subgenome=='A' & !is.na(ind$subgenome)], ind$age[ind$sub
                                                     
                                                     
                                                     
+##### are mtec fams closer to genes?                                                                                        
+mtecfam=fread('/group/jrigrp8/mstitzer/multiple_maize_assemblies/w22/tir/TIR_families_fromMTEC.txt', header=F)
+ind %>% group_by(fam %in% mtecfam$V1) %>% dplyr::summarize(meddist=median(closest, na.rm=T), meddistsyn=median(closest.syntenic, na.rm=T))
