@@ -309,3 +309,26 @@ plot_grid(title,
 
 }
 dev.off()
+
+                              
+                              
+                              
+                              
+                              
+                              
+## cg vs tg supp
+                              
+
+pdf('cg_vs_tg.pdf',14,8)
+                              
+ggplot(ind, aes(x=nCG, y=nTG)) + stat_binhex() + theme(legend.position='none') + scale_color_manual(values=dd.col) + geom_smooth(method='gam', se=F)
+ggplot(ind, aes(x=nCG, y=nTG, col=sup)) + stat_binhex(col=NA) + facet_wrap(~sup) + #theme(legend.position='none') +
+                              scale_color_manual(values=dd.col) + geom_smooth(method='gam', se=F)
+
+dev.off()
+
+                              
+                              
+                              
+                              
+                              
