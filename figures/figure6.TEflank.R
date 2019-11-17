@@ -256,20 +256,27 @@ chg=plotlargest('nCHG', 'Proportion\nCHG methylatable', hline=genomewide$nCHG)
 chh=plotlargest('nCHH', 'Proportion\nCHH methylatable', hline=genomewide$nCHH)
 mnase.r=plotlargest('root_prop', 'Proportion Mnase\nhypersensitive (root)', hline=genomewide.mnase$root_bp_genomewide/genomewide$seqlen)
 mnase.s=plotlargest('shoot_prop', 'Proportion Mnase\nhypersensitive (shoot)', hline=genomewide.mnase$shoot_bp_genomewide/genomewide$seqlen)
-
+tg=plotlargest('nTG', 'Proportion\nTG or CA dinucleotides')
+diversity=plotlargest('segsites.bp', 'Proportion\nsegregating sites', hline=genomewide.ss$genomewide_bp_segsites/genomewide$seqlen, hlinecolor='black')
+                              
 gc.flank=plotlargest('percGC_1kbflank', 'Flanking % GC', hline=genomewide$percGC)
 cg.flank=plotlargest('nCG_1kbflank', 'Flanking proportion\nCG methylatable', hline=genomewide$nCG)
 chg.flank=plotlargest('nCHG_1kbflank', 'Flanking proportion\nCHG methylatable', hline=genomewide$nCHG)
 chh.flank=plotlargest('nCHH_1kbflank', 'Flanking proportion\nCHH methylatable', hline=genomewide$nCHH)
 mnase.flank.r=plotlargest('flank_root_prop', 'Flanking proportion Mnase\nhypersensitive (root)', hline=genomewide.mnase$root_bp_genomewide/genomewide$seqlen)
 mnase.flank.s=plotlargest('flank_shoot_prop', 'Flanking proportion Mnase\nhypersensitive (shoot)', hline=genomewide.mnase$shoot_bp_genomewide/genomewide$seqlen)
+tg.flank=plotlargest('nTG_1kbflank', 'Flanking proportion\nTG or CA dinucleotides')
+diversity.flank=plotlargest('flank_segsites.bp', 'Flanking proportion\nsegregating sites', hline=genomewide.ss$genomewide_bp_segsites/genomewide$seqlen, hlinecolor='black')
 
+                              
 plot_grid(gc + ylim(0,0.8), gc.flank+ ylim(0,0.8),  
           cg+ ylim(0,0.15),cg.flank+ ylim(0,0.15), 
           chg + ylim(0,0.12), chg.flank+ ylim(0,0.12), 
           chh+ ylim(0,0.2), chh.flank+ ylim(0,0.2) , 
+          tg + ylim(0.05,0.15), tg.flank + ylim(0.05,0.15),
           mnase.r+ ylim(0,0.15), mnase.flank.r + ylim(0,0.15),
           mnase.s + ylim(0,0.4), mnase.flank.s + ylim(0,0.4),
+          diversity + ylim(0,0.15), diversity.flank + ylim(0,0.15),
           labels = "AUTO", ncol = 2, align = 'v')
 #plot_grid(tel, age, cl, ingene, disr ,  labels = "AUTO", ncol = 1, align = 'v')
 #plot_grid(tel, cl, ingene, piece, disr + scale_x_discrete(labels=substr(names(largest10),1,3)[!duplicated(substr(names(largest10),1,3))]),  labels = "AUTO", ncol = 1, align = 'v')
