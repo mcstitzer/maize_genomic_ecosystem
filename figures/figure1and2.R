@@ -202,10 +202,10 @@ dev.off()
 
 pdf('length_vs_disruption.pdf',14,8)
 #ggplot(ind, aes(x=pieces, y=tebp, col=sup)) + geom_point() + theme(legend.position='none') + scale_color_manual(values=dd.col) + geom_smooth(method='gam', se=F)
-ggplot(ind, aes(x=factor(pieces), y=tebp, col=sup)) + geom_boxplot(outlier.shape=NA) + facet_wrap(~sup, ncol=1) + theme(legend.position='none') + scale_color_manual(values=dd.col)
+ggplot(ind, aes(x=factor(pieces-1), y=tebp, col=sup)) + geom_boxplot(outlier.shape=NA) + facet_wrap(~sup, ncol=1) + theme(legend.position='none') + scale_color_manual(values=dd.col)
 ggplot(ind, aes(x=factor(pieces-1), y=tebp)) + geom_boxplot(outlier.shape=NA)  + theme(legend.position='none') + scale_color_manual(values=dd.col) + ylab('TE Length (bp)') + xlab('Number TEs inserting into focal TE')
-ggplot(ind, aes(x=factor(pieces), y=tebp, col=sup)) + geom_boxplot(outlier.shape=NA) + facet_wrap(~sup, ncol=1) + theme(legend.position='none') + scale_color_manual(values=dd.col) + scale_y_log10()
-ggplot(ind, aes(x=factor(pieces), y=tebp)) + geom_boxplot(outlier.shape=NA)  + theme(legend.position='none') + scale_color_manual(values=dd.col) + scale_y_log10() + ylab('TE Length (bp)') + xlab('Number TEs inserting into focal TE')
+ggplot(ind, aes(x=factor(pieces-1), y=tebp, col=sup)) + geom_boxplot(outlier.shape=NA) + facet_wrap(~sup, ncol=1) + theme(legend.position='none') + scale_color_manual(values=dd.col) + scale_y_log10()
+ggplot(ind, aes(x=factor(pieces-1), y=tebp)) + geom_boxplot(outlier.shape=NA)  + theme(legend.position='none') + scale_color_manual(values=dd.col) + scale_y_log10() + ylab('TE Length (bp)') + xlab('Number TEs inserting into focal TE')
 
                                
 dev.off()
