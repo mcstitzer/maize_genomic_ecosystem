@@ -55,6 +55,50 @@ data.frame(tgem[tgem$closest<1000,] %>% group_by(substr(sup,1,2)) %>% filter(n()
 # for nonLTR as a whole!
 data.frame(tgem[tgem$closest<1000,] %>% group_by(substr(sup,1,2) %in% c('RI', 'RS'))%>% filter(n()>=10) %>% dplyr::summarize(mean=mean(gene_median, na.rm=T), median=median(gene_median, na.rm=T)))
 
+## switch to ind to ask things about syntenic genes
+data.frame(ind[ind$closest<1000,] %>% group_by(substr(sup,1,2)) %>% filter(n()>=10) %>% dplyr::summarize(mean=mean(gene_median, na.rm=T), median=median(gene_median, na.rm=T)))
+# for nonLTR as a whole!
+data.frame(ind[ind$closest<1000,] %>% group_by(substr(sup,1,2) %in% c('RI', 'RS'))%>% filter(n()>=10) %>% dplyr::summarize(mean=mean(gene_median, na.rm=T), median=median(gene_median, na.rm=T)))
+
+data.frame(ind[ind$closest.syntenic<1000,] %>% group_by(substr(sup,1,2)) %>% filter(n()>=10) %>% dplyr::summarize(mean=mean(syntenicgene_median, na.rm=T), median=median(syntenicgene_median, na.rm=T)))
+# for nonLTR as a whole!
+data.frame(ind[ind$closest.syntenic<1000,] %>% group_by(substr(sup,1,2) %in% c('RI', 'RS'))%>% filter(n()>=10) %>% dplyr::summarize(mean=mean(syntenicgene_median, na.rm=T), median=median(syntenicgene_median, na.rm=T)))
+##3 all TEs together?
+data.frame(ind[ind$closest.syntenic<1000,] %>% filter(n()>=10) %>% dplyr::summarize(mean=mean(syntenicgene_median, na.rm=T), median=median(syntenicgene_median, na.rm=T)))
+data.frame(ind[ind$closest<1000,] %>% filter(n()>=10) %>% dplyr::summarize(mean=mean(gene_median, na.rm=T), median=median(gene_median, na.rm=T)))
+data.frame(ind %>% filter(n()>=10) %>% dplyr::summarize(syntenicmean=mean(syntenicgene_median, na.rm=T), syntenicmedian=median(syntenicgene_median, na.rm=T)))
+
+### remove family size filter?
+## switch to ind to ask things about syntenic genes
+data.frame(ind[ind$closest<1000,] %>% group_by(substr(sup,1,2)) %>% dplyr::summarize(mean=mean(gene_median, na.rm=T), median=median(gene_median, na.rm=T)))
+# for nonLTR as a whole!
+data.frame(ind[ind$closest<1000,] %>% group_by(substr(sup,1,2) %in% c('RI', 'RS')) %>% dplyr::summarize(mean=mean(gene_median, na.rm=T), median=median(gene_median, na.rm=T)))
+
+data.frame(ind[ind$closest.syntenic<1000,] %>% group_by(substr(sup,1,2)) %>% dplyr::summarize(mean=mean(syntenicgene_median, na.rm=T), median=median(syntenicgene_median, na.rm=T)))
+# for nonLTR as a whole!
+data.frame(ind[ind$closest.syntenic<1000,] %>% group_by(substr(sup,1,2) %in% c('RI', 'RS')) %>% dplyr::summarize(mean=mean(syntenicgene_median, na.rm=T), median=median(syntenicgene_median, na.rm=T)))
+##3 all TEs together?
+data.frame(ind[ind$closest.syntenic<1000,]  %>% dplyr::summarize(mean=mean(syntenicgene_median, na.rm=T), median=median(syntenicgene_median, na.rm=T)))
+data.frame(ind[ind$closest<1000,]  %>% dplyr::summarize(mean=mean(gene_median, na.rm=T), median=median(gene_median, na.rm=T)))
+data.frame(ind  %>% dplyr::summarize(syntenicmean=mean(syntenicgene_median, na.rm=T), syntenicmedian=median(syntenicgene_median, na.rm=T)))
+data.frame(ind %>% group_by(substr(sup,1,2))  %>% dplyr::summarize(syntenicmean=mean(syntenicgene_median, na.rm=T), syntenicmedian=median(syntenicgene_median, na.rm=T)))
+
+ind$order=substr(ind$sup,1,2)
+ind$order[ind$order=='RS']='RI'
+
+
+kruskal.test(ind$gene_median ~ ind$order)
+pairwise.wilcox.test(ind$gene_median, ind$order,
+                 p.adjust.method = "BH")
+
+kruskal.test(ind$syntenicgene_median ~ ind$order) ## not sign, so next is irrelevant
+pairwise.wilcox.test(ind$syntenicgene_median, ind$order,
+                 p.adjust.method = "BH")
+
+pairwise.wilcox.test(ind$gene_median[ind$closest<1000], ind$order[ind$closest<1000],
+                 p.adjust.method = "BH")
+
+
 ## then ask about fams
 ef=data.frame(tgem %>% group_by(sup, fam) %>% filter(famsize>=10) %>% dplyr::summarize(mean=mean(gene_median, na.rm=T), median=median(gene_median, na.rm=T)))
 ef1000=data.frame(tgem[tgem$closest<1000,] %>% group_by(sup, fam) %>% filter(n()>=10) %>% dplyr::summarize(mean=mean(gene_median, na.rm=T), median=median(gene_median, na.rm=T)))
