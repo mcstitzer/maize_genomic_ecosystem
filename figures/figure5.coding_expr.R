@@ -79,7 +79,7 @@ exprcols=c('2-4 mm ear primordium', '6-8 mm ear primordium', '20 DAP embryo', '3
            'mature pollen', '5 day old root cortex', '5 day old elongation zone', '5 day old root meristem zone', '5 day old primary root', 
            '7-8 day old secondary root', '27 DAP pericarp/aleurone', 'mature silk', 'female spikelet')
            
-hmNoSup = grid.grabExpr(pheatmap(eer2percopy[complete.cases(eer2percopy),], color=c('#000000', rev(viridis(100))), legend_breaks=c(0,5,10,15,max(eer2percopy[complete.cases(eer2percopy),])), main='', legend_labels=c('0', '5', '10', '15', 'RPKM'), legend=T, treeheight_row = 0, scale='none', show_rownames=F, labels_col=exprcols, annotation_legend=F)[[4]])
+hmNoSup = grid.grabExpr(pheatmap(eer2percopy[complete.cases(eer2percopy),], color=c('#000000', rev(viridis(100))), legend_breaks=c(0,5,10,15,max(eer2percopy[complete.cases(eer2percopy),])), main='', legend_labels=c('0', '5', '10', '15', 'RPM'), legend=T, treeheight_row = 0, scale='none', show_rownames=F, labels_col=exprcols, annotation_legend=F)[[4]])
 
                                
 ## this is for the gene heatmap, summarized at the level of TE family
