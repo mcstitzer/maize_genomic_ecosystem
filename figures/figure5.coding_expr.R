@@ -10,6 +10,7 @@ library(gridGraphics)
 library(ggimage)
 library(ggplotify)
 library(grid)
+library(gridExtra)
 
 source('../GenomeInfo.R')
 source('color_palette.R')
@@ -72,7 +73,15 @@ ar=data.frame(sup=substr(rownames(eer2),1,3), fam=rownames(eer2))
 rownames(ar)=rownames(eer2)
 hm10 = grid.grabExpr(pheatmap(eer2percopy[rownames(eer2percopy) %in% names(largest10),], treeheight_row = 0, cluster_rows=F, color=c('#000000', rev(viridis(100))), scale='none', show_rownames=F, labels_col=gsub('TEfam_', '', colnames(eer2)), annotation_row=ar[rownames(ar) %in% names(largest10),1, drop=F], annotation_colors=list(sup=dd.col), annotation_legend=F)[[4]])
 hm = grid.grabExpr(pheatmap(eer2percopy[complete.cases(eer2percopy),], color=c('#000000', rev(viridis(100))), treeheight_row = 1, scale='none', show_rownames=F, labels_col=gsub('TEfam_', '', colnames(eer2)), annotation_row=ar[,1, drop=F], annotation_colors=list(sup=dd.col), annotation_legend=F)[[4]])
+gsub('TEfam_', '', colnames(eer2))
+exprcols=c('2-4 mm ear primordium', '6-8 mm ear primordium', '20 DAP embryo', '38 DAP embryo', '12 DAP endosperm', '27 DAP endosperm crown', '2 DAI germinating kernels',
+           '6th-7th internode', '7th-8th internode', 'mature leaf 8', 'leaf 8 growth zone', 'leaf 8 stomatal zone', 'leaf 8 symmetrical zone', '16-19 day old vegetative meristem', 
+           'mature pollen', '5 day old root cortex', '5 day old elongation zone', '5 day old root meristem zone', '5 day old primary root', 
+           '7-8 day old secondary root', '27 DAP pericarp/aleurone', 'mature silk', 'female spikelet')
+           
+hmNoSup = grid.grabExpr(pheatmap(eer2percopy[complete.cases(eer2percopy),], color=c('#000000', rev(viridis(100))), legend_breaks=c(0,5,10,15,max(eer2percopy[complete.cases(eer2percopy),])), main='', legend_labels=c('0', '5', '10', '15', 'RPKM'), legend=T, treeheight_row = 0, scale='none', show_rownames=F, labels_col=exprcols, annotation_legend=F)[[4]])
 
+                               
 ## this is for the gene heatmap, summarized at the level of TE family
 ge=data.frame(ind %>% group_by(fam) %>% dplyr::summarize_at(which(grepl('gene_', colnames(ind))), funs(mean(., na.rm = TRUE))))
 rownames(ge)=ge$fam
@@ -144,10 +153,11 @@ legend <- get_legend( ggplot(get_largest_quantile_backgroundbox('tebp'), aes(x=x
 
   
 fig4hm=plot_grid(fig4, legend, as.ggplot(hm) + scale_color_manual(values=dd.col), labels=c('', '', 'E'), ncol=3, rel_widths=c(1,0.1, 0.6), align='v')
+fig4hmNoSup=plot_grid(fig4, legend, as.ggplot(hmNoSup) + scale_color_manual(values=dd.col)+ labs(fill='Per-copy\nRPKM'), labels=c('', '', 'E'), ncol=3, rel_widths=c(1,0.1, 0.6), align='v')
 fig4hm10=plot_grid(fig4, legend, as.ggplot(hm10)+ scale_color_manual(values=dd.col), labels=c('','', 'E'), ncol=3, rel_widths=c(1,0.1, 0.6), align='v')
 #fig4 ## this will have the heatmap of tissue specificity added to the right side of it
 ### sometimes these are weird and plot just the heatmap. I recall the pdf and replot and they're then fine. Weird!
-
+#fig4hmNoSup
 fig4hm
 fig4hm10
              
@@ -156,6 +166,7 @@ hms103
                                
                                
 gg <- arrangeGrob(fig4, bottom=grobs.supOnlyFig5, padding = unit(3, "line"))
+plot_grid(gg, as.ggplot(hmNoSup) + scale_color_manual(values=dd.col) + labs(fill='Per-copy\nRPKM'), labels=c('', 'E'), ncol=2, rel_widths=c(1, 0.6), align='v')
 plot_grid(gg, as.ggplot(hm) + scale_color_manual(values=dd.col), labels=c('', 'E'), ncol=2, rel_widths=c(1, 0.6), align='v')
 plot_grid(gg, as.ggplot(hm10) + scale_color_manual(values=dd.col), labels=c('', 'E'), ncol=2, rel_widths=c(1, 0.6), align='v')
                            
