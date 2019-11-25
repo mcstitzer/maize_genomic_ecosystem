@@ -78,8 +78,12 @@ exprcols=c('2-4 mm ear primordium', '6-8 mm ear primordium', '20 DAP embryo', '3
            '6th-7th internode', '7th-8th internode', 'mature leaf 8', 'leaf 8 growth zone', 'leaf 8 stomatal zone', 'leaf 8 symmetrical zone', '16-19 day old vegetative meristem', 
            'mature pollen', '5 day old root cortex', '5 day old elongation zone', '5 day old root meristem zone', '5 day old primary root', 
            '7-8 day old secondary root', '27 DAP pericarp/aleurone', 'mature silk', 'female spikelet')
-           
-hmNoSup = grid.grabExpr(pheatmap(eer2percopy[complete.cases(eer2percopy),], color=c('#000000', rev(viridis(100))), legend_breaks=c(0,5,10,15,max(eer2percopy[complete.cases(eer2percopy),])), main='', legend_labels=c('0', '5', '10', '15', 'RPM'), legend=T, treeheight_row = 0, scale='none', show_rownames=F, labels_col=exprcols, annotation_legend=F)[[4]])
+tissuefirst=c('Ear primordium (2-4 mm)', 'Ear primordium (6-8 mm)', 'Embryo (20 DAP)', 'Embryo (38 DAP)', 'Endosperm (12 DAP)', 'Endosperm crown (27 DAP)', 'Germinating kernels (2 DAI)',
+           'Internode (6th-7th)', 'Internode (7th-8th)', 'Leaf 8 (mature)', 'Leaf 8 growth zone', 'Leaf 8 stomatal zone', 'Leaf 8 symmetrical zone', 'Vegetative meristem (16-19 day)', 
+           'Pollen (mature)', 'Root cortex (5 day)', 'Root elongation zone (5 day)', 'Root meristem zone (5 day)', 'Primary root (5 day)', 
+           'Secondary root (7-8 day)', 'Pericarp/aleurone (27 DAP)', 'Silk (mature)', 'Female spikelet')
+         
+hmNoSup = grid.grabExpr(pheatmap(eer2percopy[complete.cases(eer2percopy),], color=c('#000000', rev(viridis(100))), legend_breaks=c(0,5,10,15,max(eer2percopy[complete.cases(eer2percopy),])), main='', legend_labels=c('0', '5', '10', '15', 'RPM'), legend=T, treeheight_row = 0, scale='none', show_rownames=F, labels_col=tissuefirst, annotation_legend=F)[[4]])
 
                                
 ## this is for the gene heatmap, summarized at the level of TE family
