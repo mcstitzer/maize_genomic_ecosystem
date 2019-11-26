@@ -5,7 +5,7 @@ library(RColorBrewer)
 library(plyr)
 library(grid)
 library(gridExtra)
-
+library(stringr)
 
 source('color_palette.R')
 source('label_x_axis_sup.R') ## gives us grobs, and grobs.supOnly which can be used to plot an x axis with superfamily names
@@ -286,7 +286,7 @@ names(nicefeaturenames)=c("fam", "sup", "closest", "closest.syntenic", "tebp", "
 categories$nicefeature=mapvalues(categories$feature, from=names(nicefeaturenames), to=nicefeaturenames)
          
 library(stargazer)
-stargazer(categories, summary=F, rownames=F, align=T)                                 
+stargazer(categories[,'nicefeature', 'nicecategory'], summary=F, rownames=F, align=T)                                 
 
 imp$category=mapvalues(imp$feat, from=categories$feature, to=categories$category)
 imp$nicecategory=mapvalues(imp$feat, from=categories$feature, to=categories$nicecategory)
@@ -401,7 +401,7 @@ mTEBPf=ggplot(bp, aes(tebp, yhat.centered/2/3.3e-8/1e6, color=sup)) + #
 #                stat_summary(fun.y = mean, geom = "line",  size = 0.5, aes(group=fam, color=sup), alpha=0.2)+  
                 stat_summary(fun.y = mean, geom = "line",  size = 2, aes(group=sup, color=sup))+  
                 scale_color_manual(values=dd.col) + theme(legend.position='none')
-close=fread('../age_model/closest.2019-11-13.txt') ## ugh put in the wrong directory :(
+close=fread('../age_model/closest.2019-11-14.txt') ## ugh put in the wrong directory :(
 mClosestf=ggplot(close, aes(closest, yhat.centered/2/3.3e-8/1e6, color=sup)) + #
                 geom_line(aes(group = yhat.id), alpha = 0.1, data=close[close$yhat.id %in% sample(1:34151, 1000),]) + 
 #                stat_summary(fun.y = mean, geom = "line",  size = 0.5, aes(group=fam, color=sup), alpha=0.2)+  
@@ -442,6 +442,14 @@ rSupp=plot_grid(rTEBP+ ylab('Age (Million years)') + xlab('TE length (base pairs
                 rClosest+ ylab('Age (Million years)') + xlab('Distance to gene (base pairs)'),
                 mClosestf+ ylab('Age (Million years)') + xlab('Permuted distance to gene (base pairs)'), 
                 labels='AUTO', ncol=2, align='v')
+                              
+                              
+rSuppLog=plot_grid(rTEBP+ ylab('Age (Million years)') + xlab('TE length (base pairs)') + scale_x_log10(), 
+                mTEBPf+ ylab('Age (Million years)') + xlab('Permuted TE length (base pairs)')+ scale_x_log10() + ylim(0,1), 
+                rClosest+ ylab('Age (Million years)') + xlab('Distance to gene (base pairs)')+ scale_x_log10(),
+                mClosestf+ ylab('Age (Million years)') + xlab('Permuted distance to gene (base pairs)')+ scale_x_log10() + ylim(0,1), 
+                labels='AUTO', ncol=2, align='v')
+#
 ### overleaf has a file size limit!
 #plot_grid(musc + theme(legend.position='none') + ylab('Reduction in square root mean squared error (Mya)') + xlab(''), 
 #          ispsc + theme(legend.position='none') + ylab('Reduction in square root mean squared error (Mya)') + xlab(''), 
@@ -474,7 +482,7 @@ grid.draw(arrangeGrob(plot_grid(musc + theme(legend.position='none') + ylab('Red
 dev.off()
                               
 ## make a reasonably sized png
-png(paste0('figure7.modeloutput4sups.', Sys.Date(), '.png'), 30, 12, units='in', res=600)#*300,12*300) ## *300 dpi
+png(paste0('figure7.modeloutput4sups.', Sys.Date(), '.png'), 30, 12, units='in', res=300)#*300,12*300) ## *300 dpi
 grid.newpage()
 grid.draw(arrangeGrob(plot_grid(musc + theme(legend.position='none') + ylab('Reduction in square root mean squared error (Mya)') + xlab(''), 
           ispsc + theme(legend.position='none') + ylab('Reduction in square root mean squared error (Mya)') + xlab(''), 
@@ -485,9 +493,9 @@ grid.draw(arrangeGrob(plot_grid(musc + theme(legend.position='none') + ylab('Red
 dev.off()
   
 ## make a reasonably sized png
-png(paste0('supp.modeloutput.', Sys.Date(), '.png'), 30, 12, units='in', res=600)#*300,12*300) ## *300 dpi
+png(paste0('supp.modeloutput.', Sys.Date(), '.png'), 30, 12, units='in', res=300)#*300,12*300) ## *300 dpi
 
-rSupp
+rSuppLog
 dev.off()
 
 ## old stuff!
