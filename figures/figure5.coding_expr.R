@@ -203,7 +203,7 @@ plot_grid(sides, legend, ncol=2, align='v', labels='', rel_widths=c(1,0.1))
 ## pdf('boxplots_of_coding.pdf')
 
 dev.off()
-                               
+
                                
 pdf(paste0('supp_proteins.', Sys.Date(), '.pdf'), 8,14)
 helprot=plot_percentages('helprot', 'Helitron proteins', invert=T)      
@@ -244,7 +244,12 @@ ltrchrX=plot_percentagesLTR('CHR', 'Chromodomain', invert=T, xaxis=T)
 
                                
 plot_grid(ltrgag + ylim(0,1), ltrap + ylim(0,1), ltrint + ylim(0,1), ltrrt + ylim(0,1), ltrrnaseh + ylim(0,1), ltrenv + ylim(0,1), ltrchrX + ylim(0,1), ncol=1, align='v', labels='AUTO')
-                               
+plot_grid(ltrgag + ylim(0,1), ltrpol + ylim(0,1), ltrauton + ylim(0,1), ltrap + ylim(0,1), ltrint + ylim(0,1), ltrrt + ylim(0,1), ltrrnaseh + ylim(0,1), ltrenv + ylim(0,1), ltrchrX + ylim(0,1), ncol=1, align='v', labels='AUTO')
+plot_grid(ltrgag + ylim(0,1), ltrpol + ylim(0,1), ltrauton + ylim(0,1), ltrgagfam + ylim(0,1), ltrpolfam + ylim(0,1), ltrautonfam + ylim(0,1), ncol=1, align='v', labels='AUTO')
+plot_grid(ltrgag + ylim(0,1), 
+          ltrpol + ylim(0,1), 
+          ltrauton + ylim(0,1),  ncol=1, align='v', labels='AUTO')
+               
 dev.off()
 
                                
