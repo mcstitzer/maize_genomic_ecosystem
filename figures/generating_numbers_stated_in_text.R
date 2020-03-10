@@ -364,3 +364,35 @@ wilcox.test(ind$age[ind$subgenome=='A' & !is.na(ind$subgenome)], ind$age[ind$sub
 ##### are mtec fams closer to genes?                                                                                        
 mtecfam=fread('/group/jrigrp8/mstitzer/multiple_maize_assemblies/w22/tir/TIR_families_fromMTEC.txt', header=F)
 ind %>% group_by(fam %in% mtecfam$V1) %>% dplyr::summarize(meddist=median(closest, na.rm=T), meddistsyn=median(closest.syntenic, na.rm=T))
+
+                                                    
+                                                    
+                                                    
+### mnase
+wilcox.test(ind$shoot_bp[ind$order], ind$age[ind$subgenome=='B' & !is.na(ind$subgenome)])                                                    
+## get genome-wide 
+root=fread('../mnase/RP.bfthresh1.1.MNaseHS.Ranges.AGPv4.bed')
+shoot=fread('../mnase/AP.bfthresh1.1.MNaseHS.Ranges.AGPv4.bed')                                         
+root$bp=root$V3-root$V2    
+shoot$bp=shoot$V3-shoot$V2
+                                                    
+genomewide.mnase=read.table(paste0('../mnase/', GENOME, '.genomewide.mnase.txt'))
+colnames(genomewide.mnase)=c('n_root_hs_genomewide', 'V2', 'root_bp_genomewide', 'n_shoot_hs_genomewide', 'V5', 'shoot_bp_genomewide')
+#t.test(ind$root_bp/ind$tebp, mu=genomewide.mnase$root_bp_genomewide/2104350183)
+#t.test(ind$shoot_bp/ind$tebp, mu=genomewide.mnase$shoot_bp_genomewide/2104350183)                                                   
+                                                    
+wilcox.test(ind$root_bp/ind$tebp, mu=genomewide.mnase$root_bp_genomewide/2104350183, alternative='two.sided')
+wilcox.test(ind$shoot_bp/ind$tebp, mu=genomewide.mnase$shoot_bp_genomewide/2104350183, alternative='two.sided')                                                   
+##    wilcox.test(x, mu = 0, alternative = "two.sided")                                                  
+                                                    
+                                                    
+genomewide.ss=fread('../diversity/genomewide_segsites.txt')
+colnames(genomewide.ss)[1]='genomewide_bp_segsites'
+                                                    
+#t.test(ind$segsites.bp, mu=genomewide.ss$genomewide_bp_segsites/2104350183)
+median(ind$segsites.bp)                               
+wilcox.test(ind$segsites.bp, mu=genomewide.ss$genomewide_bp_segsites/2104350183, alternative='two.sided')
+median(ind$flank_segsites.bp)
+wilcox.test(ind$flank_segsites.bp, mu=genomewide.ss$genomewide_bp_segsites/2104350183, alternative='two.sided')
+
+                                                    
