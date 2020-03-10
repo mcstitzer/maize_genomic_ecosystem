@@ -243,6 +243,7 @@ ac=ind %>% group_by(sup, autonfam) %>% dplyr::summarize(famCage=median(mya, na.r
 ## all tes - are they older with coding? family, then self
 ind %>% group_by(autonfam) %>% dplyr::summarize(age=median(mya, na.rm=T))
 ind %>% group_by(auton) %>% dplyr::summarize(age=median(mya, na.rm=T))
+wilcox.test(ind$mya[ind$auton], ind$mya[!ind$auton])                                                    
 
 ## by order
 ind %>% group_by(autonfam, substr(sup,1,2)) %>% dplyr::summarize(age=median(mya, na.rm=T))
@@ -251,6 +252,10 @@ ind %>% group_by(auton, substr(sup,1,2)) %>% dplyr::summarize(age=median(mya, na
 ## from figure 4 code!
 ind$codingstatus=ifelse(ind$auton, 'coding copy', 'noncoding family')
 ind$codingstatus[ind$codingstatus=='noncoding family' & ind$autonfam]='noncoding copy'
+
+kruskal.test(ind$mya ~ ind$codingstatus)
+pairwise.wilcox.test(ind$mya, ind$codingstatus,
+                 p.adjust.method = "BH")
   
 
 ind %>% group_by(codingstatus) %>% dplyr::summarize(age=median(mya, na.rm=T))
@@ -337,7 +342,9 @@ meds=med %>% group_by(sup,fam, famsize) %>% dplyr::summarize(avg_cg=(SAM_avg_cg 
 data.frame(ind %>% group_by(substr(sup,1,2)) %>% dplyr::summarize(median_cmmb=median(cmmb, na.rm=T)))
 data.frame(ind %>% group_by(substr(sup,1,2)%in% c('RI', 'RS')) %>% dplyr::summarize(median_cmmb=median(cmmb, na.rm=T)))
 
-                         
+pairwise.wilcox.test(ind$cmmb, ind$order,
+                 p.adjust.method = "BH")
+                            
                          
 #### subgenome
 table(ind$subgenome)/sum(table(ind$subgenome))
@@ -352,7 +359,10 @@ stargazer(rbind(subg[subg$propB==0 & subg$famsize>=10 & subg$propUndefined!=1,],
 data.frame(ind %>% group_by(substr(sup,1,2)=='DT') %>% dplyr::summarize(flank_segsites=mean(flank_segsites.bp), segsites=mean(segsites.bp)))
 ## dtt alone - Tc1Mariners and Stowaways don't leave a mark!
 data.frame(ind %>% group_by(substr(sup,1,2)=='DT', sup) %>% dplyr::summarize(flank_segsites=mean(flank_segsites.bp), segsites=mean(segsites.bp)))                       
-                         
+data.frame(ind %>% filter(substr(sup,1,2)=='DT') %>% group_by(sup=='DTT') %>% dplyr::summarize(flank_segsites=median(flank_segsites.bp), segsites=median(segsites.bp)))                       
+ 
+wilcox.test(ind$flank_segsites.bp[ind$sup=='DTT'], ind$flank_segsites.bp[ind$sup!='DTT' & substr(ind$sup,1,2)=='DT'])                                                    
+
 ssf=ind %>% group_by(fam) %>% filter(famsize>=10) %>% dplyr::summarize(segsites=median(segsites.bp), flank=median(flank_segsites.bp))                         
                          
                          
