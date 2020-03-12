@@ -229,4 +229,10 @@ ggplot(data.frame(te)[te$sup %in% c('RLC', 'RLG', 'RLX'),], aes(x=tblmya, y=mya,
 
 dev.off()                          
                               
-                              
+png('supplemental_LTR_TBL.png', 15,5, units='in', res=300)        
+ggplot(data.frame(te)[te$sup %in% c('RLC', 'RLG', 'RLX'),], aes(x=tblmya, y=mya, color=sup)) + geom_point(alpha=0.1) + 
+                              scale_color_manual(name='', values=dd.col) + xlab('Terminal branch length age (million years)') + 
+                              ylab('LTR-LTR age (million years)') + xlim(0,2.1) + ylim(0,2.1) + facet_wrap(~sup, ncol=3) +
+                              stat_cor(aes(color = sup), label.x = 1, method = "spearman")
+
+dev.off()                          
