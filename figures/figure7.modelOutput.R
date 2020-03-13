@@ -509,7 +509,7 @@ grid.draw(arrangeGrob(plot_grid(musc + theme(legend.position='none') + ylab('Red
 dev.off()
   
 ## make a reasonably sized png
-png(paste0('supp.modeloutput.', Sys.Date(), '.png'), 30, 12, units='in', res=300)#*300,12*300) ## *300 dpi
+png(paste0('supp.modeloutput.', Sys.Date(), '.png'), 15, 6, units='in', res=300)#*300,12*300) ## *300 dpi
 
 rSuppLog
 dev.off()
