@@ -331,6 +331,14 @@ ispsc=ggplot(meltimp[meltimp$variable=='rmseMya',], aes(x=nicefeat, y=abs(value)
        scale_fill_manual(values=myColors) + scale_y_continuous(breaks=scales::pretty_breaks(2), limits=c(0,NA)) + 
        theme(axis.text.x = element_text(size=rel(0.7)), axis.text.y=element_text(size=rel(0.9))) #+ scale_y_reverse(breaks=scales::pretty_breaks(2), limits=c(0,NA))
 
+                              
+ispscNoLabels=ggplot(meltimp[meltimp$variable=='rmseMya',], aes(x=nicefeat, y=abs(value), fill=nicecategory)) + geom_bar(position="dodge",stat="identity") + 
+#       geom_errorbar(aes(ymin=weight-std/2, ymax=weight+std/2), size=.3, width=.2, position=position_dodge(.9)) +
+       scale_x_discrete(limits=meltimp$nicefeat[order(meltimp[meltimp$variable=='rmseMya','value'])]) +  
+       coord_flip() + #scale_fill_brewer(palette='Set3') #+ colScale
+       scale_fill_manual(values=myColors) + scale_y_continuous(breaks=scales::pretty_breaks(2), limits=c(0,NA)) + 
+       theme(axis.text.x = element_blank(), axis.text.y=element_text(size=rel(0.9))) #+ scale_y_reverse(breaks=scales::pretty_breaks(2), limits=c(0,NA))
+
 ## make a correlation plot for alongside this one!!!! use feat30 i make above
 mf=melt(feat30)
 mf$sup=substr(mf$variable,1,3)
@@ -341,6 +349,31 @@ ispscCOR=ggplot(mf[mf$variable %in% names(largest5),], aes(x=factor(variable, le
 #                                                          axis.text.x=element_text(hjust=1, angle=90, size=rel(0.8))) +
                                                           axis.text.x=element_blank(), legend.position='none') +
                               labs(size=expression('r^2'))+
+                              theme(axis.text.y=element_blank()) + 
+                              annotate('rect', xmin = 0, xmax = 5.5, ymin = -Inf, ymax = Inf, fill = dd.col['DHH'], alpha=0.3) +
+                              annotate('rect', xmin = 5.5, xmax = 10.5, ymin = -Inf, ymax = Inf, fill = dd.col['DTA'], alpha=0.3) +
+                              annotate('rect', xmin = 10.5, xmax = 15.5, ymin = -Inf, ymax = Inf, fill = dd.col['DTC'], alpha=0.3) +
+                              annotate('rect', xmin = 15.5, xmax = 20.5, ymin = -Inf, ymax = Inf, fill = dd.col['DTH'], alpha=0.3) +
+                              annotate('rect', xmin = 20.5, xmax = 25.5, ymin = -Inf, ymax = Inf, fill = dd.col['DTM'], alpha=0.3) +
+                              annotate('rect', xmin = 25.5, xmax = 30.5, ymin = -Inf, ymax = Inf, fill = dd.col['DTT'], alpha=0.3) +
+                              annotate('rect', xmin = 30.5, xmax = 35.5, ymin = -Inf, ymax = Inf, fill = dd.col['DTX'], alpha=0.3) +
+                              annotate('rect', xmin = 35.5, xmax = 40.5, ymin = -Inf, ymax = Inf, fill = dd.col['RLC'], alpha=0.3) +
+                              annotate('rect', xmin = 40.5, xmax = 45.5, ymin = -Inf, ymax = Inf, fill = dd.col['RLG'], alpha=0.3) +
+                              annotate('rect', xmin = 45.5, xmax = 50.5, ymin = -Inf, ymax = Inf, fill = dd.col['RLX'], alpha=0.3) +
+                              annotate('rect', xmin = 50.5, xmax = 55.5, ymin = -Inf, ymax = Inf, fill = dd.col['RIL'], alpha=0.3) +
+                              annotate('rect', xmin = 55.5, xmax = 57.5, ymin = -Inf, ymax = Inf, fill = dd.col['RIT'], alpha=0.3) +
+                              annotate('rect', xmin = 57.5, xmax = 62.5, ymin = -Inf, ymax = Inf, fill = dd.col['RST'], alpha=0.3)
+#ispscCOR=arrangeGrob(ispscCOR, bottom=grobs.supOnly, padding = unit(3, "line"))
+
+                              
+ispscCORlabel=ggplot(mf[mf$variable %in% names(largest5),], aes(x=factor(variable, levels=names(largest5)), y=factor(feat, levels=meltimp$feat[order(meltimp[meltimp$variable=='rmseMya','value'])]), size=abs(value), fill=factor(sign(value)))) +
+                               geom_point(shape=21, stroke=0.1) + #scale_color_manual(values='black') + 
+                              scale_fill_manual(name='Sign of Cor.', values=c('red', 'blue', 'black')) + 
+                              ylab('') + xlab('') + theme(axis.title.x=element_blank(),axis.ticks.x=element_blank(), 
+#                                                          axis.text.x=element_text(hjust=1, angle=90, size=rel(0.8))) +
+                                                           legend.position='none') +
+                              labs(size=expression('r^2'))+
+                              scale_y_discrete(limits=meltimp$nicefeat[order(meltimp[meltimp$variable=='rmseMya','value'])]) +
                               theme(axis.text.y=element_blank()) + 
                               annotate('rect', xmin = 0, xmax = 5.5, ymin = -Inf, ymax = Inf, fill = dd.col['DHH'], alpha=0.3) +
                               annotate('rect', xmin = 5.5, xmax = 10.5, ymin = -Inf, ymax = Inf, fill = dd.col['DTA'], alpha=0.3) +
@@ -495,7 +528,21 @@ grid.draw(arrangeGrob(plot_grid(musc + theme(legend.position='none') + ylab('Red
           ncol = 4, labels=c('A', 'B', 'C', ''), align = 'h', axis='t', rel_widths=c(1,1,2,1.75), scale=c(1,1,1,1)), bottom=grobs.supOnlyFig7, padding = unit(0.1, "line"))
                        )
 dev.off()
+
                               
+## flip b and c
+png(paste0('figure7.modeloutputClosestCHH.flip.', Sys.Date(), '.png'), 30, 12, units='in', res=300)#*300,12*300) ## *300 dpi
+
+                              
+grid.newpage()
+grid.draw(arrangeGrob(plot_grid(musc + theme(legend.position='none') + ylab('Reduction in square root\nmean squared error (Mya)') + xlab('')+ theme(axis.text.y = element_text(margin = margin(l = -1, unit = "cm"))), 
+          ispscCOR + scale_y_discrete(position='left'), # + scale_x_discrete(position='right'),
+          ispscNoLabels + theme(legend.position='none') + ylab('Reduction in square root\nmean squared error (Mya)') + xlab('') + theme(axis.text.y = element_text(hjust=0.5, margin = margin(l = -1, unit = "cm"))), 
+         r4, 
+          ncol = 4, labels=c('A', 'B', 'C', ''), align = 'h', axis='tb', rel_widths=c(1,2,1,1.75), scale=c(1,1,1,1)), bottom=grobs.supOnlyFig7revision, padding = unit(0.1, "line"))
+                       )
+dev.off()
+  
                               
 ## make a reasonably sized png
 png(paste0('figure7.modeloutput4sups.', Sys.Date(), '.png'), 30, 12, units='in', res=300)#*300,12*300) ## *300 dpi
