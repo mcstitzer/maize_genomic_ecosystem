@@ -232,3 +232,57 @@ grobs.supOnlyFig7 <- grobTree(
            hjust = 0, vjust = 0, gp = gpar(col = dd.col['RST'])) 
 )
 
+
+
+
+
+### update for new version of fig7
+positionvector=c(seq(0.37, 0.64, length.out=11), 0.655, .675)-0.175
+names(positionvector)=c('DHH', 'DTA', 'DTC', 'DTH', 'DTM', 'DTT', 'DTX', 'RLC', 'RLG', 'RLX', 'RIL', 'RIT', 'RST')
+
+## this ONLY plots superfamily along the x axis
+grobs.supOnlyFig7revision <- grobTree(
+  gp = gpar(fontsize = 12, fontface = "bold"), 
+#  textGrob(label='Superfamily:', name='Superfamily:',
+#           x=0.01, y=unit(2.2, "lines"),
+#           hjust=0, vjust=0),
+  textGrob(label = "DHH", name = "DHH",
+           x = positionvector['DHH'], y = unit(2.2, "lines"), 
+           hjust = 0, vjust = 0, gp = gpar(col =dd.col['DHH'])),
+  textGrob(label = "DTA", name = "DTA",
+           x = positionvector['DTA'], y = unit(2.2, "lines"),
+           hjust = 0, vjust = 0, gp = gpar(col = dd.col['DTA'])),
+  textGrob(label = "DTC", name = "DTC",
+           x = positionvector['DTC'], y = unit(2.2, "lines"),
+           hjust = 0, vjust = 0, gp = gpar(col = dd.col['DTC'])),
+  textGrob(label = "DTH", name = "DTH",
+           x = positionvector['DTH'], y = unit(2.2, "lines"),
+           hjust = 0, vjust = 0, gp = gpar(col = dd.col['DTH'])),
+  textGrob(label = "DTM", name = "DTM",
+           x = positionvector['DTM'], y = unit(2.2, "lines"),
+           hjust = 0, vjust = 0, gp = gpar(col = dd.col['DTC'])),  
+  textGrob(label = "DTT", name = "DTT",
+           x = positionvector['DTT'], y = unit(2.2, "lines"),
+           hjust = 0, vjust = 0, gp = gpar(col = dd.col['DTT'])),  
+  textGrob(label = "DTX", name = "DTX",
+           x = positionvector['DTX'], y = unit(2.2, "lines"),
+           hjust = 0, vjust = 0, gp = gpar(col = dd.col['DTX'])),  
+  textGrob(label = "RLC", name = "RLC",
+           x = positionvector['RLC'], y = unit(2.2, "lines"),
+           hjust = 0, vjust = 0, gp = gpar(col = dd.col['RLC'])),
+  textGrob(label = "RLG", name = "RLG",
+           x = positionvector['RLG'], y = unit(2.2, "lines"),
+           hjust = 0, vjust = 0, gp = gpar(col = dd.col['RLG'])),  
+  textGrob(label = "RLX", name = "RLX",
+           x = positionvector['RLX'], y = unit(2.2, "lines"),
+           hjust = 0, vjust = 0, gp = gpar(col = dd.col['RLX'])),
+  textGrob(label = "RIL", name = "RIL",
+           x = positionvector['RIL'], y = unit(2.2, "lines"),
+           hjust = 0, vjust = 0, gp = gpar(col = dd.col['RIL'])),  
+  textGrob(label = "RIT", name = "RIT",
+           x = positionvector['RIT'], y = unit(2.2, "lines"),
+           hjust = 0, vjust = 0, gp = gpar(col = dd.col['RIT'])),  
+  textGrob(label = "RST", name = "RST",
+           x = positionvector['RST'], y = unit(2.2, "lines"),
+           hjust = 0, vjust = 0, gp = gpar(col = dd.col['RST'])) 
+)
