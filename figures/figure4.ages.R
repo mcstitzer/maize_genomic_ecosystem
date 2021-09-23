@@ -219,6 +219,18 @@ ltrs=plot_grid(ltrssup, RLC + theme(legend.position="none"), RLG + theme(legend.
 ltrstbl=plot_grid(ltrssuptbl, RLCtbl + theme(legend.position="none"), RLGtbl + theme(legend.position="none"), RLXtbl + theme(legend.position="none"), labels=c('E', 'F', 'G', 'H'), ncol=1, align='h')
 plot_grid(ltrs, ltrstbl, labels='', ncol=2, align='v')
 dev.off()
+
+## tiff format, this is S4_Fig.tif (after resizing manually in Preview to 2250 pixel width)
+ 
+tiff('supplemental_TEage.tif', 10,6, units='in', res=300)
+## all sups, 10 largest fams
+plot_grid(DHH+ theme(legend.position="none", axis.title.x=element_blank()), DTA+ theme(legend.position="none", axis.title.x=element_blank()), DTC+ theme(legend.position="none", axis.title.x=element_blank()),
+          DTH+ theme(legend.position="none", axis.title.x=element_blank()), DTM+ theme(legend.position="none", axis.title.x=element_blank()), DTT+ theme(legend.position="none", axis.title.x=element_blank()),
+          DTX+ theme(legend.position="none", axis.title.x=element_blank()), RLC+ theme(legend.position="none", axis.title.x=element_blank()), RLG+ theme(legend.position="none", axis.title.x=element_blank()),
+          RLX+ theme(legend.position="none", axis.title.x=element_blank()), RIT+ theme(legend.position="none"), RIL+ theme(legend.position="none"), 
+          RST+ theme(legend.position="none"), labels="AUTO", ncol=4)
+dev.off()
+                              
                               
 pdf('supplemental_LTR_TBL.pdf', 15,5)
 ## compare LTR vs tbl age! - spearman corr coef on plot
