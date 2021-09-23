@@ -179,6 +179,13 @@ plot_grid(sups1, sups2, sups3, sups4, sups5, sups6, sups7, sups8, sups9, sups10,
 dev.off()
                               
                               
+### to tif format, this is S2_Fig.tif
+                              
+tiff(paste0('all_chroms_supp.', Sys.Date(), '.tif'), 20,10, res=300, units='in')
+plot_grid(sups1, sups2, sups3, sups4, sups5, sups6, sups7, sups8, sups9, sups10, ncol=10, align='h', rel_widths=c(1,1,1,1,1,1,1,1,1,1.5))
+
+dev.off()
+                              
 pdf(paste0('supp_chromsFam.', Sys.Date(), '.pdf'), 10,10)
 plot_grid(DHH5+ theme(legend.position="none"), DTA5+ theme(legend.position="none"),DTC5+ theme(legend.position="none"),DTH5+ theme(legend.position="none"),DTM5+ theme(legend.position="none"),DTT5+ theme(legend.position="none"),DTX5+ theme(legend.position="none"),RLC5+ theme(legend.position="none"),RLG5+ theme(legend.position="none"),RLX5+ theme(legend.position="none"),RIL5+ theme(legend.position="none"),RIT5+ theme(legend.position="none"),RST5+ theme(legend.position="none"), labels='AUTO', ncol=4, align='h')
 
@@ -202,6 +209,14 @@ for(chrom in 2:10){
           print(plot_grid(DHH5+ theme(legend.position="none"), DTA5+ theme(legend.position="none"),DTC5+ theme(legend.position="none"),DTH5+ theme(legend.position="none"),DTM5+ theme(legend.position="none"),DTT5+ theme(legend.position="none"),DTX5+ theme(legend.position="none"),RLC5+ theme(legend.position="none"),RLG5+ theme(legend.position="none"),RLX5+ theme(legend.position="none"),RIL5+ theme(legend.position="none"),RIT5+ theme(legend.position="none"),RST5+ theme(legend.position="none"), labels='AUTO', ncol=4, align='h'))
 }         
 dev.off()                              
+
+### to tif format, this is S3_Fig.tif
+                              
+tiff(paste0('supp_chromsFam.', Sys.Date(), '.tif'), 10,10, res=300, units='in')
+plot_grid(DHH5+ theme(legend.position="none"), DTA5+ theme(legend.position="none"),DTC5+ theme(legend.position="none"),DTH5+ theme(legend.position="none"),DTM5+ theme(legend.position="none"),DTT5+ theme(legend.position="none"),DTX5+ theme(legend.position="none"),RLC5+ theme(legend.position="none"),RLG5+ theme(legend.position="none"),RLX5+ theme(legend.position="none"),RIL5+ theme(legend.position="none"),RIT5+ theme(legend.position="none"),RST5+ theme(legend.position="none"), labels='AUTO', ncol=4, align='h')
+
+dev.off()
+                              
                               
 ## see chr dist here!
 sapply(names(largest5), function(x) table(ind$chr[ind$fam==x]))
