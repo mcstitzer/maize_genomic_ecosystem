@@ -1,6 +1,8 @@
 library(RColorBrewer)
 library(treemapify)
+library(ggplot2)
 library(cowplot)
+theme_set(theme_cowplot())
 library(data.table)
 library(plyr)
 library(dplyr)
@@ -296,7 +298,12 @@ ggplot(data.frame(ind)[ind$fam %in% names(largest10),], aes(x=codingstatus, y=my
                                
 dev.off()
 
+## tiff format, this is S7_Fig.tif (after resizing manually in Preview to 2250 pixel width)
+
                                
+tiff(paste0('age_v_coding.', Sys.Date(), '.tif'), 12,7, units='in', res=300)
+ggplot(ind, aes(x=codingstatus, y=mya, fill=sup, group=interaction(sup, codingstatus))) + geom_violin(draw_quantiles = c(0.25, 0.5, 0.75)) + ylim(0,2)+ scale_fill_manual(values=dd.col)+ facet_wrap(~sup) + theme(axis.text.x = element_text(angle = 45, hjust = 0.5, vjust = 0.5)) + xlab('Coding Status') + ylab('Age (mya)')
+dev.off()
                                
                                
                                
