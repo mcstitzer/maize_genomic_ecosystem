@@ -1,4 +1,6 @@
+library(ggplot2)
 library(cowplot)
+theme_set(theme_cowplot())
 library(data.table)
 library(dplyr)
 library(ggpubr)
@@ -231,6 +233,20 @@ plot_grid(DHH+ theme(legend.position="none", axis.title.x=element_blank()), DTA+
           RST+ theme(legend.position="none"), labels="AUTO", ncol=4)
 dev.off()
                               
+## tiff format, this is S5_Fig.tif (after resizing manually in Preview to 2250 pixel width)
+                             
+tiff('supplemental_TEageLTR.tif', 6,10, units='in', res=300)
+
+RLCtbl = supAgeFuntbl('RLC')                             
+RLGtbl = supAgeFuntbl('RLG')                             
+RLXtbl = supAgeFuntbl('RLX')                                                          
+
+ltrssup=ggplot(data.frame(te)[!is.na(te$sup) & te$sup %in% c('RLC', 'RLG', 'RLX'),], aes(x=mya*1e6, fill=factor(sup, levels=TESUPFACTORLEVELS))) + geom_histogram(binwidth=1e4) + facet_wrap(~factor(sup, levels=TESUPFACTORLEVELS), ncol=1, scales='free_y')+ theme(strip.background = element_blank(),strip.text.x = element_blank(), axis.text=element_text(size=10)) +  scale_fill_manual(values=dd.col, name='') + scale_x_continuous(name='Age (million years)', breaks=c(0,1e6,2e6), labels=c(0,1,2), limits=c(0,2.1e6)) + ylab('Number copies')
+ltrssuptbl=ggplot(data.frame(te)[!is.na(te$sup) & te$sup %in% c('RLC', 'RLG', 'RLX'),], aes(x=tblmya*1e6, fill=factor(sup, levels=TESUPFACTORLEVELS))) + geom_histogram(binwidth=1e4) + facet_wrap(~factor(sup, levels=TESUPFACTORLEVELS), ncol=1, scales='free_y')+ theme(strip.background = element_blank(),strip.text.x = element_blank(), axis.text=element_text(size=10)) +  scale_fill_manual(values=dd.col, name='') + scale_x_continuous(name='Age (million years)', breaks=c(0,1e6,2e6), labels=c(0,1,2), limits=c(0,2.1e6)) + ylab('Number copies')
+ltrs=plot_grid(ltrssup, RLC + theme(legend.position="none"), RLG + theme(legend.position="none"), RLX + theme(legend.position="none"), labels="AUTO", ncol=1, align='h')
+ltrstbl=plot_grid(ltrssuptbl, RLCtbl + theme(legend.position="none"), RLGtbl + theme(legend.position="none"), RLXtbl + theme(legend.position="none"), labels=c('E', 'F', 'G', 'H'), ncol=1, align='h')
+plot_grid(ltrs, ltrstbl, labels='', ncol=2, align='v')
+dev.off()                  
                               
 pdf('supplemental_LTR_TBL.pdf', 15,5)
 ## compare LTR vs tbl age! - spearman corr coef on plot
@@ -246,5 +262,13 @@ ggplot(data.frame(te)[te$sup %in% c('RLC', 'RLG', 'RLX'),], aes(x=tblmya, y=mya,
                               scale_color_manual(name='', values=dd.col) + xlab('Terminal branch length age (million years)') + 
                               ylab('LTR-LTR age (million years)') + xlim(0,2.1) + ylim(0,2.1) + facet_wrap(~sup, ncol=3) +
                               stat_cor(aes(color = sup), label.x = 1, method = "spearman")
+
+dev.off()                          
+## tiff format, this is S6_Fig.tif (after resizing manually in Preview to 2250 pixel width)
+tiff('supplemental_LTR_TBL.tif', 15,5, units='in', res=300)        
+ggplot(data.frame(te)[te$sup %in% c('RLC', 'RLG', 'RLX'),], aes(x=tblmya, y=mya, color=sup)) + geom_point(alpha=0.1) + 
+                              scale_color_manual(name='', values=dd.col) + xlab('Terminal branch length age (million years)') + 
+                              ylab('LTR-LTR age (million years)') + xlim(0,2.1) + ylim(0,2.1) + facet_wrap(~sup, ncol=3) +
+                              stat_cor(aes(color = sup), label.x = 1, method = "spearman")+ theme(legend.position="none")
 
 dev.off()                          
