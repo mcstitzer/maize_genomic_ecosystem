@@ -1,6 +1,8 @@
 library(RColorBrewer)
 library(treemapify)
+library(ggplot2)
 library(cowplot)
+theme_set(theme_cowplot())
 library(data.table)
 library(plyr)
 library(dplyr)
@@ -167,7 +169,7 @@ dev.off()
 
 #### may not work below this point???
 ############################################                               
-### supp figure 2                  
+### supp figure 1                  
 ############################################
 pdf(paste0('supp_TE_descriptors.', Sys.Date(), '.pdf'), 16,8)
 #tel=plotlargest('seqlen', 'TE Length (bp)')
@@ -194,7 +196,17 @@ grid.draw(gg)
          
 dev.off() 
                                
+## tiff format, this is S1_Fig.tif (after resizing manually in Preview to 2250 pixel width)
                                
+tiff(paste0('supp_TE_descriptors.', Sys.Date(), '.tif'), 16,10, units='in', res=300)
+
+plot_grid(plots,legend, ncol = 2, align = 'v', labels='', rel_widths = c(1, .1)) 
+                               
+gg <- arrangeGrob(plots, bottom=grobs.supOnly, padding = unit(3, "line"))
+grid.newpage()
+grid.draw(gg)      
+         
+dev.off()
                                
                                
 ### length disruption supplement
