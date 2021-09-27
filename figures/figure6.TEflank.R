@@ -255,7 +255,7 @@ dev.off()
 ## tiff format, this is S8_Fig.tif (after resizing manually in Preview to 2250 pixel width)
 tiff(paste0('supplemental_methylation_decay.', Sys.Date(), '.tif'), 32,40, units='in', res=300)
                               
-plot_grid(cgte.anther+ ylim(0,1), cgflank.anther+ ylim(0,1),
+s8=plot_grid(cgte.anther+ ylim(0,1), cgflank.anther+ ylim(0,1),
                     cgte.SAM+ ylim(0,1), cgflank.SAM+ ylim(0,1),
                     cgte.earshoot+ ylim(0,1), cgflank.earshoot+ ylim(0,1),
                     cgte.flagleaf+ ylim(0,1), cgflank.flagleaf+ ylim(0,1),
@@ -270,7 +270,10 @@ plot_grid(cgte.anther+ ylim(0,1), cgflank.anther+ ylim(0,1),
           chhte.earshoot+ ylim(0,0.4), chhflank.earshoot+ ylim(0,0.4), 
           chhte.flagleaf+ ylim(0,0.4), chhflank.flagleaf+ ylim(0,0.4),
           chhte.seedlingleaf+ ylim(0,0.4), chhflank.seedlingleaf+ ylim(0,0.4),          
-          labels = "AUTO", ncol = 2, align = 'v')                               
+          labels = c(LETTERS, 'AA', 'AB', 'AC', 'AD'), ncol = 2, align = 'v')                               
+gg <- arrangeGrob(s8, bottom=grobs.supOnlyDoubleWidth, padding = unit(3, "line"))
+grid.newpage()
+grid.draw(gg)      
                               
 dev.off() 
                               
@@ -320,8 +323,8 @@ dev.off()
                               
 ## tiff format, this is S9_Fig.tif (after resizing manually in Preview to 2250 pixel width)
 ## uses objects from above pdf block
-tiff(paste0('pointrange_basecomp_flank.', Sys.Date(), '.tif'), 22,18, units='in', res=300)
-plot_grid(gc + ylim(0,0.8), gc.flank+ ylim(0,0.8),  
+tiff(paste0('pointrange_basecomp_flank.', Sys.Date(), '.tif'), 22,22, units='in', res=300)
+s9=plot_grid(gc + ylim(0,0.8), gc.flank+ ylim(0,0.8),  
           cg+ ylim(0,0.15),cg.flank+ ylim(0,0.15), 
           chg + ylim(0,0.12), chg.flank+ ylim(0,0.12), 
           chh+ ylim(0,0.2), chh.flank+ ylim(0,0.2) , 
@@ -330,6 +333,11 @@ plot_grid(gc + ylim(0,0.8), gc.flank+ ylim(0,0.8),
           mnase.s + ylim(0,0.4), mnase.flank.s + ylim(0,0.4),
           diversity + ylim(0,0.15), diversity.flank + ylim(0,0.15),
           labels = "AUTO", ncol = 2, align = 'v')
+                              
+gg <- arrangeGrob(s9, bottom=grobs.supOnlyDoubleWidth, padding = unit(3, "line"))
+grid.newpage()
+grid.draw(gg)      
+
 dev.off()                              
                               
                               
