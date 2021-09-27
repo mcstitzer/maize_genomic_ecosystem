@@ -1,5 +1,7 @@
 library(dplyr)
+library(ggplot2)
 library(cowplot)
+theme_set(theme_cowplot())
 library(data.table)
 library(RColorBrewer)
 library(plyr)
@@ -557,6 +559,13 @@ dev.off()
   
 ## make a reasonably sized png
 png(paste0('supp.modeloutput.', Sys.Date(), '.png'), 15, 6, units='in', res=300)#*300,12*300) ## *300 dpi
+
+rSuppLog
+dev.off()
+                              
+## tiff format, this is S13_Fig.tif (after resizing manually in Preview to 2250 pixel width)
+                               
+tiff(paste0('supp.modeloutput.', Sys.Date(), '.tif'), 15, 6, units='in', res=300)
 
 rSuppLog
 dev.off()
