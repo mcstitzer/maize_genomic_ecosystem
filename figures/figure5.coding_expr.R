@@ -244,6 +244,7 @@ autonfam=plot_percentages('autonfam', 'Family member with\nAll proteins', invert
 
 ltrchrX=plot_percentagesLTR('CHR', 'Chromodomain', invert=T, xaxis=T)
 
+ltrautonX=plot_percentagesLTR('auton', 'All five LTR domains', invert=T, xaxis=T)
                                
 plot_grid(ltrgag + ylim(0,1), ltrap + ylim(0,1), ltrint + ylim(0,1), ltrrt + ylim(0,1), ltrrnaseh + ylim(0,1), ltrenv + ylim(0,1), ltrchrX + ylim(0,1), ncol=1, align='v', labels='AUTO')
 plot_grid(ltrgag + ylim(0,1), ltrpol + ylim(0,1), ltrauton + ylim(0,1), ltrap + ylim(0,1), ltrint + ylim(0,1), ltrrt + ylim(0,1), ltrrnaseh + ylim(0,1), ltrenv + ylim(0,1), ltrchrX + ylim(0,1), ncol=1, align='v', labels='AUTO')
@@ -255,6 +256,13 @@ plot_grid(ltrgag + ylim(0,1),
 dev.off()
 
                                
+## tiff format, this is S12_Fig.tif (after resizing manually in Preview to 2250 pixel width)
+   
+tiff(paste0('supp_proteins', Sys.Date(), '.tif'), 6,8, units='in', res=300)
+plot_grid(ltrgag + ylim(0,1), 
+          ltrpol + ylim(0,1), 
+          ltrautonX + ylim(0,1),  ncol=1, align='v', labels='AUTO', rel_heights=c(1,1,1.25))
+dev.off()         
                                
                                
 ### hmm, autonfam is not great in the tecoding - only ltr retros
@@ -328,7 +336,14 @@ syngenetau=plotlargest('syntenicgene_tau', 'Tau of closest syntenic gene') + yli
                                
 plot_grid(rec, subgenome, geneexpr, geneexpr1kb, genetau, syngeneexpr, syngeneexpr1kb, syngenetau, ncol=1, align='v', labels='AUTO')
 dev.off()
+
                                
+## tiff format, this is S11_Fig.tif (after resizing manually in Preview to 2250 pixel width)
+## uses objects from pdf above
+tiff(paste0('supp_expression.', Sys.Date(), '.tif'), 14,22, units='in', res=300)
+plot_grid(rec, subgenome, geneexpr, geneexpr1kb, genetau, syngeneexpr, syngeneexpr1kb, syngenetau, ncol=1, align='v', labels='AUTO')
+dev.off()
+
                                
 pdf(paste0('supp_regulation.', Sys.Date(), '.pdf'), 24,12)
 chg=plotlargest('nCHG', 'nCHG')
