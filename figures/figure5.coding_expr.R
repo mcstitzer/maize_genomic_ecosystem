@@ -340,8 +340,13 @@ dev.off()
                                
 ## tiff format, this is S11_Fig.tif (after resizing manually in Preview to 2250 pixel width)
 ## uses objects from pdf above
-tiff(paste0('supp_expression.', Sys.Date(), '.tif'), 14,22, units='in', res=300)
-plot_grid(rec, subgenome, geneexpr, geneexpr1kb, genetau, syngeneexpr, syngeneexpr1kb, syngenetau, ncol=1, align='v', labels='AUTO')
+tiff(paste0('supp_expression.', Sys.Date(), '.tif'), 16,22, units='in', res=300)
+s11=plot_grid(rec, subgenome, geneexpr, geneexpr1kb, genetau, syngeneexpr, syngeneexpr1kb, syngenetau, ncol=1, align='v', labels='AUTO')
+                               
+gg <- arrangeGrob(s11, bottom=grobs.supOnly, padding = unit(3, "line"))
+grid.newpage()
+grid.draw(gg)      
+
 dev.off()
 
                                
