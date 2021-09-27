@@ -137,7 +137,7 @@ if(xaxis){
 #                     geom_pointrange(fatten=3, size=10, shape='-', alpha=0.4, aes(x=fam, y=median_sup, ymin=min_sup, ymax=max_sup)) +
                      scale_fill_manual(values=dd.col) +  scale_color_manual(values=dd.col) +#ggtitle('TE length')+
                     theme(legend.position="none", axis.title.x=element_blank(),axis.ticks.x=element_blank(), axis.text.x=element_text(angle=angle, hjust=1, size=rel(0.8))) + 
-                     scale_x_discrete(labels=d$fam, breaks=factor(d$x)) +
+                     scale_x_discrete(labels=d$fam, breaks=factor(round(d$x))) + ## need round to get first entry at 1.25!!!
                     ylab(ylab)
 }else{
  ggplot(subset(d, sup%in%c('RLC', 'RLG', 'RLX')), aes(x=factor(px), y=propFirst, fill=sup)) +
