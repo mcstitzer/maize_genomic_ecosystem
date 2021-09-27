@@ -1,5 +1,7 @@
 library(RColorBrewer)
+library(ggplot2)
 library(cowplot)
+theme_set(theme_cowplot())
 library(data.table)
 library(plyr)
 library(dplyr)
@@ -50,11 +52,13 @@ names(tissueplots)=names(tissuecols)
 for (tissue in names(tissuecols)){
 d.l=melt(data.frame(ind)[ind$fam %in% names(largest10), c(tissuecols[[tissue]], 'fam', 'sup')], id.vars=c('fam', 'sup'))
 d.l$distance=as.numeric(gsub("\\D", "", d.l$variable))
+if(tissue=='all3'){d.l$distance=as.numeric(gsub('^3','', d.l$distance))} ## the 3 from all3 is getting into distance!!
 d.l$distance[is.na(d.l$distance)]=0
 d.l$context=str_split_fixed(as.character(d.l$variable), '_', 4)[,3]
 #d.l$distance[d.l$context=='h3k9me2']=as.numeric(sapply(d.l$distance[d.l$context=='h3k9me2'], function(x) substring(as.character(x), 4, nchar(as.character(x)))))
 d.m=melt(data.frame(ind)[ind$famsize>=10, c(tissuecols[[tissue]], 'fam', 'sup', 'famsize')], id.vars=c('sup', 'fam', 'famsize'))
 d.m$distance=as.numeric(gsub("\\D", "", d.m$variable))
+if(tissue=='all3'){d.m$distance=as.numeric(gsub('^3','', d.m$distance))} ## the 3 from all3 is getting into distance!!
 d.m$distance[is.na(d.m$distance)]=0
 d.m$context=str_split_fixed(d.m$variable, '_', 4)[,3]
 #d.m$famsize=mapvalues(d.m$fam, from=d$fam, to=d$famsize, warn_missing=F)
@@ -245,8 +249,30 @@ plot_grid(cgte.anther+ ylim(0,1), cgflank.anther+ ylim(0,1),
           labels = "AUTO", ncol = 2, align = 'v')                               
                               
 dev.off()
+
                               
                               
+## tiff format, this is S8_Fig.tif (after resizing manually in Preview to 2250 pixel width)
+tiff(paste0('supplemental_methylation_decay.', Sys.Date(), '.tif'), 32,40, units='in', res=300)
+                              
+plot_grid(cgte.anther+ ylim(0,1), cgflank.anther+ ylim(0,1),
+                    cgte.SAM+ ylim(0,1), cgflank.SAM+ ylim(0,1),
+                    cgte.earshoot+ ylim(0,1), cgflank.earshoot+ ylim(0,1),
+                    cgte.flagleaf+ ylim(0,1), cgflank.flagleaf+ ylim(0,1),
+                    cgte.seedlingleaf+ ylim(0,1), cgflank.seedlingleaf+ ylim(0,1),
+          chgte.anther+ ylim(0,1), chgflank.anther+ ylim(0,1),
+                    chgte.SAM+ ylim(0,1), chgflank.SAM+ ylim(0,1),
+                    chgte.earshoot+ ylim(0,1), chgflank.earshoot+ ylim(0,1),
+                    chgte.flagleaf+ ylim(0,1), chgflank.flagleaf+ ylim(0,1),
+                    chgte.seedlingleaf+ ylim(0,1), chgflank.seedlingleaf+ ylim(0,1),
+          chhte.anther+ ylim(0,0.4), chhflank.anther+ ylim(0,0.4),   
+          chhte.SAM+ ylim(0,0.4), chhflank.SAM+ ylim(0,0.4),  
+          chhte.earshoot+ ylim(0,0.4), chhflank.earshoot+ ylim(0,0.4), 
+          chhte.flagleaf+ ylim(0,0.4), chhflank.flagleaf+ ylim(0,0.4),
+          chhte.seedlingleaf+ ylim(0,0.4), chhflank.seedlingleaf+ ylim(0,0.4),          
+          labels = "AUTO", ncol = 2, align = 'v')                               
+                              
+dev.off() 
                               
 ## supplemental base composition
 pdf(paste0('pointrange_basecomp_flank.', Sys.Date(), '.pdf'), 22,14)
@@ -287,6 +313,24 @@ plot_grid(gc + ylim(0,0.8), gc.flank+ ylim(0,0.8),
 #plots <- plot_grid(tel, age, cl, ingene, disr ,  labels = "AUTO", ncol = 1, align = 'v')
 #plot_grid(plots,legend, ncol = 2, align = 'v',  rel_widths = c(1, .1))                              
 dev.off()
+
+                              
+                              
+                              
+                              
+## tiff format, this is S9_Fig.tif (after resizing manually in Preview to 2250 pixel width)
+## uses objects from above pdf block
+tiff(paste0('pointrange_basecomp_flank.', Sys.Date(), '.tif'), 22,18, units='in', res=300)
+plot_grid(gc + ylim(0,0.8), gc.flank+ ylim(0,0.8),  
+          cg+ ylim(0,0.15),cg.flank+ ylim(0,0.15), 
+          chg + ylim(0,0.12), chg.flank+ ylim(0,0.12), 
+          chh+ ylim(0,0.2), chh.flank+ ylim(0,0.2) , 
+          tg + ylim(0.05,0.15), tg.flank + ylim(0.05,0.15),
+          mnase.r+ ylim(0,0.15), mnase.flank.r + ylim(0,0.15),
+          mnase.s + ylim(0,0.4), mnase.flank.s + ylim(0,0.4),
+          diversity + ylim(0,0.15), diversity.flank + ylim(0,0.15),
+          labels = "AUTO", ncol = 2, align = 'v')
+dev.off()                              
                               
                               
 ### supplemental methylation
@@ -336,6 +380,11 @@ dev.off()
 
                               
                               
-                              
+## tiff format, this is S10_Fig.tif (after resizing manually in Preview to 2250 pixel width)
+tiff(paste0('cg_vs_tg.', Sys.Date(), '.tif'), 14,8, units='in', res=300)
+ggplot(ind, aes(x=nCG, y=nTG, col=sup)) + stat_binhex(col=NA) + facet_wrap(~sup) + #theme(legend.position='none') +
+                              scale_color_manual(values=dd.col) + geom_smooth(method='gam', se=F) + xlab('Proportion of sites in TE in CG context') + ylab('Proportion of sites in TE in TG (or CA) context') + labs(col='superfamily')
+
+dev.off()
                               
                               
