@@ -323,7 +323,7 @@ dev.off()
                               
 ## tiff format, this is S9_Fig.tif (after resizing manually in Preview to 2250 pixel width)
 ## uses objects from above pdf block
-tiff(paste0('pointrange_basecomp_flank.', Sys.Date(), '.tif'), 22,22, units='in', res=300)
+tiff(paste0('pointrange_basecomp_flank.', Sys.Date(), '.tif'), 20,24, units='in', res=300)
 s9=plot_grid(gc + ylim(0,0.8), gc.flank+ ylim(0,0.8),  
           cg+ ylim(0,0.15),cg.flank+ ylim(0,0.15), 
           chg + ylim(0,0.12), chg.flank+ ylim(0,0.12), 
