@@ -12,7 +12,7 @@ library(stringr)
 source('color_palette.R')
 source('label_x_axis_sup.R') ## gives us grobs, and grobs.supOnly which can be used to plot an x axis with superfamily names
 
-ind=fread('../age_model/B73.LTRAGE.allDescriptors.2019-10-22.txt')
+ind=data.frame(fread('../age_model/B73.LTRAGE.allDescriptors.2019-10-22.txt'))
 ind$sup=as.factor(ind$sup)
 ind$mya=ind$age/2/3.3e-8/1e6
 
@@ -288,8 +288,13 @@ names(nicefeaturenames)=c("fam", "sup", "closest", "closest.syntenic", "tebp", "
 categories$nicefeature=mapvalues(categories$feature, from=names(nicefeaturenames), to=nicefeaturenames)
          
 library(stargazer)
-stargazer(categories[,'nicefeature', 'nicecategory'], summary=F, rownames=F, align=T)                                 
+stargazer(categories[,c('nicefeature', 'nicecategory')], summary=F, rownames=F, align=T)                                 
 
+table_s2=categories[,c('nicefeature', 'nicecategory')]
+colnames(table_s2)=c('Feature', 'Category')
+write.table(table_s2, 'Table_S2.txt', row.names=F, col.names=T, quote=F, sep='\t')                                 
+
+                              
 imp$category=mapvalues(imp$feat, from=categories$feature, to=categories$category)
 imp$nicecategory=mapvalues(imp$feat, from=categories$feature, to=categories$nicecategory)
 #imp$feat=mapvalues(imp$feat, from=as.character(categories$feature), to=as.character(categories$nicefeature))
