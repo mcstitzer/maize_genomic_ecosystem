@@ -103,6 +103,11 @@ pdf(paste0('figure1.', Sys.Date(), '.pdf'), 14,8)
 supplots #sup is for superfamily, not supplement!
 dev.off()
 
+### tiff format
+tiff(paste0('figure1.', Sys.Date(), '.tif'), 14,8, units='in', res=300)
+supplots #sup is for superfamily, not supplement!
+dev.off()
+                               
 # figure 2                               
 pdf(paste0('figure2.', Sys.Date(), '.pdf'), 20,8)
 tel=plotlargest('tebp', 'TE Length (bp)')
@@ -140,6 +145,13 @@ grid.draw(gg)
                                
 dev.off()                             
 
+                               
+tiff(paste0('figure2.', Sys.Date(), '.tif'), 20,8, res=300, units='in')
+gg <- arrangeGrob(plots, bottom=grobs, padding = unit(3, "line"))
+grid.newpage()
+grid.draw(gg)      
+                               
+dev.off() 
 ##### no longer needed
 ## supp figure 1
 #famplotbp=ggplot(fs, aes(
