@@ -1,6 +1,8 @@
 library(RColorBrewer)
 library(treemapify)
+library(ggplot2)
 library(cowplot)
+theme_set(theme_cowplot())
 library(data.table)
 library(plyr)
 library(dplyr)
@@ -38,6 +40,7 @@ ind$largest5=ind$fam %in% names(largest5)
 
 
 te=ind
+te$famFactor=factor(te$fam, levels=names(largest5))
 
 supChrFun=function(superfam){
     ggplot(te[te$chr==1 & te$sup==superfam,], aes(x=start, fill=sup, group=fam)) + geom_histogram(binwidth=1e6) + facet_wrap(~fam, ncol=1, scales='free_y', drop=T, strip.position='right')+ 
@@ -55,6 +58,18 @@ supChrFun5=function(superfam, chrom=1){
            theme(strip.background = element_blank(),strip.text.x = element_blank(), 
 #                 strip.text.y = element_text(angle = 360), 
                  strip.text.y=element_blank(),
+                 axis.text=element_text(size=10)) + 
+          scale_fill_manual(values=dd.col) +
+           ylab('') + scale_x_continuous(name='Position (Mb)', breaks=c(0,1e8,2e8, 3e8), labels=c(0,100,200,300)) +
+          scale_y_continuous(breaks=scales::pretty_breaks(2), limits=c(0,NA))
+
+}
+                              
+supChrFun5Label=function(superfam, chrom=1){
+    ggplot(te[te$chr==chrom & te$largest5 & te$sup==superfam,], aes(x=start, fill=sup, group=famFactor)) + geom_histogram(binwidth=1e6) + facet_wrap(~famFactor, ncol=1, scales='free_y', drop=T, strip.position='right')+ 
+           theme(strip.background = element_blank(),strip.text.x = element_blank(), 
+                 strip.text.y = element_text(angle = 360), 
+ #                strip.text.y=element_blank(),
                  axis.text=element_text(size=10)) + 
           scale_fill_manual(values=dd.col) +
            ylab('') + scale_x_continuous(name='Position (Mb)', breaks=c(0,1e8,2e8, 3e8), labels=c(0,100,200,300)) +
@@ -212,7 +227,21 @@ dev.off()
 
 ### to tif format, this is S3_Fig.tif
                               
-tiff(paste0('supp_chromsFam.', Sys.Date(), '.tif'), 10,10, res=300, units='in')
+DHH5 = supChrFun5Label('DHH')
+DTA5 = supChrFun5Label('DTA')
+DTC5 = supChrFun5Label('DTC')
+DTH5 = supChrFun5Label('DTH')
+DTM5 = supChrFun5Label('DTM')                              
+DTT5 = supChrFun5Label('DTT')                              
+DTX5 = supChrFun5Label('DTX')
+RLC5 = supChrFun5Label('RLC')                             
+RLG5 = supChrFun5Label('RLG')                             
+RLX5 = supChrFun5Label('RLX')                                                          
+RST5 = supChrFun5Label('RST')                              
+RIL5 = supChrFun5Label('RIL')                              
+RIT5 = supChrFun5Label('RIT') 
+                              
+tiff(paste0('supp_chromsFam.', Sys.Date(), '.tif'), 14,10, res=300, units='in')
 plot_grid(DHH5+ theme(legend.position="none"), DTA5+ theme(legend.position="none"),DTC5+ theme(legend.position="none"),DTH5+ theme(legend.position="none"),DTM5+ theme(legend.position="none"),DTT5+ theme(legend.position="none"),DTX5+ theme(legend.position="none"),RLC5+ theme(legend.position="none"),RLG5+ theme(legend.position="none"),RLX5+ theme(legend.position="none"),RIL5+ theme(legend.position="none"),RIT5+ theme(legend.position="none"),RST5+ theme(legend.position="none"), labels='AUTO', ncol=4, align='h')
 
 dev.off()
