@@ -10,7 +10,7 @@ source('color_palette.R')
 
 ##### RESULTS
 ## Features of the TE section
-ind=fread('../age_model/B73.LTRAGE.allDescriptors.2019-01-30.txt')
+ind=fread('../age_model/B73.LTRAGE.allDescriptors.2019-10-22.txt')
 
 ## could make these use GENOME to get the file name
 #techar=fread('../te_characteristics/B73_TE_individual_copies.2018-09-19.txt')
@@ -235,8 +235,12 @@ library(stargazer)
 stargazer(fp[fp$propAuton==0 & fp$famsize>=10,], summary=F, rownames=F, align=T) ## this makes supp table nonautonomous
 stargazer(fp[fp$propAuton>=0.75 & fp$famsize>=10,], summary=F, rownames=F, align=T) ## this makes supp table autonomous
 
-
-
+table_s4=fp[fp$propAuton==0 & fp$famsize>=10,]
+table_s3=fp[fp$propAuton>=0.75 & fp$famsize>=10,]
+colnames(table_s3)=c('Superfamily', 'Family', 'proportionAutonomous', 'FamilySize', 'medianORFLength', 'meanORFLength')
+colnames(table_s4)=c('Superfamily', 'Family', 'proportionAutonomous', 'FamilySize', 'medianORFLength', 'meanORFLength')
+write.table(table_s3, 'Table_S3.txt', col.names=T, row.names=F, sep='\t', quote=F)
+write.table(table_s4, 'Table_S4.txt', col.names=T, row.names=F, sep='\t', quote=F)
 
 ac=ind %>% group_by(sup, autonfam) %>% dplyr::summarize(famCage=median(mya, na.rm=T))
 
@@ -299,6 +303,9 @@ which.min(ind.fam[ind.fam$famsize>=20,]$nCHG)
 ## make stargazer table for unmethylatable
 
 stargazer(ind.fam[(ind.fam$nCG==0 | ind.fam$nCHG==0 | ind.fam$nCHH==0)& ind.fam$famsize>=10,c('sup', 'fam', 'famsize', 'tebp', 'percGC', 'nCG', 'nCHG', 'nCHH')], summary=F, rownames=F, align=T) ## this makes supp table nonautonomous
+table_s6=ind.fam[(ind.fam$nCG==0 | ind.fam$nCHG==0 | ind.fam$nCHH==0)& ind.fam$famsize>=10,c('sup', 'fam', 'famsize', 'tebp', 'percGC', 'nCG', 'nCHG', 'nCHH')]                                                    
+colnames(table_s6)=c('Superfamily', 'Family', 'FamilySize', 'TELength', 'PercentGC', 'ProportionCGmethylatable', 'ProportionCHGmethylatable', 'ProportionCHHmethylatable')
+write.table(table_s6, 'Table_S6.txt', row.names=F, col.names=T, sep='\t', quote=F)
                                                     
                                                     
 ############### methylation
@@ -320,6 +327,15 @@ meas=mea %>% group_by(sup) %>% dplyr::summarize(avg_cg=(SAM_avg_cg + all3_avg_cg
                                                 avg_chh=(SAM_avg_chh + all3_avg_chh + flagleaf_avg_chh + earshoot_avg_chh + anther_avg_chh)/5)
 stargazer(merge(meas, mea), summary=F, rownames=F, align=T) ## this makes supp table methylation
 
+table_s5=merge(meas, mea)
+colnames(table_s5)=c('Superfamily', 'meanCGmethylationAllTissues', 'meanCHGmethylationAllTissues', 'meanCHHmethylationAllTissues', 
+                     'SAM_meanCGmethylation', 'SAM_meanCHGmethylation', 'SAM_meanCHHmethylation',
+                     'SeedlingLeaf_meanCGmethylation', 'SeedlingLeaf_meanCHGmethylation', 'SeedlingLeaf_meanCHHmethylation',
+                     'Flagleaf_meanCGmethylation', 'Flagleaf_meanCHGmethylation', 'Flagleaf_meanCHHmethylation',
+                     'Earshoot_meanCGmethylation', 'Earshoot_meanCHGmethylation', 'Earshoot_meanCHHmethylation',
+                     'Anther_meanCGmethylation', 'Anther_meanCHGmethylation', 'Anther_meanCHHmethylation')
+write.table(table_s5, 'Table_S5.txt', row.names=F, col.names=T, sep='\t', quote=F)
+                                                    
 med=ind %>% group_by(sup,fam, famsize) %>% dplyr::summarize(SAM_avg_cg=median(SAM_avg_cg, na.rm=T), SAM_avg_chg=median(SAM_avg_chg, na.rm=T), SAM_avg_chh=median(SAM_avg_chh, na.rm=T), 
                                                all3_avg_cg=median(all3_avg_cg, na.rm=T), all3_avg_chg=median(all3_avg_cg, na.rm=T), all3_avg_chh=median(all3_avg_chh, na.rm=T), 
                                                flagleaf_avg_cg=median(flagleaf_avg_cg, na.rm=T), flagleaf_avg_chg=median(flagleaf_avg_chg, na.rm=T), flagleaf_avg_chh=median(flagleaf_avg_chh, na.rm=T),
