@@ -42,6 +42,8 @@ ind$largest5=ind$fam %in% names(largest5)
 
 
 te=ind                           
+te$famFactor=factor(te$fam, levels=names(largest10))
+
 supAgeFun=function(superfam){
     ggplot(data.frame(te)[te$largest10 & te$sup==superfam & !is.na(te$sup),], aes(x=mya*1e6, fill=sup, group=fam)) + geom_histogram(binwidth=1e4) + facet_wrap(~fam, ncol=1, scales='free_y', drop=T, strip.position='right')+ 
            theme(strip.background = element_blank(),strip.text.x = element_blank(), 
@@ -52,6 +54,19 @@ supAgeFun=function(superfam){
               scale_y_continuous(breaks=scales::pretty_breaks(2), limits=c(0,NA))
 
 }
+                              
+## puts an ltr label for the supplemnt, as well as labeling each family alongside in a facet
+supAgeFunLabel=function(superfam, xlabel='Age (million years)'){
+    ggplot(data.frame(te)[te$largest10 & te$sup==superfam & !is.na(te$sup),], aes(x=mya*1e6, fill=sup, group=famFactor)) + geom_histogram(binwidth=1e4) + facet_wrap(~famFactor, ncol=1, scales='free_y', drop=T, strip.position='right')+ 
+           theme(strip.background = element_blank(),strip.text.x = element_blank(), 
+                 strip.text.y = element_text(angle = 360), 
+#                 strip.text.y = element_blank(),
+                 axis.text=element_text(size=10), axis.text.y = element_blank(), axis.ticks.y = element_blank()) + scale_fill_manual(values=dd.col) +
+           ylab('') + scale_x_continuous(name=xlabel, breaks=c(0,1e6,2e6), labels=c(0,1,2), limits=c(0,2.1e6)) + 
+              scale_y_continuous(breaks=scales::pretty_breaks(2), limits=c(0,NA))
+
+}
+                              
 supAgeFun5=function(superfam){
     ggplot(data.frame(te)[ te$largest5 & te$sup==superfam & !is.na(te$sup),], aes(x=mya*1e6, fill=sup, group=fam)) + geom_histogram(binwidth=1e4) + facet_wrap(~fam, ncol=1, scales='free_y', drop=T, strip.position='right')+ 
            theme(strip.background = element_blank(),strip.text.x = element_blank(), 
@@ -62,13 +77,24 @@ supAgeFun5=function(superfam){
            scale_y_continuous(breaks=scales::pretty_breaks(2), limits=c(0,NA))
 
 }
-supAgeFuntbl=function(superfam){
-    ggplot(data.frame(te)[te$largest10 & te$sup==superfam & !is.na(te$sup),], aes(x=tblmya*1e6, fill=sup, group=fam)) + geom_histogram(binwidth=1e4) + facet_wrap(~fam, ncol=1, scales='free_y', drop=T, strip.position='right')+ 
+                              
+supAgeFun5Label=function(superfam){
+    ggplot(data.frame(te)[ te$largest5 & te$sup==superfam & !is.na(te$sup),], aes(x=mya*1e6, fill=sup, group=famFactor)) + geom_histogram(binwidth=1e4) + facet_wrap(~famFactor, ncol=1, scales='free_y', drop=T, strip.position='right')+ 
            theme(strip.background = element_blank(),strip.text.x = element_blank(), 
-#                 strip.text.y = element_text(angle = 360), 
-                 strip.text.y = element_blank(),
-                 axis.text=element_text(size=10), axis.text.y = element_blank(), axis.ticks.y = element_blank()) + scale_fill_manual(values=dd.col) +
+                 strip.text.y = element_text(angle = 360), 
+ #                strip.text.y = element_blank(),
+                 axis.text=element_text(size=10)) + scale_fill_manual(values=dd.col) +
            ylab('') + scale_x_continuous(name='Age (million years)', breaks=c(0,1e6,2e6), labels=c(0,1,2), limits=c(0,2.1e6)) +
+           scale_y_continuous(breaks=scales::pretty_breaks(2), limits=c(0,NA))
+
+}
+supAgeFuntbl=function(superfam){
+    ggplot(data.frame(te)[te$largest10 & te$sup==superfam & !is.na(te$sup),], aes(x=tblmya*1e6, fill=sup, group=famFactor)) + geom_histogram(binwidth=1e4) + facet_wrap(~famFactor, ncol=1, scales='free_y', drop=T, strip.position='right')+ 
+           theme(strip.background = element_blank(),strip.text.x = element_blank(), 
+                 strip.text.y = element_text(angle = 360), 
+#                 strip.text.y = element_blank(),
+                 axis.text=element_text(size=10), axis.text.y = element_blank(), axis.ticks.y = element_blank()) + scale_fill_manual(values=dd.col) +
+           ylab('') + scale_x_continuous(name='TBL Age (million years)', breaks=c(0,1e6,2e6), labels=c(0,1,2), limits=c(0,2.1e6)) +
               scale_y_continuous(breaks=scales::pretty_breaks(2), limits=c(0,NA))
 
 }
@@ -223,28 +249,57 @@ plot_grid(ltrs, ltrstbl, labels='', ncol=2, align='v')
 dev.off()
 
 ## tiff format, this is S4_Fig.tif (after resizing manually in Preview to 2250 pixel width)
- 
-tiff('supplemental_TEage.tif', 10,6, units='in', res=300)
+DHH = supAgeFunLabel('DHH')
+DTA = supAgeFunLabel('DTA')
+DTC = supAgeFunLabel('DTC')
+DTH = supAgeFunLabel('DTH')
+DTM = supAgeFunLabel('DTM')                              
+DTT = supAgeFunLabel('DTT')                              
+DTX = supAgeFunLabel('DTX')
+RLC = supAgeFunLabel('RLC')                             
+RLG = supAgeFunLabel('RLG')                             
+RLX = supAgeFunLabel('RLX')                                                          
+RIT = supAgeFunLabel('RIT')                              
+RIL = supAgeFunLabel('RIL')                              
+RST = supAgeFunLabel('RST')                              
+
+  
+tiff('supplemental_TEage.tif', 15,20, units='in', res=300)
 ## all sups, 10 largest fams
 plot_grid(DHH+ theme(legend.position="none", axis.title.x=element_blank()), DTA+ theme(legend.position="none", axis.title.x=element_blank()), DTC+ theme(legend.position="none", axis.title.x=element_blank()),
           DTH+ theme(legend.position="none", axis.title.x=element_blank()), DTM+ theme(legend.position="none", axis.title.x=element_blank()), DTT+ theme(legend.position="none", axis.title.x=element_blank()),
           DTX+ theme(legend.position="none", axis.title.x=element_blank()), RLC+ theme(legend.position="none", axis.title.x=element_blank()), RLG+ theme(legend.position="none", axis.title.x=element_blank()),
           RLX+ theme(legend.position="none", axis.title.x=element_blank()), RIT+ theme(legend.position="none"), RIL+ theme(legend.position="none"), 
-          RST+ theme(legend.position="none"), labels="AUTO", ncol=4)
+          RST+ theme(legend.position="none"), labels="AUTO", ncol=3)
 dev.off()
                               
 ## tiff format, this is S5_Fig.tif (after resizing manually in Preview to 2250 pixel width)
                              
-tiff('supplemental_TEageLTR.tif', 6,10, units='in', res=300)
+tiff('supplemental_TEageLTR.tif', 10,16, units='in', res=300)
 
-RLCtbl = supAgeFuntbl('RLC')                             
-RLGtbl = supAgeFuntbl('RLG')                             
-RLXtbl = supAgeFuntbl('RLX')                                                          
+                              
+DHH = supAgeFunLabel('DHH',xlabel='LTR-LTR Age (million years)')
+DTA = supAgeFunLabel('DTA',xlabel='LTR-LTR Age (million years)')
+DTC = supAgeFunLabel('DTC',xlabel='LTR-LTR Age (million years)')
+DTH = supAgeFunLabel('DTH',xlabel='LTR-LTR Age (million years)')
+DTM = supAgeFunLabel('DTM',xlabel='LTR-LTR Age (million years)')                              
+DTT = supAgeFunLabel('DTT',xlabel='LTR-LTR Age (million years)')                              
+DTX = supAgeFunLabel('DTX',xlabel='LTR-LTR Age (million years)')
+RLC = supAgeFunLabel('RLC',xlabel='LTR-LTR Age (million years)')                             
+RLG = supAgeFunLabel('RLG',xlabel='LTR-LTR Age (million years)')                             
+RLX = supAgeFunLabel('RLX',xlabel='LTR-LTR Age (million years)')                                                          
+RIT = supAgeFunLabel('RIT',xlabel='LTR-LTR Age (million years)')                              
+RIL = supAgeFunLabel('RIL',xlabel='LTR-LTR Age (million years)')                              
+RST = supAgeFunLabel('RST',xlabel='LTR-LTR Age (million years)')                              
 
-ltrssup=ggplot(data.frame(te)[!is.na(te$sup) & te$sup %in% c('RLC', 'RLG', 'RLX'),], aes(x=mya*1e6, fill=factor(sup, levels=TESUPFACTORLEVELS))) + geom_histogram(binwidth=1e4) + facet_wrap(~factor(sup, levels=TESUPFACTORLEVELS), ncol=1, scales='free_y')+ theme(strip.background = element_blank(),strip.text.x = element_blank(), axis.text=element_text(size=10)) +  scale_fill_manual(values=dd.col, name='') + scale_x_continuous(name='Age (million years)', breaks=c(0,1e6,2e6), labels=c(0,1,2), limits=c(0,2.1e6)) + ylab('Number copies')
-ltrssuptbl=ggplot(data.frame(te)[!is.na(te$sup) & te$sup %in% c('RLC', 'RLG', 'RLX'),], aes(x=tblmya*1e6, fill=factor(sup, levels=TESUPFACTORLEVELS))) + geom_histogram(binwidth=1e4) + facet_wrap(~factor(sup, levels=TESUPFACTORLEVELS), ncol=1, scales='free_y')+ theme(strip.background = element_blank(),strip.text.x = element_blank(), axis.text=element_text(size=10)) +  scale_fill_manual(values=dd.col, name='') + scale_x_continuous(name='Age (million years)', breaks=c(0,1e6,2e6), labels=c(0,1,2), limits=c(0,2.1e6)) + ylab('Number copies')
-ltrs=plot_grid(ltrssup, RLC + theme(legend.position="none"), RLG + theme(legend.position="none"), RLX + theme(legend.position="none"), labels="AUTO", ncol=1, align='h')
-ltrstbl=plot_grid(ltrssuptbl, RLCtbl + theme(legend.position="none"), RLGtbl + theme(legend.position="none"), RLXtbl + theme(legend.position="none"), labels=c('E', 'F', 'G', 'H'), ncol=1, align='h')
+RLCtbl = supAgeFuntbl('RLC') + xlab('TBL Age (million years)')                            
+RLGtbl = supAgeFuntbl('RLG')    + xlab('TBL Age (million years)')                           
+RLXtbl = supAgeFuntbl('RLX')    + xlab('TBL Age (million years)')                                                        
+
+ltrssup=ggplot(data.frame(te)[!is.na(te$sup) & te$sup %in% c('RLC', 'RLG', 'RLX'),], aes(x=mya*1e6, fill=factor(sup, levels=TESUPFACTORLEVELS))) + geom_histogram(binwidth=1e4) + facet_wrap(~factor(sup, levels=TESUPFACTORLEVELS), ncol=1, scales='free_y')+ theme(strip.background = element_blank(),strip.text.x = element_blank(), axis.text=element_text(size=10)) +  scale_fill_manual(values=dd.col, name='') + scale_x_continuous(name='LTR-LTR Age (million years)', breaks=c(0,1e6,2e6), labels=c(0,1,2), limits=c(0,2.1e6)) + ylab('Number copies')
+ltrssuptbl=ggplot(data.frame(te)[!is.na(te$sup) & te$sup %in% c('RLC', 'RLG', 'RLX'),], aes(x=tblmya*1e6, fill=factor(sup, levels=TESUPFACTORLEVELS))) + geom_histogram(binwidth=1e4) + facet_wrap(~factor(sup, levels=TESUPFACTORLEVELS), ncol=1, scales='free_y')+ theme(strip.background = element_blank(),strip.text.x = element_blank(), axis.text=element_text(size=10)) +  scale_fill_manual(values=dd.col, name='') + scale_x_continuous(name='TBL Age (million years)', breaks=c(0,1e6,2e6), labels=c(0,1,2), limits=c(0,2.1e6)) + ylab('Number copies') 
+ltrs=plot_grid(ltrssup, RLC + theme(legend.position="none")+ xlab('LTR-LTR Age (million years)') , RLG + theme(legend.position="none")+ xlab('LTR-LTR Age (million years)') , RLX + theme(legend.position="none")+ xlab('LTR-LTR Age (million years)') , labels=c('A', 'C', 'E', 'G'), ncol=1, align='h')
+ltrstbl=plot_grid(ltrssuptbl, RLCtbl + theme(legend.position="none"), RLGtbl + theme(legend.position="none"), RLXtbl + theme(legend.position="none"), labels=c('B', 'D', 'F', 'H'), ncol=1, align='h')
 plot_grid(ltrs, ltrstbl, labels='', ncol=2, align='v')
 dev.off()                  
                               
