@@ -41,7 +41,7 @@ largest10=largest10[c(1:70,83:112,71:82,113:122)] ## super hard coded to get the
 largest10df=data.frame(sup=substr(names(largest10), 1,3), fam=names(largest10), famsize=largest10)
 names(largest10df)=c('Superfamily', 'Family', 'Number Copies')
 stargazer(largest10df, summary=F, rownames=F, align=T)
-
+write.table(largest10df, 'Table_S1.txt', col.names=T, row.names=F, sep='\t', quote=F)
 
 ################### 
 ### actual plotting starts!
