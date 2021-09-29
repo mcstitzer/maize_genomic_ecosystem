@@ -1,7 +1,7 @@
 library(grid)
 
 ## the values are proportional to the entire width of the x axis
-positionvector=c(seq(0.09, 0.85, length.out=11), 0.9, .945)
+positionvector=c(seq(0.1, 0.85, length.out=11), 0.9, .945)
 names(positionvector)=c('DHH', 'DTA', 'DTC', 'DTH', 'DTM', 'DTT', 'DTX', 'RLC', 'RLG', 'RLX', 'RIL', 'RIT', 'RST')
 
 
@@ -57,22 +57,22 @@ grobs <- grobTree(
   textGrob(label="----Helitron----", name="---Helitron---",
            x=positionvector['DHH']-0.02, y=unit(1.2, "lines"),
            hjust=0, vjust=0, gp=gpar(col=dd.col['DHH'])),
-  textGrob(label="------------------------------------Terminal Inverted Repeat------------------------------------", name="Terminal Inverted Repeat",
+  textGrob(label="----------------------------------------------Terminal Inverted Repeat----------------------------------------------", name="Terminal Inverted Repeat",
            x=(positionvector['DTH'] + positionvector['DTM'])/2 - 0.21, y=unit(1.2, 'lines'),
            hjust=0, vjust=0, gp=gpar(col='cadetblue3')),
-  textGrob(label='--------------Long Terminal Repeat--------------', name='Long Terminal Repeat',
+  textGrob(label='----------------Long Terminal Repeat----------------', name='Long Terminal Repeat',
            x=positionvector['RLC']-0.02, y=unit(1.2, 'lines'),
            hjust=0, vjust=0, gp=gpar(col='blueviolet')),
-  textGrob(label='----Interspersed Nuclear Element----', name='Interspersed Nuclear Element',
+  textGrob(label='---Interspersed Nuclear Element---', name='Interspersed Nuclear Element',
            x=positionvector['RIL']-0.02, y=unit(1.2, 'lines'),
            hjust=0, vjust=0, gp=gpar(col='darkorange3')),
   textGrob(label="Order:", name='Order:',
            x=0.01, y=unit(0.2, 'lines'),
            hjust=0, vjust=0),
-  textGrob(label='-----------------------------------------------DNA Transposon-----------------------------------------------', name='DNA Transposon',
+  textGrob(label='-------------------------------------------------------------DNA Transposon--------------------------------------------------------------', name='DNA Transposon',
            x=positionvector['DHH']-0.02, y=unit(0.2, 'lines'),
            hjust=0, vjust=0, gp=gpar(col='cadetblue4')),
-  textGrob(label='-----------------------------------Retrotransposon-----------------------------------', name='Retrotransposon',
+  textGrob(label='-------------------------------------------Retrotransposon--------------------------------------------', name='Retrotransposon',
            x=positionvector['RLC']-0.02, y=unit(0.2, 'lines'),
            hjust=0, vjust=0, gp=gpar(col='darkorchid4'))
 )
