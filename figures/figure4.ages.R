@@ -228,6 +228,11 @@ plot_grid(g, almostbig1my, labels=c('A', ''), rel_widths=c(0.9,1), ncol=2, align
                    
   
 dev.off()
+ 
+# tiff fig 4                              
+tiff(paste0('figure4.', Sys.Date(), '.tif'), 10,10, units='in', res=300)                             
+plot_grid(g, almostbig1my, labels=c('A', ''), rel_widths=c(0.9,1), ncol=2, align='v')
+dev.off()                              
                               
 pdf('supplemental_TEage.pdf', 10,15)
 ## all sups, 10 largest fams
