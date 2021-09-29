@@ -204,7 +204,11 @@ plot_grid(cgte.seedlingleaf+ ylim(0,1), cgflank.seedlingleaf+ ylim(0,1),
           diversity+ ylim(0,0.15), diversity.flank+ ylim(0,0.15),
           labels = "AUTO", ncol = 2, align = 'v')                                 
 dev.off()
+
                               
+
+                              
+
 pdf(paste0('figure6.methylOnly.', Sys.Date(), '.pdf'), 34,10)
                             
 plots=plot_grid(cgte.anther+ ylim(0,1), 
@@ -216,14 +220,28 @@ plots=plot_grid(cgte.anther+ ylim(0,1),
 ##          mnase+ ylim(0,0.4), mnase.flank+ ylim(0,0.4),
 #          diversity+ ylim(0,0.15), diversity.flank+ ylim(0,0.15),
           labels = "AUTO", ncol = 1, align = 'v')
-flankplots=plot_grid(cgflank.anther+ ylim(0,1) + ylab(''),
-                     chgflank.anther+ ylim(0,1) + ylab(''), 
-                     chhflank.anther+ ylim(0,0.4),      
+flankplots=plot_grid(cgflank.anther+ ylim(0,1) + ylab('mCG, Anther'),
+                     chgflank.anther+ ylim(0,1) + ylab('mCHG, Anther'), 
+                     chhflank.anther+ ylim(0,0.4) + ylab('mCHH, Anther'),      
                      ncol=1, labels=c("D", 'E', 'F'), align='v')
 gg <- arrangeGrob(plots, bottom=grobs.supOnly, padding = unit(3, "line"))
 ggg = arrangeGrob(flankplots, bottom=grobs.supOnly, padding=unit(3, 'line'))
 #grid.newpage()
 #grid.draw(gg)      
+plot_grid(gg, ggg, ncol=2, align='v')
+dev.off()
+                              
+## tif fig 6                              
+tiff(paste0('figure6.methylonly', Sys.Date(), '.tif'), 40,10, res=300, units='in')
+
+flankplots=plot_grid(cgflank.anther+ ylim(0,1) + ylab('mCG, Anther') + theme(panel.spacing.x=unit(1, "lines")),
+                     chgflank.anther+ ylim(0,1) + ylab('mCHG, Anther') + theme(panel.spacing.x=unit(1, "lines")), 
+                     chhflank.anther+ ylim(0,0.4) + ylab('mCHH, Anther') + theme(panel.spacing.x=unit(1, "lines")),      
+                     ncol=1, labels=c("D", 'E', 'F'), align='v')
+                              
+gg <- arrangeGrob(plots, bottom=grobs.supOnly6A, padding = unit(3, "line"))
+ggg = arrangeGrob(flankplots, bottom=grobs.supOnly6B, padding=unit(3, 'line'))
+
 plot_grid(gg, ggg, ncol=2, align='v')
 dev.off()
                               
