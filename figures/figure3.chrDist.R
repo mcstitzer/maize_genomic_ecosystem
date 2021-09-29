@@ -93,7 +93,7 @@ pdf(paste0('figure3.chromosome1_dists.', Sys.Date(), '.pdf'), 10,10)
 sups=ggplot(te[te$chr==1,], aes(x=start, fill=sup)) + geom_histogram(binwidth=1e6) + facet_wrap(~factor(sup, levels=TESUPFACTORLEVELS), ncol=1, scales='free_y')+ theme(strip.background = element_blank(),strip.text.x = element_blank(), axis.text=element_text(size=10), legend.position='bottom') +  scale_fill_manual(values=dd.col) + scale_x_continuous(name='Position (Mb)', breaks=c(0,1e8,2e8, 3e8), labels=c(0,100,200,300)) + ylab('Number copies') +  scale_y_continuous(breaks=scales::pretty_breaks(2), limits=c(0,NA))
 supsNamed=ggplot(te[te$chr==1,], aes(x=start, fill=sup)) + geom_histogram(binwidth=1e6) + 
                               facet_wrap(factor(sup, levels=TESUPFACTORLEVELS)~., ncol=1, scales='free_y', strip.position='right')+ 
-                              theme(strip.background = element_blank(),strip.text = element_text(angle = 270), axis.text=element_text(size=10), legend.position='none') +  
+                              theme(strip.background = element_blank(),strip.text = element_text(angle = 360), axis.text=element_text(size=10), legend.position='none') +  
                               scale_fill_manual(values=dd.col) + 
                               scale_x_continuous(name='Position (Mb)', breaks=c(0,1e8,2e8, 3e8), labels=c(0,100,200,300)) + 
                               ylab('Number copies') +  scale_y_continuous(breaks=scales::pretty_breaks(2), limits=c(0,NA))
@@ -177,6 +177,14 @@ plot_grid(g, bigones5, labels=c('A', ''), ncol=2, align='h', rel_widths = c(1.5,
                               
 dev.off()
 
+                              
+                              
+## tif for fig3, needs things made in pdf before!
+tiff(paste0('figure3.chromosome1_dists.', Sys.Date(), '.tif'), 10,10, res=300, units='in')
+
+plot_grid(g, almostbigT, labels=c('A', ''), ncol=2, align='v', rel_widths = c(1.5, 1.1))
+dev.off()
+                              
 pdf(paste0('all_chroms_supp.', Sys.Date(), '.pdf'), 20,10)
 sups1=ggplot(te[te$chr==1,], aes(x=start, fill=sup)) + geom_histogram(binwidth=1e6) + facet_wrap(~factor(sup, levels=TESUPFACTORLEVELS), ncol=1, scales='free_y')+ theme(strip.background = element_blank(),strip.text.x = element_blank(), axis.text=element_text(size=10)) +  scale_fill_manual(values=dd.col) + scale_x_continuous(name='Chr 1 Position (Mb)', breaks=c(0,1e8,2e8, 3e8), labels=c(0,100,200,300)) + ylab('Number copies') + theme(legend.position="none")
 sups2=ggplot(te[te$chr==2,], aes(x=start, fill=sup)) + geom_histogram(binwidth=1e6) + facet_wrap(~factor(sup, levels=TESUPFACTORLEVELS), ncol=1, scales='free_y')+ theme(strip.background = element_blank(),strip.text.x = element_blank(), axis.text=element_text(size=10)) +  scale_fill_manual(values=dd.col) + scale_x_continuous(name='Chr 2 Position (Mb)', breaks=c(0,1e8,2e8, 3e8), labels=c(0,100,200,300)) + ylab('')+ theme(legend.position="none")
