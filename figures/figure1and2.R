@@ -146,7 +146,7 @@ grid.draw(gg)
 dev.off()                             
 
                                
-tiff(paste0('figure2.', Sys.Date(), '.tif'), 20,8, res=300, units='in')
+tiff(paste0('figure2.', Sys.Date(), '.tif'), 16,8, res=300, units='in')
 gg <- arrangeGrob(plots, bottom=grobs, padding = unit(3, "line"))
 grid.newpage()
 grid.draw(gg)      
