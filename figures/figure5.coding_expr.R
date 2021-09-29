@@ -179,7 +179,13 @@ plot_grid(gg, as.ggplot(hm10) + scale_color_manual(values=dd.col), labels=c('', 
                                
 dev.off()                               
 
-
+                               
+## tif for fig 5, uses objects from above pdf
+tiff(paste0('figure5.', Sys.Date(), '.tif'), 16,9, units='in', res=300)
+plot_grid(gg, as.ggplot(hmNoSup) + scale_color_manual(values=dd.col) + labs(fill='Per-copy\nRPKM'), labels=c('', 'E'), ncol=2, rel_widths=c(1, 0.6), align='v')
+  
+dev.off()                               
+                               
 pdf(paste0('supp_genes_near_tes.', Sys.Date(), '.pdf'), 12,10)
 ##match genic supplement!
 supp4 = plot_grid(geneexpr, genetau, labels='AUTO', ncol=1, align='v')
