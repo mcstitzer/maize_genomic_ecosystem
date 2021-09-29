@@ -551,6 +551,19 @@ grid.draw(arrangeGrob(plot_grid(musc + theme(legend.position='none') + ylab('Red
 dev.off()
   
                               
+## tiff
+tiff(paste0('figure7.modeloutputClosestCHH.flip.', Sys.Date(), '.tif'), 30, 12, units='in', res=300)
+ 
+grid.newpage()
+grid.draw(arrangeGrob(plot_grid(musc + theme(legend.position='none') + ylab('Reduction in square root\nmean squared error (Mya)') + xlab('')+ theme(axis.text.y = element_text(margin = margin(l = -1, unit = "cm"))), 
+          ispscCOR + scale_y_discrete(position='left'), # + scale_x_discrete(position='right'),
+          ispscNoLabels + theme(legend.position='none') + ylab('Reduction in square root\nmean squared error (Mya)') + xlab('') + theme(axis.text.y = element_text(hjust=0.5, margin = margin(l = -1, unit = "cm"))), 
+         r4, 
+          ncol = 4, labels=c('A', 'B', 'C', ''), align = 'h', axis='tb', rel_widths=c(1,2,1,1.75), scale=c(1,1,1,1)), bottom=grobs.supOnlyFig7revision, padding = unit(0.1, "line"))
+                       )
+                              
+dev.off()
+                              
 ## make a reasonably sized png
 png(paste0('figure7.modeloutput4sups.', Sys.Date(), '.png'), 30, 12, units='in', res=300)#*300,12*300) ## *300 dpi
 grid.newpage()
