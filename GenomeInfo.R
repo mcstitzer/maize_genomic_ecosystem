@@ -1,10 +1,12 @@
 ## loads TEFILE, TEDISJOINED, GENOMENAME, SHORTID, GENOMEFA
 
-## the path to the entire TE file (including the filename)
-TEFILE='/home/mstitzer/projects/maize_genomic_ecosystem/B73.2018-09-19.allTE.gff3'
+## TE annotations and information about the difference between full length and disjoined gff3's can be found at https://mcstitzer.github.io/maize_TEs/
+
+## the path to the full length TE file (including the filename)
+TEFILE='/home/mstitzer/projects/maize_genomic_ecosystem/B73.2018-09-19.allTE.gff3' ## this file is available at https://github.com/mcstitzer/maize_TEs/blob/master/B73.structuralTEv2.fulllength.2018-09-19.gff3.gz
 
 ## the path to the disjoined TE file (including the filename)
-TEDISJOINED='/home/mstitzer/projects/maize_genomic_ecosystem/B73.2018-09-19.allTE.disjoined.gff3'
+TEDISJOINED='/home/mstitzer/projects/maize_genomic_ecosystem/B73.2018-09-19.allTE.disjoined.gff3' ## this file is available at https://github.com/mcstitzer/maize_TEs/blob/master/B73.structuralTEv2.disjoined.2018-09-19.gff3.gz
 
 ## names of the genome and its short ID assigned by the maizegdb nomenclature committee (https://www.maizegdb.org/nomenclature)
 GENOME='B73'
