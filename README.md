@@ -1,5 +1,9 @@
 # maize_genomic_ecosystem
 
+Scripts used in ["The Genomic Ecosystem of Transposable Elements in Maize," Stitzer et al., 2021](https://journals.plos.org/plosgenetics/article?id=10.1371/journal.pgen.1009768)
+
+Interactive distributions of raw data of each TE family at https://mcstitzer.shinyapps.io/maize_te_families/
+
 `GenomeInfo.R` is sourced by R scripts in each directory, provides consistent name variables, and contains the full paths to genome fastas and TE annotations (most of the time - some paths are hard coded in the following directories)
 
 - `age_model/` predicts age using a random forest model
